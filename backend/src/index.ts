@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
+import db, { client } from './Drizzle/db';
 
 
 
@@ -14,9 +15,14 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
-const  port = process.env.PORT 
+const  port = process.env.PORT
+
+
+
 
 
 app.listen(port, () => {
+    client
+    
   console.log(`Server is running on http://localhost:${port}`);
 });
