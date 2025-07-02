@@ -1,0 +1,12 @@
+node_modules
+.env
+dist
+build
+coverage
+.DS_Store
+.vscode
+*.log
+*.tsbuildinfo
+*.tgz
+*.swp
+# Ignore package-lock.json and yarn.lock
