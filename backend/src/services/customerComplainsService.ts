@@ -1,0 +1,54 @@
+import db from "@/Drizzle/db";
+import { CustomerSupportTable, TICustomerSupport } from "@/Drizzle/schema";
+
+
+
+
+
+
+
+
+
+
+
+export const createNewComplainsService = async (complains:TICustomerSupport) => {
+ const newComplains = await db.insert(CustomerSupportTable).values(complains).returning();
+    
+ return newComplains;
+
+    
+    
+}
+
+export const getAllComplainsService = async () => {
+    const allComplains = await db.query.CustomerSupportTable.findMany({
+        columns:{
+            ticket_id: true,
+            user_id: true,
+            subject: true,
+            description: true,
+            status: true,
+            created_at: true,
+            updated_at: true,
+
+        }
+    })
+    return allComplains;
+}
+
+export const getComplainsByIdService = async (ticketId: number) => {
+    const complain = await db.query.CustomerSupportTable.findFirst({
+        where: (table, { eq }) => eq(table.ticket_id, ticketId),
+        columns: {
+            ticket_id: true,
+            user_id: true,
+            subject: true,
+            description: true,
+            status: true,
+            created_at: true,
+            updated_at: true,
+        }
+    });
+    return complain;
+}
+

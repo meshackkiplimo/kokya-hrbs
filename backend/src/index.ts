@@ -4,6 +4,7 @@ import db, { client } from './Drizzle/db';
 import { hotelRoute } from './routes/hotelRoute';
 import { roomRoute } from './routes/roomRoute';
 import { paymentRoute } from './routes/paymentRoute';
+import { complainRoute } from './routes/complainRoute';
 
 
 
@@ -24,6 +25,7 @@ const  port = process.env.PORT
 hotelRoute(app);
 roomRoute(app);
 paymentRoute(app);
+complainRoute(app);
 
 
 
