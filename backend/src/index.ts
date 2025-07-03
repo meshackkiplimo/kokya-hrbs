@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import db, { client } from './Drizzle/db';
+import { hotelRoute } from './routes/hotelRoute';
+import { roomRoute } from './routes/roomRoute';
 
 
 
@@ -16,6 +18,10 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 const  port = process.env.PORT
+
+
+hotelRoute(app);
+roomRoute(app);
 
 
 

@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon",
+    "dev": "tsx watch src/index.ts",
     "generate": "drizzle-kit generate",
     "migrate": "tsx src/Drizzle/migrate.ts",
     "seed": "tsx src/Drizzle/seed.ts"
@@ -18,7 +19,6 @@
     "dotenv": "^17.0.1",
     "drizzle-orm": "^0.44.2",
     "express": "^5.1.0",
-    "nodemon": "^3.1.10",
     "pg": "^8.16.3"
   },
   "devDependencies": {
@@ -26,6 +26,7 @@
     "@types/node": "^24.0.10",
     "@types/pg": "^8.15.4",
     "drizzle-kit": "^0.31.4",
+    "nodemon": "^3.1.10",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.20.3",

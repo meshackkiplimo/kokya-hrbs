@@ -17,9 +17,6 @@ importers:
       express:
         specifier: ^5.1.0
         version: 5.1.0
-      nodemon:
-        specifier: ^3.1.10
-        version: 3.1.10
       pg:
         specifier: ^8.16.3
         version: 8.16.3
@@ -36,6 +33,9 @@ importers:
       drizzle-kit:
         specifier: ^0.31.4
         version: 0.31.4
+      nodemon:
+        specifier: ^3.1.10
+        version: 3.1.10
       ts-node:
         specifier: ^10.9.2
         version: 10.9.2(@types/node@24.0.10)(typescript@5.8.3)
