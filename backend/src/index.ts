@@ -3,6 +3,7 @@ import express from 'express';
 import db, { client } from './Drizzle/db';
 import { hotelRoute } from './routes/hotelRoute';
 import { roomRoute } from './routes/roomRoute';
+import { paymentRoute } from './routes/paymentRoute';
 
 
 
@@ -22,6 +23,7 @@ const  port = process.env.PORT
 
 hotelRoute(app);
 roomRoute(app);
+paymentRoute(app);
 
 
 
