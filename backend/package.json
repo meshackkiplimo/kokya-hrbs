@@ -16,6 +16,9 @@
   "license": "ISC",
   "packageManager": "pnpm@10.11.0",
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/nodemailer": "^6.4.17",
+    "bcryptjs": "^3.0.2",
     "dotenv": "^17.0.1",
     "drizzle-orm": "^0.44.2",
     "express": "^5.1.0",
