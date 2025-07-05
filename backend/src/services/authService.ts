@@ -91,6 +91,7 @@ export const getAllUsersService = async () => {
     }
 }
 
+
 export const updateVerificationStatus = async (email: string, isVerified: boolean) => {
     const [updatedUser] = await db.update(UserTable)
         .set({ is_verified: isVerified })
