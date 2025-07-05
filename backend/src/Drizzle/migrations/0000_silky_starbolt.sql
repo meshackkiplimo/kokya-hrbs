@@ -65,5 +65,6 @@ CREATE TABLE "users" (
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now(),
 	"role" varchar(20) DEFAULT 'user' NOT NULL,
+	"is_verified" boolean DEFAULT false NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );

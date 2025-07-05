@@ -6,6 +6,7 @@ import { roomRoute } from './routes/roomRoute';
 import { paymentRoute } from './routes/paymentRoute';
 import { complainRoute } from './routes/complainRoute';
 import { bookingRoute } from './routes/bookingRoute';
+import { authRoute } from './routes/authRoute';
 
 
 
@@ -28,6 +29,7 @@ roomRoute(app);
 paymentRoute(app);
 complainRoute(app);
 bookingRoute(app);
+authRoute(app);
 
 
 
