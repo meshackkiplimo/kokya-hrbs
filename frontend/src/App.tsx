@@ -5,6 +5,7 @@ import './App.css'
 import Navbar from './components/Navbar'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Hero from './components/Hero'
+import AboutPage from './pages/AboutPage'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -15,6 +16,8 @@ function App() {
       <Navbar/>
       <Routes>
           <Route path="/" element={<Hero />} />
+           <Route path="/about" element={<AboutPage />} />
+
 
       </Routes>
 
