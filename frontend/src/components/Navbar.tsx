@@ -5,7 +5,7 @@ const Navbar = () => {
     <div className="navbar bg-amber-900 shadow-sm text-white">
       {/* Logo */}
       <div className="flex-1">
-        <a className="btn btn-ghost text-xl" href="/">TripNest</a>
+        <a className="btn btn-ghost border-none text-xl hover:text-amber-300" href="/">TripNest</a>
       </div>
       <div className='flex-1'>
         <input
@@ -17,13 +17,13 @@ const Navbar = () => {
 
       {/* Navigation Links */}
       <div className="hidden md:flex gap-4 px-2">
-        <a className="btn btn-ghost" href="/">Home</a>
-        <a className="btn btn-ghost" href="/about">About Us</a>
-        <a className="btn btn-ghost" href="/contact">Contact Us</a>
+        <a className="btn btn-ghost border-none hover:text-amber-300" href="/">Home</a>
+        <a className="btn btn-ghost border-none hover:text-amber-300" href="/about">About Us</a>
+        <a className="btn btn-ghost border-none hover:text-amber-300" href="/contact">Contact Us</a>
       </div>
         {/* get statrted button */}
         <div className="flex-none">
-        <a className="btn btn-primary" href="/get-started">Get Started</a>
+        <a className="btn btn-primary border-none hover:text-amber-300" href="/get-started">Get Started</a>
       </div>
 
       {/* Right-side icons: Search & Avatar */}

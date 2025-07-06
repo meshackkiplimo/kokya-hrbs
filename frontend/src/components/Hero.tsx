@@ -31,7 +31,7 @@ const Hero = () => {
           </div>
 
           {/* CTA Button */}
-          <a href="/explore" className="mt-6 btn btn-primary btn-wide">
+          <a href="/explore" className="mt-6 btn btn-primary btn-wide bg-amber-900">
             Explore Hotels
           </a>
         </div>

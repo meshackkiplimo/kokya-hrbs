@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Hero from './components/Hero'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
+import Footer from './components/Footer'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -22,6 +23,7 @@ function App() {
 
 
       </Routes>
+      <Footer/>
 
 
     </Router>
