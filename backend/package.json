@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "dev": "tsx watch src/index.ts",
     "generate": "drizzle-kit generate",
     "migrate": "tsx src/Drizzle/migrate.ts",
@@ -28,10 +28,13 @@
   },
   "devDependencies": {
     "@types/express": "^5.0.3",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.0.10",
     "@types/pg": "^8.15.4",
     "drizzle-kit": "^0.31.4",
+    "jest": "^30.0.4",
     "nodemon": "^3.1.10",
+    "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.20.3",

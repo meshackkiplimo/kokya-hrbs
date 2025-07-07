@@ -1,5 +1,6 @@
 import db from "@/Drizzle/db";
 import { HotelTable, TIHotel } from "@/Drizzle/schema";
+import { sql } from "drizzle-orm";
 import express from "express";
 
 
@@ -45,4 +46,12 @@ export const getHotelByIdService = async (hotelId: number) => {
         }
     });
     return hotel;
+}
+
+export const updateHotelService = async (hotelId: number, hotel: TIHotel) => {
+    const updatedHotel = await db.update(HotelTable)
+        .set(hotel)
+       .where(sql`${HotelTable.hotel_id} = ${hotelId}`)
+        .returning();
+    return updatedHotel;
 }

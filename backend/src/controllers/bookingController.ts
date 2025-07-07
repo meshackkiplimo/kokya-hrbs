@@ -1,4 +1,5 @@
 import { createBookingService, getAllBookingService, getBookingByIdService } from '@/services/bookingService';
+import { updateHotelService } from '@/services/hotelService';
 import { Request, Response } from 'express';
 
 
