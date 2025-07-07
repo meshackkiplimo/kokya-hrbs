@@ -1,5 +1,5 @@
 
-import { createBookingService, getAllBookingService, getBookingByIdService } from "@/services/bookingService"
+import { createBookingService, deleteBookingService, getAllBookingService, getBookingByIdService, updateBookingService } from "@/services/bookingService"
 import db from "../../src/Drizzle/db"
 import { BookingTable } from "@/Drizzle/schema"
 
@@ -74,6 +74,36 @@ describe('Booking test service', () => {
                 where: expect.any(Function),
                 columns: expect.any(Object),
             }))
+        })
+    })
+    describe('updateBooking', () => {
+        it('should update a booking', async () => {
+            (db.update as jest.Mock).mockReturnValue({
+                set: jest.fn().mockReturnValue({
+                    where: jest.fn().mockReturnValue({
+                        returning: jest.fn().mockResolvedValue([mockBooking])
+                    })
+                })
+            })
+
+            const result = await updateBookingService(1, mockBooking)
+
+            expect(result).toEqual([mockBooking])
+            expect(db.update).toHaveBeenCalledWith(BookingTable)
+        })
+    })
+    describe('deleteBooking', () => {
+        it('should delete a booking', async () => {
+            (db.delete as jest.Mock).mockReturnValue({
+                where: jest.fn().mockReturnValue({
+                    returning: jest.fn().mockResolvedValue([mockBooking])
+                })
+            })
+
+            const result = await deleteBookingService(1)
+
+            expect(result).toEqual([mockBooking])
+            expect(db.delete).toHaveBeenCalledWith(BookingTable)
         })
     })
 

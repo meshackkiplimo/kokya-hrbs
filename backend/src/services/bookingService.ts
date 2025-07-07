@@ -1,5 +1,6 @@
 import db from "@/Drizzle/db";
 import { BookingTable, TIBooking } from "@/Drizzle/schema";
+import { sql } from "drizzle-orm";
 
 
 
@@ -48,4 +49,17 @@ export const getBookingByIdService = async (bookingId: number) => {
         }
     });
     return oneBooking;
+}
+export const updateBookingService = async (bookingId: number, booking: TIBooking) => {
+    const updatedBooking = await db.update(BookingTable)
+        .set(booking)
+        .where(sql`${BookingTable.booking_id} = ${bookingId}`)
+        .returning();
+    return updatedBooking;
+}
+export const deleteBookingService = async (bookingId: number) => {
+    const deletedBooking = await db.delete(BookingTable)
+        .where(sql`${BookingTable.booking_id} = ${bookingId}`)
+        .returning();
+    return deletedBooking;
 }

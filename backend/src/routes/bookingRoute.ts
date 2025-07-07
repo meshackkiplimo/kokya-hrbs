@@ -1,4 +1,4 @@
-import { getAllBookingController, getBookingByIdController } from '@/controllers/bookingController';
+import { createBookingController, getAllBookingController, getBookingByIdController, updateBookingController } from '@/controllers/bookingController';
 import { Express } from 'express';
 
 
@@ -30,4 +30,29 @@ export const bookingRoute = (app:Express)=>{
             
         }
     )
+    app.route('/bookings').post(
+        async (req, res, next) => {
+            try {
+                await createBookingController(req, res);
+                
+            } catch (error) {
+                next(error);
+                
+            }
+            
+        }
+    )
+    app.route('/bookings/:id').put(
+        async (req, res, next) => {
+            try {
+                await updateBookingController(req, res);
+                
+            } catch (error) {
+                next(error);
+                
+            }
+            
+        }
+    )
+
 }

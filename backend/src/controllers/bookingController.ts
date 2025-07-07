@@ -1,4 +1,4 @@
-import { createBookingService, getAllBookingService, getBookingByIdService } from '@/services/bookingService';
+import { createBookingService, deleteBookingService, getAllBookingService, getBookingByIdService, updateBookingService } from '@/services/bookingService';
 import { updateHotelService } from '@/services/hotelService';
 import { Request, Response } from 'express';
 
@@ -53,6 +53,42 @@ export const getBookingByIdController = async (req: Request, res: Response) => {
         
     } catch (error) {
         console.error('Error fetching booking by ID:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+export const updateBookingController = async (req: Request, res: Response) => {
+    try {
+        const bookingId = parseInt(req.params.id, 10);
+        if (isNaN(bookingId)) {
+            return res.status(400).json({ error: 'Invalid booking ID' });
+        }
+        const updatedBookingData = req.body;
+        const updatedBooking = await updateBookingService(bookingId, updatedBookingData);
+        if (updatedBooking.length === 0) {
+            return res.status(404).json({ message: 'Booking not found or update failed' });
+        }
+        res.status(200).json(updatedBooking[0]);
+        
+    } catch (error) {
+        console.error('Error updating booking:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+export const deleteBookingController = async (req: Request, res: Response) => {
+    try {
+        const bookingId = parseInt(req.params.id, 10);
+        if (isNaN(bookingId)) {
+            return res.status(400).json({ error: 'Invalid booking ID' });
+        }
+        const deletedBooking = await deleteBookingService(bookingId);
+        if (deletedBooking.length === 0) {
+            return res.status(404).json({ message: 'Booking not found or deletion failed' });
+        }
+        res.status(200).json({ message: 'Booking deleted successfully', booking: deletedBooking[0] });
+        
+    } catch (error) {
+        console.error('Error deleting booking:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
