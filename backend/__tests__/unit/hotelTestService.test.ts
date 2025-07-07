@@ -1,6 +1,6 @@
 import { HotelTable } from '@/Drizzle/schema'
 import db from '../../src/Drizzle/db'
-import { createHotelService, getAllHotelService, getHotelByIdService, updateHotelService } from '@/services/hotelService'
+import { createHotelService, deleteHotelService, getAllHotelService, getHotelByIdService, updateHotelService } from '@/services/hotelService'
 
 
 let hotel_id: number;
@@ -101,6 +101,20 @@ describe('Hotel test service',()=>{
 
             expect(result).toEqual([updatedHotel])
             expect(db.update).toHaveBeenCalledWith(HotelTable)
+        })
+    })
+    describe('deleteHotel',()=>{
+        it('should delete a hotel', async () => {
+            (db.delete as jest.Mock).mockReturnValue({
+                where: jest.fn().mockReturnValue({
+                    returning: jest.fn().mockResolvedValue([mockHotel])
+                })
+            })
+
+            const result = await deleteHotelService(1)
+
+            expect(result).toEqual([mockHotel])
+            expect(db.delete).toHaveBeenCalledWith(HotelTable)
         })
     })
 

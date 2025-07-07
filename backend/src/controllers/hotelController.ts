@@ -1,5 +1,5 @@
 
-import { createHotelService, getAllHotelService, getHotelByIdService, updateHotelService } from "@/services/hotelService";
+import { createHotelService, deleteHotelService, getAllHotelService, getHotelByIdService, updateHotelService } from "@/services/hotelService";
 import { Request, Response } from "express";
 import { parse } from "path";
 
@@ -83,3 +83,25 @@ export const updateHotelController = async (req:Request,res:Response) => {
         
     }
 }
+
+export const deleteHotelController = async (req: Request, res: Response) => {
+    try {
+        const hotelId = parseInt(req.params.id);
+        
+        const deletedHotel = await deleteHotelService(hotelId);
+        
+        if (!deletedHotel || deletedHotel.length === 0) {
+            return res.status(404).json({ error: "Hotel not found or deletion failed" });
+        }
+        
+        res.status(200).json({
+            message: "Hotel deleted successfully",
+            hotel: deletedHotel[0]
+        });
+        
+    } catch (error) {
+        console.error("Error in deleteHotelController:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+        
+    }
+};
