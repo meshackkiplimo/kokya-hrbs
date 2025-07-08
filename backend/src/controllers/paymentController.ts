@@ -1,5 +1,5 @@
 
-import { createPaymentService, getAllPaymentsService, getPaymentByIdService } from "@/services/paymentService";
+import { createPaymentService, deletePaymentService, getAllPaymentsService, getPaymentByIdService, updatePaymentService } from "@/services/paymentService";
 import { Request, Response } from "express";
 
 
@@ -58,6 +58,43 @@ export const getPaymentByIdController = async (req:Request,res:Response) => {
         
     } catch (error) {
         console.error("Error in getPaymentByIdController:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+        
+    }
+}
+export const updatePaymentController = async (req:Request,res:Response) => {
+    try {
+        const paymentId = parseInt(req.params.id);
+        const paymentUpdates = req.body;
+        const updatedPayment = await updatePaymentService(paymentId, paymentUpdates);
+        if (!updatedPayment) {
+            return res.status(404).json({ error: "Payment not found" });
+        }
+        res.status(200).json({
+            message: "Payment updated successfully",
+            payment: updatedPayment
+        });
+        
+    } catch (error) {
+        console.error("Error in updatePaymentController:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+        
+    }
+}
+export const deletePaymentController = async (req: Request, res: Response) => {
+    try {
+        const paymentId = parseInt(req.params.id);
+        const deletedPayment = await deletePaymentService(paymentId);
+        if (!deletedPayment) {
+            return res.status(404).json({ error: "Payment not found" });
+        }
+        res.status(200).json({
+            message: "Payment deleted successfully",
+            payment: deletedPayment
+        });
+        
+    } catch (error) {
+        console.error("Error in deletePaymentController:", error);
         res.status(500).json({ error: "Internal Server Error" });
         
     }

@@ -1,5 +1,6 @@
 import db from "@/Drizzle/db";
 import { PaymentTable, TIPayment } from "@/Drizzle/schema"
+import { sql } from "drizzle-orm";
 
 
 
@@ -39,5 +40,19 @@ export const getPaymentByIdService = async (paymentId: number) => {
         }
     });
     return payment;
+}
+
+export const updatePaymentService = async (paymentId: number, payment: TIPayment) => {
+    const updatedPayment = await db.update(PaymentTable)
+        .set(payment)
+        .where(sql`${PaymentTable.payment_id} = ${paymentId}`)
+        .returning();
+    return updatedPayment;
+}
+export const deletePaymentService = async (paymentId: number) => {
+    const deletedPayment = await db.delete(PaymentTable)
+        .where(sql`${PaymentTable.payment_id} = ${paymentId}`)
+        .returning();
+    return deletedPayment;
 }
 
