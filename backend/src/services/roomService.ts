@@ -1,7 +1,13 @@
 import db from "@/Drizzle/db"
+import { RoomTable, TIRoom } from "@/Drizzle/schema";
+import { sql } from "drizzle-orm";
 
 
 
+export const createRoomService = async (room: TIRoom) => {
+    const newRoom = await db.insert(RoomTable).values(room).returning();
+    return newRoom;
+}
 
 
 
@@ -43,4 +49,17 @@ export const getRoomByIdService = async (roomId: number) => {
     });
     return room;
 
+}
+export const updateRoomService = async (roomId: number, room: TIRoom) => {
+    const updatedRoom = await db.update(RoomTable)
+        .set(room)
+        .where(sql`${RoomTable.room_id} = ${roomId}`)
+        .returning();
+    return updatedRoom;
+}
+export const deleteRoomService = async (roomId: number) => {
+    const deletedRoom = await db.delete(RoomTable)
+        .where(sql`${RoomTable.room_id} = ${roomId}`)
+        .returning();
+    return deletedRoom;
 }
