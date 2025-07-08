@@ -1,4 +1,4 @@
-import { createAuthService, getAllUsersService } from '@/services/authService';
+import { createAuthService, deleteUserService, getAllUsersService, getUserByIdService, updateUserService } from '@/services/authService';
 import db from '../../src/Drizzle/db';
 import { UserTable } from '@/Drizzle/schema';
 import { is } from 'drizzle-orm';
