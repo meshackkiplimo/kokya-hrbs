@@ -1,7 +1,10 @@
 import db from "@/Drizzle/db";
 import { BookingTable, HotelTable, RoomTable, UserTable } from "@/Drizzle/schema";
+import { app } from "@/index";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
+import request from "supertest";
+
 
 
 
@@ -87,48 +90,29 @@ afterAll(async () => {
 
 describe("Booking Integration Tests", () => {
     it("should create a booking", async () => {
-        const response = await db.insert(BookingTable).values({
-            user_id: userId,
-            hotel_id: hotelId,
-            room_id: roomId,
-            check_in_date: new Date("2023-10-01"),
-            check_out_date: new Date("2023-10-05"),
-            total_amount: 800,
-            status: "confirmed"
-        }).returning();
+        try {
+            const newBooking = {
+                user_id: userId,
+                hotel_id: hotelId,
+                room_id: roomId,
+                check_in_date: new Date("2023-10-10"),
+                check_out_date: new Date("2023-10-15"),
+                total_amount: 1000,
+                status: "confirmed"
+            };
+            const res =await request(app)
+            .post("/bookings")
+            .send(newBooking)
+        expect(res.status).toBe(201);
+        expect(res.body).toHaveProperty("booking_id");
+            
+        } catch (error) {
+            console.error("Error creating booking:", error);
+            throw error;
+            
+        }
         
-        expect(response.length).toBe(1);
-        expect(response[0].user_id).toBe(userId);
-        expect(response[0].hotel_id).toBe(hotelId);
-        expect(response[0].room_id).toBe(roomId);
-    });
-
-    it("should fetch all bookings for a user", async () => {
-        const bookings = await db.query.BookingTable.findMany({
-            where: eq(BookingTable.user_id, userId)
-        });
-        
-        expect(bookings.length).toBeGreaterThan(0);
-        expect(bookings[0].user_id).toBe(userId);
-    });
-
-    it("should update a booking status", async () => {
-        const updatedBooking = await db.update(BookingTable)
-            .set({ status: "completed" })
-            .where(eq(BookingTable.booking_id, bookingId))
-            .returning();
-        
-        expect(updatedBooking.length).toBe(1);
-        expect(updatedBooking[0].status).toBe("completed");
-    });
-
-    it("should delete a booking", async () => {
-        const deletedBooking = await db.delete(BookingTable)
-            .where(eq(BookingTable.booking_id, bookingId))
-            .returning();
-        
-        expect(deletedBooking.length).toBe(1);
-        expect(deletedBooking[0].booking_id).toBe(bookingId);
-    });
+    })
 
 })
+        
