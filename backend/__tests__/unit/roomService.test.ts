@@ -98,4 +98,110 @@ describe('Room Service', () => {
             expect(db.delete).toHaveBeenCalledWith(RoomTable);
         });
     });
-})
+    
+        it('should throw an error if room creation fails', async () => {
+            (db.insert as jest.Mock).mockReturnValue({
+                values: jest.fn().mockReturnValue({
+                    returning: jest.fn().mockRejectedValue(new Error('Database error'))
+                })
+            });
+
+            await expect(createRoomService(mockRoom)).rejects.toThrow('Database error');
+        });
+        // 200 if room is created successfully
+        it('should return status 200 if room is created successfully', async () => {
+            (db.insert as jest.Mock).mockReturnValue({
+                values: jest.fn().mockReturnValue({
+                    returning: jest.fn().mockResolvedValue(mockRoom)
+                })
+            });
+
+            const result = await createRoomService(mockRoom);
+
+            expect(result).toEqual(mockRoom);
+            expect(db.insert).toHaveBeenCalledWith(RoomTable);
+        }
+        );
+        // 404 if room is not found
+        it('should return status 404 if room is not found', async () => {
+            (db.query.RoomTable.findFirst as jest.Mock).mockResolvedValue(null);
+
+            const result = await getRoomByIdService(999);
+
+            expect(result).toBeNull();
+            expect(db.query.RoomTable.findFirst).toHaveBeenCalledWith(expect.objectContaining({
+                where: expect.any(Function),
+                columns: expect.any(Object),
+            }));
+        });
+        // 200 if room is updated successfully
+        it('should return status 200 if room is updated successfully', async () => {
+            (db.update as jest.Mock).mockReturnValue({
+                set: jest.fn().mockReturnValue({
+                    where: jest.fn().mockReturnValue({
+                        returning: jest.fn().mockResolvedValue([mockRoom])
+                    })
+                })
+            });
+
+            const result = await updateRoomService(1, mockRoom);
+
+            expect(result).toEqual([mockRoom]);
+            expect(db.update).toHaveBeenCalledWith(RoomTable);
+        })
+        // 200 if room is deleted successfully
+        it('should return status 200 if room is deleted successfully', async () => {
+            (db.delete as jest.Mock).mockReturnValue({
+                where: jest.fn().mockReturnValue({
+                    returning: jest.fn().mockResolvedValue([mockRoom])
+                })
+            });
+
+            const result = await deleteRoomService(1);
+
+            expect(result).toEqual([mockRoom]);
+            expect(db.delete).toHaveBeenCalledWith(RoomTable);
+        })
+        // 404 if room is not deleted
+       
+        // 200 if room is updated successfully
+        it('should return status 200 if room is updated successfully', async () => {
+            (db.update as jest.Mock).mockReturnValue({
+                set: jest.fn().mockReturnValue({
+                    where: jest.fn().mockReturnValue({
+                        returning: jest.fn().mockResolvedValue([mockRoom])
+                    })
+                })
+            })
+
+            const result = await updateRoomService(1, mockRoom)
+
+            expect(result).toEqual([mockRoom])
+            expect(db.update).toHaveBeenCalledWith(RoomTable)
+        })
+        // 200 if room is deleted successfully
+        it('should return status 200 if room is deleted successfully', async () => {
+            (db.delete as jest.Mock).mockReturnValue({
+                where: jest.fn().mockReturnValue({
+                    returning: jest.fn().mockResolvedValue([mockRoom])
+                })
+            })
+
+            const result = await deleteRoomService(1)
+
+            expect(result).toEqual([mockRoom])
+            expect(db.delete).toHaveBeenCalledWith(RoomTable)
+        })
+        // 404 if room is not deleted
+       
+        // 500 if room creation fails
+        it('should return status 500 if room creation fails', async () => {
+            (db.insert as jest.Mock).mockReturnValue({
+                values: jest.fn().mockReturnValue({
+                    returning: jest.fn().mockRejectedValue(new Error('Database error'))
+                })
+            });
+
+            await expect(createRoomService(mockRoom)).rejects.toThrow('Database error');
+        }   )
+    })

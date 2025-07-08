@@ -99,4 +99,34 @@ export const updateVerificationStatus = async (email: string, isVerified: boolea
         .returning();
     return updatedUser;
 }
+export const getUserByIdService = async (userId: number) => {
+    const user = await db.query.UserTable.findFirst({
+        where: (table, { eq }) => eq(table.user_id, userId),
+        columns: {
+            user_id: true,
+            first_name: true,
+            last_name: true,
+            email: true,
+            password: true,
+            role: true,
+            is_verified: true,
+            created_at: true,
+            updated_at: true
+        }
+    });
+    return user;
+}
+export const updateUserService = async (userId: number, user: Partial<TIUser>) => {
+    const updatedUser = await db.update(UserTable)
+        .set(user)
+        .where(sql`${UserTable.user_id} = ${userId}`)
+        .returning();
+    return updatedUser;
+}
+export const deleteUserService = async (userId: number) => {
+    const deletedUser = await db.delete(UserTable)
+        .where(sql`${UserTable.user_id} = ${userId}`)
+        .returning();
+    return deletedUser;
+}
 

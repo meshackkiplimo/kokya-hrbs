@@ -106,5 +106,37 @@ describe('Customer Complains Service', () => {
             expect(db.delete).toHaveBeenCalledWith(CustomerSupportTable);
         });
     });
+    describe('status errors', () => {
+
+    
+       
+    
+    // 200 if complaint is created successfully
+    it('should return status 200 if complaint is created successfully', async () => {
+        (db.insert as jest.Mock).mockReturnValue({
+            values: jest.fn().mockReturnValue({
+                returning: jest.fn().mockResolvedValue(mockComplaint)
+            })
+        });
+
+        const result = await createNewComplainsService(mockComplaint);
+
+        expect(result).toEqual(mockComplaint);
+        expect(db.insert).toHaveBeenCalledWith(CustomerSupportTable);
+    })
+    // 404 if complaint is not found
+    it('should return status 404 if complaint is not found', async () => {
+        (db.query.CustomerSupportTable.findFirst as jest.Mock).mockResolvedValue(null);
+
+        const result = await getComplainsByIdService(999);
+
+        expect(result).toBeNull();
+        expect(db.query.CustomerSupportTable.findFirst).toHaveBeenCalledWith(expect.objectContaining({
+            where: expect.any(Function),
+            columns: expect.any(Object),
+        }));
+    })
+
 });
+})
 

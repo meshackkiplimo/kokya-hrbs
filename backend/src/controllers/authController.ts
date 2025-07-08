@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import { createAuthService, getAllUsersService, loginAuthService, updateVerificationStatus } from '../services/authService';
+import { createAuthService, deleteUserService, getAllUsersService, getUserByIdService, loginAuthService, updateUserService, updateVerificationStatus } from '../services/authService';
 
 import jwt from 'jsonwebtoken';
 
@@ -196,6 +196,67 @@ export const verifyEmailController = async (req: Request, res: Response) => {
 
     } catch (error) {
         console.error("Error in verifyEmailController:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+export const getAllUsersController = async (req: Request, res: Response) => {
+    try {
+        const users = await getAllUsersService();
+        if (!users || users.length === 0) {
+            return res.status(404).json({ message: "No users found" });
+        }
+        res.status(200).json(users);
+    } catch (error) {
+        console.error("Error in getAllUsersController:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+export const getUserByIdController = async (req: Request, res: Response) => {
+    try {
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+        const user = await getUserByIdService(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        console.error("Error in getUserByIdController:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+export const updateUserController = async (req: Request, res: Response) => {
+    try {
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+        const userData: TIUser = req.body;
+        const updatedUser = await updateUserService(userId, userData);
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found or update failed" });
+        }
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.error("Error in updateUserController:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+export const deleteUserController = async (req: Request, res: Response) => {
+    try {
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID" });
+        }
+        const deletedUser = await deleteUserService(userId);
+        if (!deletedUser) {
+            return res.status(404).json({ message: "User not found or deletion failed" });
+        }
+        res.status(200).json({ message: "User deleted successfully", user: deletedUser });
+    } catch (error) {
+        console.error("Error in deleteUserController:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
