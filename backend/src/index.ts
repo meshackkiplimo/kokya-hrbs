@@ -8,12 +8,9 @@ import { complainRoute } from './routes/complainRoute';
 import { bookingRoute } from './routes/bookingRoute';
 import { authRoute } from './routes/authRoute';
 
-
-
 dotenv.config();
 
-const app = express();
-
+export const app = express();
 
 // middleware
 app.use(express.json());
@@ -23,17 +20,12 @@ app.get('/', (req, res) => {
 });
 const  port = process.env.PORT
 
-
 hotelRoute(app);
 roomRoute(app);
 paymentRoute(app);
 complainRoute(app);
 bookingRoute(app);
 authRoute(app);
-
-
-
-
 
 app.listen(port, () => {
     client
