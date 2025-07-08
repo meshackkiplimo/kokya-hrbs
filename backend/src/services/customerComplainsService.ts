@@ -1,5 +1,6 @@
 import db from "@/Drizzle/db";
 import { CustomerSupportTable, TICustomerSupport } from "@/Drizzle/schema";
+import { sql } from "drizzle-orm";
 
 
 
@@ -50,5 +51,21 @@ export const getComplainsByIdService = async (ticketId: number) => {
         }
     });
     return complain;
+}
+
+export const updateComplainsService = async (ticketId: number, updates: Partial<TICustomerSupport>) => {
+    const updatedComplain = await db.update(CustomerSupportTable)
+        .set(updates)
+        .where(sql`${CustomerSupportTable.ticket_id} = ${ticketId}`)
+        .returning();
+    
+    return updatedComplain;
+}
+export const deleteComplainsService = async (ticketId: number) => {
+    const deletedComplain = await db.delete(CustomerSupportTable)
+        .where(sql`${CustomerSupportTable.ticket_id} = ${ticketId}`)
+        .returning();
+    
+    return deletedComplain;
 }
 
