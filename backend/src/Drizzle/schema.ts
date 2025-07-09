@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
-import { integer, pgTable, serial, timestamp, varchar, boolean } from "drizzle-orm/pg-core";
+
+import { integer, pgTable, serial, timestamp, varchar, boolean,date } from "drizzle-orm/pg-core";
 
 
 
@@ -36,8 +37,8 @@ export const BookingTable = pgTable("bookings", {
     user_id: integer("user_id").notNull(),
     hotel_id: integer("hotel_id").notNull(),
     room_id: integer("room_id").notNull(),
-    check_in_date: timestamp("check_in_date").notNull(),
-    check_out_date: timestamp("check_out_date").notNull(),
+    check_in_date:date("check_in_date").notNull(),
+    check_out_date: date("check_out_date").notNull(),
     total_amount: integer("total_amount").notNull(),
     status: varchar("status", { length: 20 }).default("pending").notNull(),
     created_at: timestamp("created_at").defaultNow(),
