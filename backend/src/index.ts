@@ -7,6 +7,7 @@ import { paymentRoute } from './routes/paymentRoute';
 import { complainRoute } from './routes/complainRoute';
 import { bookingRoute } from './routes/bookingRoute';
 import { authRoute } from './routes/authRoute';
+import cors from 'cors';
 
 dotenv.config();
 
@@ -14,6 +15,15 @@ export const app = express();
 
 // middleware
 app.use(express.json());
+// cors for all origins
+app.use(cors({
+  origin:"http://localhost:5173",
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}))
+ 
+
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
