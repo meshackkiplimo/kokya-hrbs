@@ -10,7 +10,7 @@ import { emailService } from '@/services/emailService';
 // Store verification codes with expiry (in memory - consider using Redis in production)
 const verificationCodes = new Map<string, { code: string; expires: Date }>();
 
-// Generate a random 6-digit verification code
+// Generate a random 6-digit verivscode-webview://0kug6d7rqi713m5pfhcodbg746252a12g9karvgoum049qi76qmu/workspace/d058b2f8-d899-468b-8d56-be4438c3eb14/request/35092854-d38ebc9b-53f6-4e88-9762-c17e25721358fication code
 const generateVerificationCode = (): string => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
