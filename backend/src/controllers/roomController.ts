@@ -67,7 +67,7 @@ export const updateRoomController = async (req: Request, res: Response) => {
         if (!roomData.hotel_id || !roomData.room_type || !roomData.room_number || !roomData.price_per_night || !roomData.amenities || !roomData.capacity) {
             return res.status(400).json({ error: "Missing required fields" });
         }
-        const updatedRoom = await updateRoomService(roomData, roomId);
+        const updatedRoom = await updateRoomService(roomId, roomData);
         res.status(200).json({
             message: "Room updated successfully",
             room: updatedRoom
