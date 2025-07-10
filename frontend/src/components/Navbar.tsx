@@ -1,8 +1,35 @@
 import { Link, NavLink } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { type RootState } from '../app/store';
+import { logout } from '../Features/login/userSlice';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const dispatch = useDispatch();
+  const { user, token } = useSelector((state: RootState) => state.user);
+  const isAuthenticated = !!(token && user);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleLogout = () => {
+    dispatch(logout());
+    setIsProfileDropdownOpen(false);
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const activeStyle = "bg-amber-600 text-white px-4 py-2 rounded-lg transition-all duration-300 shadow-md";
   const inactiveStyle = "text-white hover:bg-amber-700 hover:text-amber-100 px-4 py-2 rounded-lg transition-all duration-300";
@@ -70,13 +97,68 @@ const Navbar = () => {
             </NavLink>
           </div>
 
-          {/* Sign In Button - Desktop */}
+          {/* Auth Section - Desktop */}
           <div className="hidden md:block">
-            <button  className="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer">
-             <Link to="/register" className="flex items-center justify-center">
-              Get Started
-             </Link>
-            </button>
+            {isAuthenticated ? (
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                  className="flex items-center space-x-2 bg-amber-600 hover:bg-amber-500 text-white font-semibold px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                >
+                  <div className="w-8 h-8 bg-amber-500 rounded-full flex items-center justify-center">
+                    <span className="text-sm font-bold">
+                      {user?.first_name?.charAt(0)?.toUpperCase()}
+                    </span>
+                  </div>
+                  <span>{user?.first_name}</span>
+                  <svg
+                    className={`w-4 h-4 transition-transform duration-200 ${isProfileDropdownOpen ? 'rotate-180' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {isProfileDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="py-2">
+                      <div className="px-4 py-2 border-b border-gray-200">
+                        <p className="text-sm font-medium text-gray-900">{user?.first_name} {user?.last_name}</p>
+                        <p className="text-sm text-gray-500">{user?.email}</p>
+                      </div>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        Profile Settings
+                      </Link>
+                      <Link
+                        to="/my-bookings"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                        onClick={() => setIsProfileDropdownOpen(false)}
+                      >
+                        My Bookings
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-700 hover:bg-red-50 transition-colors duration-200"
+                      >
+                        Logout
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button className="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer">
+                <Link to="/register" className="flex items-center justify-center">
+                  Get Started
+                </Link>
+              </button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -152,12 +234,45 @@ const Navbar = () => {
               Contact
             </NavLink>
             <div className="pt-2">
-              <button
-                className="w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Sign In
-              </button>
+              {isAuthenticated ? (
+                <div className="space-y-2">
+                  <div className="px-4 py-2 border-b border-amber-700">
+                    <p className="text-sm font-medium text-amber-100">{user?.first_name} {user?.last_name}</p>
+                    <p className="text-sm text-amber-200">{user?.email}</p>
+                  </div>
+                  <Link
+                    to="/profile"
+                    className="block px-4 py-2 text-amber-100 hover:bg-amber-700 rounded-lg transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Profile Settings
+                  </Link>
+                  <Link
+                    to="/my-bookings"
+                    className="block px-4 py-2 text-amber-100 hover:bg-amber-700 rounded-lg transition-colors duration-200"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    My Bookings
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-red-300 hover:bg-red-900/30 rounded-lg transition-colors duration-200"
+                  >
+                    Logout
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  to="/register"
+                  className="block w-full bg-amber-600 hover:bg-amber-500 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 shadow-lg text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Get Started
+                </Link>
+              )}
             </div>
           </div>
         </div>
