@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import { useState } from 'react';
 
 const Navbar = () => {
@@ -72,8 +72,10 @@ const Navbar = () => {
 
           {/* Sign In Button - Desktop */}
           <div className="hidden md:block">
-            <button className="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer">
-              Sign In
+            <button  className="bg-amber-600 hover:bg-amber-500 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer">
+             <Link to="/signup" className="flex items-center justify-center">
+              Get Started
+             </Link>
             </button>
           </div>
 
