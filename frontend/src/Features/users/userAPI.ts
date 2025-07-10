@@ -1,89 +1,82 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query";
-import { APIDomain } from "../../utils";
-import type { RootState } from "../../app/store";
+import { fetchBaseQuery } from "@reduxjs/toolkit/query";
+import { createApi } from "@reduxjs/toolkit/query/react";
 
-
-
-
-
-
-
+import type { RootState } from "../../app/store"; // ✅ import RootState
+import { APIDomain } from "../../utils/utils";
 
 export type TUser = {
-    user_id: number;
-    first_name: string;
-    last_name: string;
-    email: string;
-    role: string;
-    is_verified: boolean;
-}
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
+  role: string;
+  is_verified: boolean;
+};
 
-export type Tverify={
-    email: string;
-    code: string;
+export type TVerify = {
+  email: string;
+  code: string;
+};
 
-    
-}
-
-
-export const userApi= createApi({
-    reducerPath: 'userApi',
-    baseQuery:fetchBaseQuery({
-        baseUrl:APIDomain,
-        prepareHeaders: (headers,{getState}) => {
-            const token = (getState() as RootState).user.token
-            if (token) {
-                headers.set('Authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
-
-    }),
-    tagTypes: ['User'],
-    endpoints:(builder) => ({
-        createUsers: builder.mutation<TUser, Partial<TUser>>({
-            query: (newUser) => ({
-                url: '/auth/register',
-                method: 'POST',
-                body: newUser
-            }),
-            invalidatesTags: ['User']
-        }),
-        getUsers: builder.query<TUser[], void>({
-            query: () => ({
-                url: '/auth/users',
-                method: 'GET',
-            }),
-           transformResponse: (response: { data: TUser[] }) => response.data,
-            providesTags: ['User']
-            
-    }),
-        verifyUser: builder.mutation<TUser, Tverify>({
-            query: (verifyData) => ({
-                url: '/auth/verify',
-                method: 'POST',
-                body: verifyData
-            }),
-            invalidatesTags: ['User']
-        }),
-        updateUser: builder.mutation<TUser, Partial<TUser>>({
-            query: (userData) => ({
-                url: `/auth/users/${userData.user_id}`,
-                method: 'PUT',
-                body: userData
-            }),
-            invalidatesTags: ['User']
-        }),
-        deleteUser: builder.mutation<void, number>({
-            query: (userId) => ({
-                url: `/auth/users/${userId}`,
-                method: 'DELETE',
-            }),
-            invalidatesTags: ['User']
-        }),
+export const UserApi = createApi({
+  reducerPath: "userApi",
+  baseQuery: fetchBaseQuery({
+    baseUrl: APIDomain,
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).user.token; // ✅ get token from Redux
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
+  tagTypes: ["Users"],
+  endpoints: (builder) => ({
+    createUsers: builder.mutation<TUser, Partial<TUser>>({
+      query: (newUser) => ({
+        url: "/auth/register",
+        method: "POST",
+        body: newUser,
+      }),
+      invalidatesTags: ["Users"],
     }),
 
+    verifyUser: builder.mutation<TVerify, { email: string; code: string }>({
+      query: ({ email, code }) => ({
+        url: "/auth/verify-email",
+        method: "POST",
+        body: { email, code },
+      }),
+      invalidatesTags: ["Users"],
+    }),
 
+    getUsers: builder.query<TUser[], void>({
+      query: () => "/users",
+      transformResponse: (response: { users: TUser[] }) => response.users,
+      providesTags: ["Users"],
+    }),
 
+    updateUserRole: builder.mutation<TUser, { id: number; role: string }>({
+      query: ({ id, role }) => ({
+        url: `/users/${id}`,
+        method: "PATCH",
+        body: { role },
+      }),
+      invalidatesTags: ["Users"],
+    }),
 
-})
+    getUserById: builder.query<TUser, number>({
+      query: (id) => `/users/${id}`,
+        transformResponse: (response: { user: TUser }) => response.user,
+    }),
+
+    deleteUser: builder.mutation<{ message: string }, number>({
+      query: (id) => ({
+        url: `/users/${id}`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["Users"],
+    }),
+  }),
+});

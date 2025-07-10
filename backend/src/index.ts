@@ -13,15 +13,17 @@ dotenv.config();
 
 export const app = express();
 
-// middleware
-app.use(express.json());
-// cors for all origins
 app.use(cors({
   origin:"http://localhost:5173",
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }))
+
+// middleware
+app.use(express.json());
+// cors for all origins
+
  
 
 

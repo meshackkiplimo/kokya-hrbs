@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { APIDomain } from "../../utils";
+import { APIDomain } from "../../utils/utils";
 
 
 export type TLoginResponse = {

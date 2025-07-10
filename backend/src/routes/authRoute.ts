@@ -26,7 +26,7 @@ export const authRoute = (app:Express)=>{
             }
         }
     );
-    app.route('/auth/verify').post(
+    app.route('/auth/verify-email').post(
         async (req, res, next) => {
             try {
                 await verifyEmailController(req, res);

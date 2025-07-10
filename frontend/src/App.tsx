@@ -10,9 +10,10 @@ import ContactPage from './pages/ContactPage'
 import Footer from './components/Footer'
 import RegisterPage from './pages/RegisterPage'
 import Login from './components/auth/Login'
+import Verify from './components/auth/Verify'
 
 function App() {
-  const [count, setCount] = useState(0)
+  
 
   return (
     <>
@@ -24,6 +25,7 @@ function App() {
                <Route path="/contact" element={<ContactPage />} />
                     <Route path="/register" element={<RegisterPage />} />
                        <Route path="/login" element={<Login />} />
+                        <Route path="/verify" element={<Verify />} />
 
 
 
