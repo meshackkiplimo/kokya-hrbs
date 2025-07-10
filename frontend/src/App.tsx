@@ -8,6 +8,8 @@ import Hero from './components/Hero'
 import AboutPage from './pages/AboutPage'
 import ContactPage from './pages/ContactPage'
 import Footer from './components/Footer'
+import RegisterPage from './pages/RegisterPage'
+import Login from './components/auth/Login'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -20,6 +22,9 @@ function App() {
           <Route path="/" element={<Hero />} />
            <Route path="/about" element={<AboutPage />} />
                <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                       <Route path="/login" element={<Login />} />
+
 
 
       </Routes>
