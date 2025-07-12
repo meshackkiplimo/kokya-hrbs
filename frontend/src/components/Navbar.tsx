@@ -94,6 +94,12 @@ const Navbar = () => {
           >
             Contact
           </NavLink>
+           <NavLink
+            to="/admin-dashboard"
+            className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
+          >
+            Admin Dashboard
+          </NavLink>
         </div>
 
         {/* Auth Section - Absolute Far Right Edge */}

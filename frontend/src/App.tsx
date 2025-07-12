@@ -11,6 +11,7 @@ import Footer from './components/Footer'
 import RegisterPage from './pages/RegisterPage'
 import Login from './components/auth/Login'
 import Verify from './components/auth/Verify'
+import AdminDashboard from './dashboard/adminDashboard/AdminDashboard'
 
 function App() {
   
@@ -25,7 +26,8 @@ function App() {
                <Route path="/contact" element={<ContactPage />} />
                     <Route path="/register" element={<RegisterPage />} />
                        <Route path="/login" element={<Login />} />
-                        <Route path="/verify" element={<Verify />} />
+                            <Route path="/verify" element={<Verify />} />
+                            <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
 
 
 
