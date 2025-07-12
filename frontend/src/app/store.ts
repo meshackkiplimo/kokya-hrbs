@@ -5,6 +5,7 @@ import storage from 'redux-persist/lib/storage';
 import { UserApi } from "../Features/users/userAPI";
 import { loginAPI } from "../Features/users/loginAPI";
 import userSlice from "../Features/login/userSlice";
+import { bookingApi } from "../Features/bookings/bookingAPI";
 
 
 
@@ -24,6 +25,7 @@ const persistConfig = {
 const rootReducer = combineReducers({
     [UserApi.reducerPath]: UserApi.reducer,
     [loginAPI.reducerPath]: loginAPI.reducer,
+    [bookingApi.reducerPath]: bookingApi.reducer,
     user:userSlice,
     
     
@@ -36,7 +38,8 @@ export const store = configureStore({
         serializableCheck: false,
         
     }).concat(UserApi.middleware)
-       .concat(loginAPI.middleware),
+       .concat(loginAPI.middleware)
+       .concat(bookingApi.middleware),
 })
 
 export const persistedStore = persistStore(store);
