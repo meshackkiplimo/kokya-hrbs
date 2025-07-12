@@ -17,10 +17,10 @@ export type DrawerData = {
 export const adminDrawerData: DrawerData[] = [
 
     {
-        id: "cars",
-        name: "Cars",
+        id: "hotels",
+        name: "Hotels",
         icon: FaTasks,
-        link: "cars"
+        link: "hotels"
     },
     {
         id: "users",
@@ -41,10 +41,10 @@ export const adminDrawerData: DrawerData[] = [
         link: "bookings"
     },
       {
-        id: "reservations",
-        name: "Reservations",
+        id: "rooms",
+        name: "Rooms",
         icon: RiReservedFill,
-        link: "reservations"
+        link: "rooms"
     },
     {
         id: "payments",
