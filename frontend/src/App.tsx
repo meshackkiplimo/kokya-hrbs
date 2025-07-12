@@ -15,6 +15,7 @@ import AdminDashboard from './dashboard/adminDashboard/AdminDashboard'
 import ManageUsers from './dashboard/adminDashboard/users/ManageUsers'
 import ManageBookings from './dashboard/adminDashboard/bookings/ManageBookings'
 import ManagePayment from './dashboard/adminDashboard/payments/ManagePayment'
+import ManageRooms from './dashboard/adminDashboard/rooms/ManageRooms'
 
 function App() {
   
@@ -36,6 +37,7 @@ function App() {
               <Route path="users" element={<ManageUsers />} />
                 <Route path="bookings" element={<ManageBookings />} />
                    <Route path="payments" element={<ManagePayment />} />
+                        <Route path="rooms" element={<ManageRooms />} />
           
             </Route>
 
