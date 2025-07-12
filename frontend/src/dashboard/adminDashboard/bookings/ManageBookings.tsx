@@ -27,7 +27,7 @@ const ManageBookings = () => {
                             <th className="px-4 py-2">Check-out Date</th>
                             <th className="px-4 py-2">Status</th>
                             <th className="px-4 py-2">Total Amount</th>
-                            <th className="px-4 py-2">Actions</th>
+                         
                         </tr>
                     </thead>
                     <tbody>
@@ -40,6 +40,9 @@ const ManageBookings = () => {
                                     booking.user_id
                                 }</td>
                                 <td className="px-4 py-2 border-r border-gray-400">{
+                                    booking.hotel_id
+                                }</td>
+                                 <td className="px-4 py-2 border-r border-gray-400">{
                                     booking.room_id
                                 }</td>
                                 <td className="px-4 py-2 border-r border-gray-400">{
@@ -54,14 +57,10 @@ const ManageBookings = () => {
                                         {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                                     </span>
                                 </td>
-                                <td className="px-4 py-2">
-                                    <button className="btn btn-sm btn-primary mr-2">
-                                        Update
-                                    </button>
-                                    <button className="btn btn-sm btn-danger">
-                                        Delete
-                                    </button>
-                                </td>
+                                 <td className="px-4 py-2 border-r border-gray-400">{
+                                    booking.total_amount
+                                }</td>
+                                
                             </tr>
                         ))}
                     </tbody>
