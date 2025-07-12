@@ -5,6 +5,8 @@ import { FaUserCheck } from "react-icons/fa6";
 import { MdOutlineBookmark } from "react-icons/md";
 import { RiReservedFill } from "react-icons/ri";
 import { MdPayments } from "react-icons/md";
+import { IoSettings } from "react-icons/io5";
+import { BiLogOut } from "react-icons/bi";
 
 
 export type DrawerData = {
@@ -59,6 +61,18 @@ export const adminDrawerData: DrawerData[] = [
         name: "Analytics",
         icon: TbBrandGoogleAnalytics,
         link: "analytics"
+    },
+    {
+        id: "settings",
+        name: "Settings",
+        icon: IoSettings,
+        link: "settings"
+    },
+    {
+        id: "logout",
+        name: "Logout",
+        icon: BiLogOut,
+        link: "logout"
     },
 
 ]
