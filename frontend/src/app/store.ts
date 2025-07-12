@@ -6,6 +6,7 @@ import { UserApi } from "../Features/users/userAPI";
 import { loginAPI } from "../Features/users/loginAPI";
 import userSlice from "../Features/login/userSlice";
 import { bookingApi } from "../Features/bookings/bookingAPI";
+import { paymentApi } from "../Features/payment/paymentAPI";
 
 
 
@@ -26,6 +27,7 @@ const rootReducer = combineReducers({
     [UserApi.reducerPath]: UserApi.reducer,
     [loginAPI.reducerPath]: loginAPI.reducer,
     [bookingApi.reducerPath]: bookingApi.reducer,
+    [paymentApi.reducerPath]: paymentApi.reducer,
     user:userSlice,
     
     
@@ -39,7 +41,9 @@ export const store = configureStore({
         
     }).concat(UserApi.middleware)
        .concat(loginAPI.middleware)
-       .concat(bookingApi.middleware),
+       .concat(bookingApi.middleware)
+         .concat(paymentApi.middleware),
+
 })
 
 export const persistedStore = persistStore(store);
