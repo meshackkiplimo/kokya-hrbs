@@ -35,7 +35,7 @@ export const authRoute = (app:Express)=>{
             }
         }
     );
-    app.route('/auth/users').get(
+    app.route('/users').get(
         async (req, res, next) => {
             try {
                 await getAllUsersController(req, res);

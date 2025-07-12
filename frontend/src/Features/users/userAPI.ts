@@ -53,7 +53,7 @@ export const UserApi = createApi({
 
     getUsers: builder.query<TUser[], void>({
       query: () => "/users",
-      transformResponse: (response: { users: TUser[] }) => response.users,
+      
       providesTags: ["Users"],
     }),
 
