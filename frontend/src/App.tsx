@@ -12,6 +12,7 @@ import RegisterPage from './pages/RegisterPage'
 import Login from './components/auth/Login'
 import Verify from './components/auth/Verify'
 import AdminDashboard from './dashboard/adminDashboard/AdminDashboard'
+import ManageUsers from './dashboard/adminDashboard/users/ManageUsers'
 
 function App() {
   
@@ -27,8 +28,13 @@ function App() {
                     <Route path="/register" element={<RegisterPage />} />
                        <Route path="/login" element={<Login />} />
                             <Route path="/verify" element={<Verify />} />
-                            <Route path="/admin-dashboard/*" element={<AdminDashboard />} />
-
+                           <Route path="/admin-dashboard" element={<AdminDashboard />  }
+            >
+                 
+                 
+              <Route path="users" element={<ManageUsers />} />
+          
+            </Route>
 
 
       </Routes>
