@@ -8,6 +8,7 @@ import userSlice from "../Features/login/userSlice";
 import { bookingApi } from "../Features/bookings/bookingAPI";
 import { paymentApi } from "../Features/payment/paymentAPI";
 import { roomsApi } from "../Features/rooms/roomsAPI";
+import { hotelApi } from "../Features/hotels/hotelAPI";
 
 
 
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
     [bookingApi.reducerPath]: bookingApi.reducer,
     [paymentApi.reducerPath]: paymentApi.reducer,
     [roomsApi.reducerPath]: roomsApi.reducer,
+    [hotelApi.reducerPath]: hotelApi.reducer,
     user:userSlice,
     
     
@@ -45,7 +47,8 @@ export const store = configureStore({
        .concat(loginAPI.middleware)
        .concat(bookingApi.middleware)
          .concat(paymentApi.middleware)
-            .concat(roomsApi.middleware),
+            .concat(roomsApi.middleware)
+            .concat(hotelApi.middleware),
 
 })
 
