@@ -19,6 +19,7 @@ import ManageRooms from './dashboard/adminDashboard/rooms/ManageRooms'
 import ManageHotels from './dashboard/adminDashboard/hotels/ManageHotels'
 import ManageAnalytics from './dashboard/adminDashboard/analytics/ManageAnalytics'
 import ManageSettings from './dashboard/adminDashboard/settings/ManageSettings'
+import HotelPage from './pages/HotelPage'
 
 function App() {
   
@@ -34,6 +35,7 @@ function App() {
                     <Route path="/register" element={<RegisterPage />} />
                        <Route path="/login" element={<Login />} />
                             <Route path="/verify" element={<Verify />} />
+                            <Route path="/hotels" element={<HotelPage />} />
                            <Route path="/admin-dashboard" element={<AdminDashboard />  }>
                  
                  

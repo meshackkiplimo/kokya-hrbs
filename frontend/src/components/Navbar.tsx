@@ -77,10 +77,10 @@ const Navbar = () => {
             Rooms
           </NavLink>
           <NavLink
-            to="/bookings"
+            to="/hotels"
             className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
           >
-            Bookings
+            Hotels
           </NavLink>
           <NavLink
             to="/about"
