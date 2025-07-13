@@ -81,6 +81,9 @@ export const getAllUsersService = async () => {
                 first_name: true,
                 last_name: true,
                 email: true,
+                role: true,
+                is_verified: true,
+                
                 password: true
             }
         });
