@@ -8,6 +8,7 @@ import { complainRoute } from './routes/complainRoute';
 import { bookingRoute } from './routes/bookingRoute';
 import { authRoute } from './routes/authRoute';
 import cors from 'cors';
+import {v2 as cloudinary} from 'cloudinary';
 
 dotenv.config();
 
@@ -23,6 +24,14 @@ app.use(cors({
 // middleware
 app.use(express.json());
 // cors for all origins
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+console.log("cloudinary config", cloudinary.config());
+
 
  
 
