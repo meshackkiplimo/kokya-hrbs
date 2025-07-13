@@ -25,6 +25,9 @@ export const HotelTable = pgTable("hotels", {
    address: varchar("address", { length: 255 }).notNull(),
    contact_number: varchar("contact_number", { length: 15 }).notNull(),
    category: varchar("category", { length: 50 }).notNull(),
+    img_url: varchar("img_url", { length: 255 }).notNull(),
+    description: varchar("description", { length: 500 }).notNull(),
+    
    rating: integer("rating").notNull().default(0),
    created_at: timestamp("created_at").defaultNow(),
     updated_at: timestamp("updated_at").defaultNow(),
@@ -53,6 +56,8 @@ export const RoomTable = pgTable("rooms", {
     capacity: integer("capacity").notNull(),
     amenities: varchar("amenities", { length: 255 }).notNull(),
     availability: varchar("availability", { length: 20 }).default("available").notNull(),
+    img_url: varchar("img_url", { length: 255 }).notNull(),
+    description: varchar("description", { length: 500 }).notNull(),
     created_at: timestamp("created_at").defaultNow(),
     updated_at: timestamp("updated_at").defaultNow(),
 });
