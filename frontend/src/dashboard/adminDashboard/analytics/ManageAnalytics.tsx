@@ -166,71 +166,157 @@ const ManageAnalytics = () => {
   const { kpis, paymentStatusChart, bookingStatusChart, revenueChart, roomTypeChart, hotelCategoryChart } = analyticsData;
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">Analytics Dashboard</h1>
-        <p className="text-gray-600">Comprehensive overview of your hotel management system</p>
+      <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-8 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10"></div>
+        <div className="relative z-10">
+          <h1 className="text-3xl font-bold mb-2">Analytics & Reports</h1>
+          <p className="text-slate-300">Comprehensive insights into your hotel management performance</p>
+          <div className="flex items-center mt-4 space-x-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-sm text-slate-300">Live Data</span>
+            </div>
+            <div className="text-sm text-slate-400">
+              Last updated: {new Date().toLocaleTimeString()}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100 text-sm">Total Revenue</p>
-              <p className="text-2xl font-bold">KSH {kpis.totalRevenue.toLocaleString()}</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        {/* Total Revenue Card */}
+        <div className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-200 hover:border-blue-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/5 group-hover:from-blue-500/10 group-hover:to-blue-600/10 transition-all duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <DollarSign className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-right">
+                <div className="flex items-center text-green-500 text-sm">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  +12%
+                </div>
+              </div>
             </div>
-            <DollarSign className="h-8 w-8 text-blue-200" />
+            <div>
+              <p className="text-slate-600 text-sm font-medium">Total Revenue</p>
+              <p className="text-2xl font-bold text-slate-800 mt-1">KSH {kpis.totalRevenue.toLocaleString()}</p>
+              <p className="text-xs text-slate-500 mt-1">This month</p>
+            </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm">Total Bookings</p>
-              <p className="text-2xl font-bold">{kpis.totalBookings}</p>
+        {/* Total Bookings Card */}
+        <div className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-200 hover:border-green-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-green-600/5 group-hover:from-green-500/10 group-hover:to-green-600/10 transition-all duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Calendar className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-right">
+                <div className="flex items-center text-green-500 text-sm">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  +8%
+                </div>
+              </div>
             </div>
-            <Calendar className="h-8 w-8 text-green-200" />
+            <div>
+              <p className="text-slate-600 text-sm font-medium">Total Bookings</p>
+              <p className="text-2xl font-bold text-slate-800 mt-1">{kpis.totalBookings}</p>
+              <p className="text-xs text-slate-500 mt-1">Active reservations</p>
+            </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-sm">Total Hotels</p>
-              <p className="text-2xl font-bold">{kpis.totalHotels}</p>
+        {/* Total Hotels Card */}
+        <div className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-200 hover:border-purple-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-purple-600/5 group-hover:from-purple-500/10 group-hover:to-purple-600/10 transition-all duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Building className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-right">
+                <div className="flex items-center text-blue-500 text-sm">
+                  <Activity className="w-4 h-4 mr-1" />
+                  Stable
+                </div>
+              </div>
             </div>
-            <Building className="h-8 w-8 text-purple-200" />
+            <div>
+              <p className="text-slate-600 text-sm font-medium">Total Hotels</p>
+              <p className="text-2xl font-bold text-slate-800 mt-1">{kpis.totalHotels}</p>
+              <p className="text-xs text-slate-500 mt-1">Partner properties</p>
+            </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-orange-100 text-sm">Total Rooms</p>
-              <p className="text-2xl font-bold">{kpis.totalRooms}</p>
+        {/* Total Rooms Card */}
+        <div className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-200 hover:border-orange-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-orange-600/5 group-hover:from-orange-500/10 group-hover:to-orange-600/10 transition-all duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Bed className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-right">
+                <div className="flex items-center text-green-500 text-sm">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  +15%
+                </div>
+              </div>
             </div>
-            <Bed className="h-8 w-8 text-orange-200" />
+            <div>
+              <p className="text-slate-600 text-sm font-medium">Total Rooms</p>
+              <p className="text-2xl font-bold text-slate-800 mt-1">{kpis.totalRooms}</p>
+              <p className="text-xs text-slate-500 mt-1">Available inventory</p>
+            </div>
           </div>
         </div>
 
-        <div className="bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl p-6 text-white">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-teal-100 text-sm">Avg Booking Value</p>
-              <p className="text-2xl font-bold">KSH {kpis.averageBookingValue.toFixed(0)}</p>
+        {/* Average Booking Value Card */}
+        <div className="group relative bg-white rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-300 border border-slate-200 hover:border-teal-300 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 to-teal-600/5 group-hover:from-teal-500/10 group-hover:to-teal-600/10 transition-all duration-300"></div>
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <div className="text-right">
+                <div className="flex items-center text-green-500 text-sm">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  +5%
+                </div>
+              </div>
             </div>
-            <TrendingUp className="h-8 w-8 text-teal-200" />
+            <div>
+              <p className="text-slate-600 text-sm font-medium">Avg Booking Value</p>
+              <p className="text-2xl font-bold text-slate-800 mt-1">KSH {kpis.averageBookingValue.toFixed(0)}</p>
+              <p className="text-xs text-slate-500 mt-1">Per reservation</p>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         {/* Revenue Trend Chart */}
-        <div className="bg-white rounded-xl p-6 shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Revenue & Bookings Trend</h3>
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 hover:shadow-xl transition-all duration-300">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-xl font-semibold text-slate-800">Revenue & Bookings Trend</h3>
+              <p className="text-sm text-slate-500 mt-1">Monthly performance overview</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <span className="text-xs text-slate-600">Live data</span>
+            </div>
+          </div>
           <ResponsiveContainer width="100%" height={300}>
             <ComposedChart data={revenueChart}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />

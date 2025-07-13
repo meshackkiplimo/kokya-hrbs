@@ -1,78 +1,88 @@
-import { TbBrandGoogleAnalytics } from "react-icons/tb";
-import { FaTasks } from "react-icons/fa";
-import { FiUsers } from "react-icons/fi";
-import { FaUserCheck } from "react-icons/fa6";
-import { MdOutlineBookmark } from "react-icons/md";
-import { RiReservedFill } from "react-icons/ri";
-import { MdPayments } from "react-icons/md";
-import { IoSettings } from "react-icons/io5";
-import { BiLogOut } from "react-icons/bi";
-
+import {
+    FaChartLine,
+    FaBuilding,
+    FaUsers,
+    FaCalendarCheck,
+    FaBed,
+    FaCreditCard,
+    FaCog,
+    FaSignOutAlt,
+    FaTachometerAlt
+} from "react-icons/fa";
 
 export type DrawerData = {
     id: string;
     name: string;
     icon: React.ComponentType<{ size?: number }>;
     link: string;
+    badge?: string;
+    description?: string;
 }
 
 export const adminDrawerData: DrawerData[] = [
-
+    {
+        id: "dashboard",
+        name: "Dashboard",
+        icon: FaTachometerAlt,
+        link: "/admin-dashboard",
+        description: "Overview & Statistics"
+    },
     {
         id: "hotels",
         name: "Hotels",
-        icon: FaTasks,
-        link: "hotels"
+        icon: FaBuilding,
+        link: "hotels",
+        description: "Manage Properties"
     },
     {
-        id: "users",
-        name: "Users",
-        icon: FiUsers,
-        link: "users"
-    },
-    {
-        id: "profile",
-        name: "Profile",
-        icon: FaUserCheck,
-        link: "profile"
+        id: "rooms",
+        name: "Rooms",
+        icon: FaBed,
+        link: "rooms",
+        description: "Room Management"
     },
     {
         id: "bookings",
         name: "Bookings",
-        icon: MdOutlineBookmark,
-        link: "bookings"
+        icon: FaCalendarCheck,
+        link: "bookings",
+        badge: "12",
+        description: "Reservation Management"
     },
-      {
-        id: "rooms",
-        name: "Rooms",
-        icon: RiReservedFill,
-        link: "rooms"
+    {
+        id: "users",
+        name: "Users",
+        icon: FaUsers,
+        link: "users",
+        description: "Customer Management"
     },
     {
         id: "payments",
         name: "Payments",
-        icon: MdPayments,
-        link: "payments"
+        icon: FaCreditCard,
+        link: "payments",
+        description: "Financial Transactions"
     },
-
-
     {
         id: "analytics",
         name: "Analytics",
-        icon: TbBrandGoogleAnalytics,
-        link: "analytics"
+        icon: FaChartLine,
+        link: "analytics",
+        badge: "New",
+        description: "Reports & Insights"
     },
     {
         id: "settings",
         name: "Settings",
-        icon: IoSettings,
-        link: "settings"
+        icon: FaCog,
+        link: "settings",
+        description: "System Configuration"
     },
     {
         id: "logout",
         name: "Logout",
-        icon: BiLogOut,
-        link: "logout"
-    },
-
+        icon: FaSignOutAlt,
+        link: "logout",
+        description: "Sign Out"
+    }
 ]
