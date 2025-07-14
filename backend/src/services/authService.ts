@@ -1,6 +1,6 @@
 import db from "@/Drizzle/db";
 import { TIUser, UserTable } from "@/Drizzle/schema";
-import { sql } from "drizzle-orm";
+import { sql, eq } from "drizzle-orm";
 
 
 
@@ -29,7 +29,14 @@ export const createAuthService = async (userData: TIUser) => {
             throw new Error('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character');
         }
 
-      
+        // Check if user already exists with this email
+        const existingUser = await db.query.UserTable.findFirst({
+            where: eq(UserTable.email, userFields.email)
+        });
+        
+        if (existingUser) {
+            throw new Error('Email already exists');
+        }
 
         // Create user first
         const newUser = await db.transaction(async (tx) => {
@@ -43,10 +50,19 @@ export const createAuthService = async (userData: TIUser) => {
 
         return newUser;
     } catch (error) {
+        console.error("Auth service error:", error);
         if (error instanceof Error) {
             if (error.message === 'Missing required user fields' ||
                 error.message === 'Missing required customer fields') {
                 throw error;
+            }
+            // Handle duplicate email error - check various error patterns
+            if (error.message.includes('duplicate key value violates unique constraint') ||
+                error.message.includes('unique constraint') ||
+                error.message.includes('UNIQUE constraint failed') ||
+                (error as any).code === '23505' || // PostgreSQL unique violation error code
+                error.message.includes('email') && error.message.includes('already exists')) {
+                throw new Error('Email already exists');
             }
         }
         // Re-throw any other errors
@@ -83,8 +99,8 @@ export const getAllUsersService = async () => {
                 email: true,
                 role: true,
                 is_verified: true,
-                
-                password: true
+                created_at: true,
+                updated_at: true
             }
         });
         return allUsers;
@@ -124,12 +140,12 @@ export const updateUserService = async (userId: number, user: Partial<TIUser>) =
         .set(user)
         .where(sql`${UserTable.user_id} = ${userId}`)
         .returning();
-    return updatedUser;
+    return updatedUser[0] || null;
 }
 export const deleteUserService = async (userId: number) => {
     const deletedUser = await db.delete(UserTable)
         .where(sql`${UserTable.user_id} = ${userId}`)
         .returning();
-    return deletedUser;
+    return deletedUser[0] || null;
 }
 

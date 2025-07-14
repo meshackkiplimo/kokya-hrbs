@@ -18,6 +18,14 @@ const generateVerificationCode = (): string => {
 export const creatUserController = async (req: Request, res: Response) => {
     try {
         const userData: TIUser = req.body;
+        
+        // Validate required fields before processing
+        if (!userData.first_name || !userData.last_name || !userData.email || !userData.password) {
+            return res.status(400).json({
+                message: 'Missing required user fields: first name, last name, email, and password'
+            });
+        }
+        
         const password = userData.password;
         userData.password = await bcrypt.hashSync(password, 10);
         userData.role = userData.role || 'customer'; // Default role is customer
@@ -41,26 +49,22 @@ export const creatUserController = async (req: Request, res: Response) => {
             await emailService.sendVerificationCode(createUser.email, verificationCode);
             
             // Registration successful with email sent
-            res.status(201).json({ 
-                message: "Registration successful! We have sent a verification code to your email. Please verify your email to enable login.", 
-                user: {
-                    id: createUser.user_id,
-                    first_name: createUser.first_name,
-                    last_name: createUser.last_name,
-                    email: createUser.email
-                }
+            res.status(201).json({
+                message: "Registration successful! We have sent a verification code to your email. Please verify your email to enable login.",
+                user_id: createUser.user_id,
+                first_name: createUser.first_name,
+                last_name: createUser.last_name,
+                email: createUser.email
             });
         } catch (emailError) {
             // Registration successful but email failed
             console.error("Failed to send verification email:", emailError);
-            res.status(201).json({ 
-                message: "Registration successful! However, we couldn't send the verification email. Please try to login to receive a new verification code.", 
-                user: {
-                    id: createUser.user_id,
-                    first_name: createUser.first_name,
-                    last_name: createUser.last_name,
-                    email: createUser.email
-                },
+            res.status(201).json({
+                message: "Registration successful! However, we couldn't send the verification email. Please try to login to receive a new verification code.",
+                user_id: createUser.user_id,
+                first_name: createUser.first_name,
+                last_name: createUser.last_name,
+                email: createUser.email,
                 emailError: true
             });
         }
@@ -76,6 +80,10 @@ export const creatUserController = async (req: Request, res: Response) => {
                 }
                 if (error.message.includes('Password must contain')) {
                     res.status(400).json({ message: error.message });
+                    return;
+                }
+                if (error.message === 'Email already exists') {
+                    res.status(400).json({ message: 'Email already exists. Please use a different email address.' });
                     return;
                 }
                 if (error.message === 'Database error') {
@@ -94,6 +102,12 @@ export const creatUserController = async (req: Request, res: Response) => {
 export const loginUserController = async (req: Request, res: Response) => {
     try {
         const user = req.body;
+        
+        // Validate required fields
+        if (!user.email || !user.password) {
+            return res.status(400).json({ message: "Email and password are required" });
+        }
+        
         const existingUser = await loginAuthService(user);
         
         if (!existingUser) {
@@ -233,12 +247,22 @@ export const updateUserController = async (req: Request, res: Response) => {
         if (isNaN(userId)) {
             return res.status(400).json({ message: "Invalid user ID" });
         }
+        
+        // Check if user exists first
+        const existingUser = await getUserByIdService(userId);
+        if (!existingUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        
         const userData: TIUser = req.body;
         const updatedUser = await updateUserService(userId, userData);
         if (!updatedUser) {
             return res.status(404).json({ message: "User not found or update failed" });
         }
-        res.status(200).json(updatedUser);
+        
+        // Remove password from response
+        const { password, ...userWithoutPassword } = updatedUser;
+        res.status(200).json(userWithoutPassword);
     } catch (error) {
         console.error("Error in updateUserController:", error);
         res.status(500).json({ message: "Internal server error" });
@@ -250,6 +274,13 @@ export const deleteUserController = async (req: Request, res: Response) => {
         if (isNaN(userId)) {
             return res.status(400).json({ message: "Invalid user ID" });
         }
+        
+        // Check if user exists first
+        const existingUser = await getUserByIdService(userId);
+        if (!existingUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        
         const deletedUser = await deleteUserService(userId);
         if (!deletedUser) {
             return res.status(404).json({ message: "User not found or deletion failed" });
