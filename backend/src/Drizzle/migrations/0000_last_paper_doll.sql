@@ -3,8 +3,8 @@ CREATE TABLE "bookings" (
 	"user_id" integer NOT NULL,
 	"hotel_id" integer NOT NULL,
 	"room_id" integer NOT NULL,
-	"check_in_date" timestamp NOT NULL,
-	"check_out_date" timestamp NOT NULL,
+	"check_in_date" date NOT NULL,
+	"check_out_date" date NOT NULL,
 	"total_amount" integer NOT NULL,
 	"status" varchar(20) DEFAULT 'pending' NOT NULL,
 	"created_at" timestamp DEFAULT now(),
@@ -28,6 +28,8 @@ CREATE TABLE "hotels" (
 	"address" varchar(255) NOT NULL,
 	"contact_number" varchar(15) NOT NULL,
 	"category" varchar(50) NOT NULL,
+	"img_url" varchar(255) NOT NULL,
+	"description" varchar(500) NOT NULL,
 	"rating" integer DEFAULT 0 NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now()
@@ -52,6 +54,8 @@ CREATE TABLE "rooms" (
 	"capacity" integer NOT NULL,
 	"amenities" varchar(255) NOT NULL,
 	"availability" varchar(20) DEFAULT 'available' NOT NULL,
+	"img_url" varchar(255) NOT NULL,
+	"description" varchar(500) NOT NULL,
 	"created_at" timestamp DEFAULT now(),
 	"updated_at" timestamp DEFAULT now()
 );

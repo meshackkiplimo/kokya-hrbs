@@ -1,5 +1,5 @@
 {
-  "id": "e6a5207d-4fde-45e6-a91b-1aff759f1838",
+  "id": "370eb05c-ec30-4378-9906-4494fe504e0e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -34,13 +34,13 @@
         },
         "check_in_date": {
           "name": "check_in_date",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         },
         "check_out_date": {
           "name": "check_out_date",
-          "type": "timestamp",
+          "type": "date",
           "primaryKey": false,
           "notNull": true
         },
@@ -175,6 +175,18 @@
         "category": {
           "name": "category",
           "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "img_url": {
+          "name": "img_url",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(500)",
           "primaryKey": false,
           "notNull": true
         },
@@ -317,6 +329,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'available'"
+        },
+        "img_url": {
+          "name": "img_url",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
