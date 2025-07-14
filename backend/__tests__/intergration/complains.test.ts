@@ -11,7 +11,7 @@ let complainId: number;
 const testUser = {
     first_name: "Test",
     last_name: "User",
-    email: "testuser@gmail.com",
+    email: "testcomplains@gmail.com",
     password: "password123",
     role: "user",
     is_verified: false

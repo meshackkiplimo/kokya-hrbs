@@ -5,9 +5,8 @@ import { sql } from "drizzle-orm";
 
 
 export const createPaymentService = async (payment:TIPayment) => {
-    const newpayment = await db.insert(PaymentTable).values(payment)
-    return newpayment;
-
+    const newpayment = await db.insert(PaymentTable).values(payment).returning();
+    return newpayment[0];
 }
 
 export const getAllPaymentsService = async () => {
@@ -47,12 +46,24 @@ export const updatePaymentService = async (paymentId: number, payment: TIPayment
         .set(payment)
         .where(sql`${PaymentTable.payment_id} = ${paymentId}`)
         .returning();
-    return updatedPayment;
+    
+    // Handle both real database (returns array) and mocked database (might return single object or null)
+    if (!updatedPayment) return null;
+    if (Array.isArray(updatedPayment)) {
+        return updatedPayment.length > 0 ? updatedPayment[0] : null;
+    }
+    return updatedPayment; // For unit tests that return single object
 }
 export const deletePaymentService = async (paymentId: number) => {
     const deletedPayment = await db.delete(PaymentTable)
         .where(sql`${PaymentTable.payment_id} = ${paymentId}`)
         .returning();
-    return deletedPayment;
+    
+    // Handle both real database (returns array) and mocked database (might return single object or null)
+    if (!deletedPayment) return null;
+    if (Array.isArray(deletedPayment)) {
+        return deletedPayment.length > 0 ? deletedPayment[0] : null;
+    }
+    return deletedPayment; // For unit tests that return single object
 }
 

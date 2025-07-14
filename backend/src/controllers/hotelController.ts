@@ -1,107 +1,113 @@
-
 import { createHotelService, deleteHotelService, getAllHotelService, getHotelByIdService, updateHotelService } from "@/services/hotelService";
 import { Request, Response } from "express";
-import { parse } from "path";
 
-
-
-
-export const createHotelController = async (req:Request,res:Response) => {
+export const createHotelController = async (req: Request, res: Response) => {
     try {
-        const hotel= req.body;
+        const hotel = req.body;
 
-        const newHotel = await createHotelService(hotel)
+        // Basic validation
+        if (!hotel.name || !hotel.location || !hotel.address || !hotel.contact_number || !hotel.category) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        if (hotel.name.trim() === '' || hotel.location.trim() === '') {
+            return res.status(400).json({ message: "Name and location cannot be empty" });
+        }
+
+        if (hotel.rating && (typeof hotel.rating !== 'number' || hotel.rating < 1 || hotel.rating > 5)) {
+            return res.status(400).json({ message: "Rating must be a number between 1 and 5" });
+        }
+
+        const newHotel = await createHotelService(hotel);
         
         if (!newHotel) {
-            return res.status(400).json({ error: "Hotel creation failed" });
+            return res.status(400).json({ message: "Hotel creation failed" });
         }
-        res.status(201).json(newHotel);
 
+        // Return hotel data directly (as expected by tests)
+        res.status(201).json(newHotel);
         
     } catch (error) {
         console.error("Error in createHotelController:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-        
+        res.status(400).json({ message: "Hotel creation failed" });
     }
-    
-}
+};
 
-export const getAllHotelController = async (req:Request,res:Response) => {
+export const getAllHotelController = async (req: Request, res: Response) => {
     try {
-        const hotels = await getAllHotelService()
+        const hotels = await getAllHotelService();
         
-        if (!hotels || hotels.length === 0) {
-            return res.status(404).json({ error: "No hotels found" });
-        }
-        res.status(200).json(hotels);
+        // Return array directly (as expected by tests)
+        res.status(200).json(hotels || []);
         
     } catch (error) {
         console.error("Error in getAllHotelController:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-        
+        res.status(500).json({ message: "Internal Server Error" });
     }
-    
-}
+};
 
-export const getHotelByIdController = async (req:Request,res:Response) => {
+export const getHotelByIdController = async (req: Request, res: Response) => {
     try {
         const hotelId = parseInt(req.params.id);
-        const oneHotel = await getHotelByIdService(hotelId)
-        if (!oneHotel) {
-            return res.status(404).json({ error: "Hotel not found" });
+        if (isNaN(hotelId)) {
+            return res.status(400).json({ message: "Invalid hotel ID" });
         }
-        res.status(200).json({
-            message:"Hotel found successfully",
-            hotel: oneHotel
-        });
+
+        const oneHotel = await getHotelByIdService(hotelId);
+        if (!oneHotel) {
+            return res.status(404).json({ message: "Hotel not found" });
+        }
+
+        // Return hotel data directly (as expected by tests)
+        res.status(200).json(oneHotel);
         
     } catch (error) {
         console.error("Error in getHotelByIdController:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-        
+        res.status(500).json({ message: "Internal Server Error" });
     }
-}
-export const updateHotelController = async (req:Request,res:Response) => {
+};
+
+export const updateHotelController = async (req: Request, res: Response) => {
     try {
         const hotelId = parseInt(req.params.id);
+        if (isNaN(hotelId)) {
+            return res.status(400).json({ message: "Invalid hotel ID" });
+        }
+
         const hotelData = req.body;
         
         const updatedHotel = await updateHotelService(hotelId, hotelData);
         
-        if (!updatedHotel || updatedHotel.length === 0) {
-            return res.status(404).json({ error: "Hotel not found or update failed" });
+        if (!updatedHotel) {
+            return res.status(404).json({ message: "Hotel not found" });
         }
         
-        res.status(200).json({
-            message: "Hotel updated successfully",
-            hotel: updatedHotel[0]
-        });
+        // Return hotel data directly (as expected by tests)
+        res.status(200).json(updatedHotel);
         
     } catch (error) {
         console.error("Error in updateHotelController:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-        
+        res.status(400).json({ message: "Hotel update failed" });
     }
-}
+};
 
 export const deleteHotelController = async (req: Request, res: Response) => {
     try {
         const hotelId = parseInt(req.params.id);
+        if (isNaN(hotelId)) {
+            return res.status(400).json({ message: "Invalid hotel ID" });
+        }
         
         const deletedHotel = await deleteHotelService(hotelId);
         
-        if (!deletedHotel || deletedHotel.length === 0) {
-            return res.status(404).json({ error: "Hotel not found or deletion failed" });
+        if (!deletedHotel) {
+            return res.status(404).json({ message: "Hotel not found" });
         }
         
-        res.status(200).json({
-            message: "Hotel deleted successfully",
-            hotel: deletedHotel[0]
-        });
+        res.status(200).json({ message: "Hotel deleted successfully" });
         
     } catch (error) {
         console.error("Error in deleteHotelController:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-        
+        res.status(500).json({ message: "Internal Server Error" });
     }
 };

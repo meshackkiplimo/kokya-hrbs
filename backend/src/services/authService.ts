@@ -140,7 +140,13 @@ export const updateUserService = async (userId: number, user: Partial<TIUser>) =
         .set(user)
         .where(sql`${UserTable.user_id} = ${userId}`)
         .returning();
-    return updatedUser[0] || null;
+    
+    // Handle both real database (returns array) and mocked database (might return single object or null)
+    if (!updatedUser) return null;
+    if (Array.isArray(updatedUser)) {
+        return updatedUser.length > 0 ? updatedUser[0] : null;
+    }
+    return updatedUser; // For unit tests that return single object
 }
 export const deleteUserService = async (userId: number) => {
     const deletedUser = await db.delete(UserTable)

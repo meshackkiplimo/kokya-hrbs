@@ -7,8 +7,7 @@ import express from "express";
 
 export const createHotelService = async (hotel:TIHotel) => {
    const newHotel = await db.insert(HotelTable).values(hotel).returning();
-   return newHotel;
-    
+   return newHotel[0];
 }
 
 export const getAllHotelService = async () => {
@@ -36,8 +35,16 @@ export const getHotelByIdService = async (hotelId: number) => {
         columns: {
             hotel_id: true,
             name: true,
+            address: true,
+            location: true,
+            contact_number: true,
+            category: true,
+            rating: true,
+            img_url: true,
+            description: true,
+            created_at: true,
+            updated_at: true,
         }
-        
     });
     return hotel;
 }
@@ -47,11 +54,11 @@ export const updateHotelService = async (hotelId: number, hotel: TIHotel) => {
         .set(hotel)
        .where(sql`${HotelTable.hotel_id} = ${hotelId}`)
         .returning();
-    return updatedHotel;
+    return updatedHotel.length > 0 ? updatedHotel[0] : null;
 }
 export const deleteHotelService = async (hotelId: number) => {
     const deletedHotel = await db.delete(HotelTable)
         .where(sql`${HotelTable.hotel_id} = ${hotelId}`)
         .returning();
-    return deletedHotel;
+    return deletedHotel.length > 0 ? deletedHotel[0] : null;
 }
