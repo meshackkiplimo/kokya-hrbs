@@ -31,9 +31,10 @@ describe('Hotel test service',()=>{
         contact_number: '1234567890',
         category: 'Test Category',
         rating: 5,
+        img_url: 'http://test.jpg',
+        description: 'Test description',
         created_at: new Date(),
         updated_at: new Date(),
-
     }
     beforeEach(() => {
         jest.clearAllMocks()
@@ -43,7 +44,7 @@ describe('Hotel test service',()=>{
         it('should create a hotel', async () => {
             (db.insert as jest.Mock).mockReturnValue({
                 values: jest.fn().mockReturnValue({
-                    returning: jest.fn().mockResolvedValue(mockHotel)
+                    returning: jest.fn().mockResolvedValue([mockHotel])
                 })
             })
 
@@ -97,9 +98,9 @@ describe('Hotel test service',()=>{
                 })
             })
 
-            const result = await updateHotelService(1, [updatedHotel])
+            const result = await updateHotelService(1, updatedHotel)
 
-            expect(result).toEqual([updatedHotel])
+            expect(result).toEqual(updatedHotel)
             expect(db.update).toHaveBeenCalledWith(HotelTable)
         })
     })
@@ -107,7 +108,7 @@ describe('Hotel test service',()=>{
         it('should delete a hotel', async () => {
             (db.delete as jest.Mock).mockReturnValue({
                 where: jest.fn().mockReturnValue({
-                    returning: jest.fn().mockResolvedValue(mockHotel)
+                    returning: jest.fn().mockResolvedValue([mockHotel])
                 })
             })
 
