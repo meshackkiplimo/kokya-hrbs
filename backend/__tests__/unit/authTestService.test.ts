@@ -16,14 +16,15 @@ jest.mock('../../src/Drizzle/db', () => ({
     },
     update: jest.fn(),
     delete: jest.fn(),
+    transaction: jest.fn(),
 }));
 describe('User test service', () => {
     const mockUser = {
         user_id: 1,
-       first_name: 'Test',
+        first_name: 'Test',
         last_name: 'User',
         email: 'testuser@gmail.com',
-        password: 'password123',
+        password: 'Password123!', // Valid password that meets requirements
         role: 'user',
         is_verified: false,
         created_at: new Date(),
@@ -34,16 +35,26 @@ describe('User test service', () => {
     });
     describe('createUser', () => {
         it('should create a user', async () => {
-            (db.insert as jest.Mock).mockReturnValue({
-                values: jest.fn().mockReturnValue({
-                    returning: jest.fn().mockResolvedValue(mockUser)
-                })
+            // Mock the existing user check to return null (no existing user)
+            (db.query.UserTable.findFirst as jest.Mock).mockResolvedValue(null);
+            
+            // Mock the transaction function
+            (db.transaction as jest.Mock).mockImplementation(async (callback) => {
+                const mockTx = {
+                    insert: jest.fn().mockReturnValue({
+                        values: jest.fn().mockReturnValue({
+                            returning: jest.fn().mockResolvedValue([mockUser])
+                        })
+                    })
+                };
+                return await callback(mockTx);
             });
 
             const result = await createAuthService(mockUser);
 
             expect(result).toEqual(mockUser);
-            expect(db.insert).toHaveBeenCalledWith(UserTable);
+            expect(db.query.UserTable.findFirst).toHaveBeenCalled();
+            expect(db.transaction).toHaveBeenCalled();
         });
     });
     describe('getAllUsers', () => {
