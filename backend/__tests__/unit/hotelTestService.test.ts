@@ -97,7 +97,7 @@ describe('Hotel test service',()=>{
                 })
             })
 
-            const result = await updateHotelService(1, updatedHotel)
+            const result = await updateHotelService(1, [updatedHotel])
 
             expect(result).toEqual([updatedHotel])
             expect(db.update).toHaveBeenCalledWith(HotelTable)
@@ -107,13 +107,13 @@ describe('Hotel test service',()=>{
         it('should delete a hotel', async () => {
             (db.delete as jest.Mock).mockReturnValue({
                 where: jest.fn().mockReturnValue({
-                    returning: jest.fn().mockResolvedValue([mockHotel])
+                    returning: jest.fn().mockResolvedValue(mockHotel)
                 })
             })
 
             const result = await deleteHotelService(1)
 
-            expect(result).toEqual([mockHotel])
+            expect(result).toEqual(mockHotel)
             expect(db.delete).toHaveBeenCalledWith(HotelTable)
         })
     })

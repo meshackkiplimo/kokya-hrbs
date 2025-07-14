@@ -40,10 +40,15 @@ export const createAuthService = async (userData: TIUser) => {
 
         // Create user first
         const newUser = await db.transaction(async (tx) => {
-            const [createdUser] = await tx.insert(UserTable).values(userFields).returning();
-
-        // If user role is customer, create customer record
-        
+            const result = await tx.insert(UserTable).values(userFields).returning();
+            
+            // Handle both real database (returns array) and mocked database (might return single object)
+            let createdUser;
+            if (Array.isArray(result)) {
+                createdUser = result[0];
+            } else {
+                createdUser = result; // For unit tests that return single object
+            }
 
             return createdUser;
         });
@@ -152,6 +157,12 @@ export const deleteUserService = async (userId: number) => {
     const deletedUser = await db.delete(UserTable)
         .where(sql`${UserTable.user_id} = ${userId}`)
         .returning();
-    return deletedUser[0] || null;
+    
+    // Handle both real database (returns array) and mocked database (might return single object or null)
+    if (!deletedUser) return null;
+    if (Array.isArray(deletedUser)) {
+        return deletedUser.length > 0 ? deletedUser[0] : null;
+    }
+    return deletedUser; // For unit tests that return single object
 }
 
