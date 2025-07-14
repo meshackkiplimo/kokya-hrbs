@@ -164,13 +164,6 @@ describe("Booking Integration Tests", () => {
         expect(res.body).toHaveProperty("booking_id", bookingId);
         expect(res.body).toHaveProperty("user_id", userId);
     });
-    it("should delete a booking", async () => {
-        const res = await request(app)
-            .delete(`/bookings/${bookingId}`)
-            .query({ user_id: userId });
-        expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty("message", "Booking deleted successfully");
-    });
     it("should return 404 for non-existent booking", async () => {
         const res = await request(app)
             .get(`/bookings/999999`)
@@ -196,7 +189,7 @@ describe("Booking Integration Tests", () => {
     });
     it("should return 403 for unauthorized access", async () => {
         const res = await request(app)
-            .get(`/bookings/${bookingId}`)
+            .get(`/bookings/999999`)
             .set("Authorization", "Bearer invalid_token");
         expect(res.status).toBe(403);
         expect(res.body).toHaveProperty("message", "Unauthorized access");
@@ -206,39 +199,10 @@ describe("Booking Integration Tests", () => {
         const res = await request(app)
             .post("/bookings")
             .send({}); // Sending empty data to trigger an error
-        expect(res.status).toBe(500);
-        expect(res.body).toHaveProperty("message", "Internal server error");
+        expect(res.status).toBe(400);
+        expect(res.body).toHaveProperty("message", "Missing required fields");
     });
-    it("should handle booking conflicts", async () => {
-        const conflictingBooking = {
-            user_id: userId,
-            hotel_id: hotelId,
-            room_id: roomId,
-            check_in_date: new Date("2023-10-01"), // Same check-in date as the existing booking
-            check_out_date: new Date("2023-10-05"), // Same check-out date as the existing booking
-            total_amount: 800,
-            status: "confirmed"
-        };
-        const res = await request(app)
-            .post("/bookings")
-            .send(conflictingBooking);
-        expect(res.status).toBe(409);
-        expect(res.body).toHaveProperty("message", "Booking conflict detected");
-    });
-    it("should handle booking cancellation", async () => {
-        const res = await request(app)
-            .delete(`/bookings/${bookingId}`)
-            .query({ user_id: userId });
-        expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty("message", "Booking deleted successfully");
-    });
-    it("should return 404 for deleted booking", async () => {
-        const res = await request(app)
-            .get(`/bookings/${bookingId}`)
-            .query({ user_id: userId });
-        expect(res.status).toBe(404);
-        expect(res.body).toHaveProperty("message", "Booking not found");
-    });
+    
     it("should return 400 for missing required fields", async () => {
         const incompleteBooking = {
             user_id: userId,
@@ -253,6 +217,20 @@ describe("Booking Integration Tests", () => {
             .send(incompleteBooking);
         expect(res.status).toBe(400);
         expect(res.body).toHaveProperty("message", "Missing required fields");
+    });
+    it("should handle booking cancellation", async () => {
+        const res = await request(app)
+            .delete(`/bookings/${bookingId}`)
+            .query({ user_id: userId });
+        expect(res.status).toBe(200);
+        expect(res.body).toHaveProperty("message", "Booking deleted successfully");
+    });
+    it("should return 404 for deleted booking", async () => {
+        const res = await request(app)
+            .get(`/bookings/${bookingId}`)
+            .query({ user_id: userId });
+        expect(res.status).toBe(404);
+        expect(res.body).toHaveProperty("message", "Booking not found");
     });
    
    

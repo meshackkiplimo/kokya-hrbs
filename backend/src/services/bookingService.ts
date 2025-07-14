@@ -11,8 +11,9 @@ export const createBookingService = async (booking:TIBooking) => {
     
 }
 
-export const getAllBookingService = async () => {
-    const getAllBookings= await db.query.BookingTable.findMany({
+export const getAllBookingService = async (userId?: number) => {
+    const getAllBookings = await db.query.BookingTable.findMany({
+        where: userId ? (table, { eq }) => eq(table.user_id, userId) : undefined,
         columns:{
             booking_id: true,
             user_id: true,

@@ -1,4 +1,5 @@
 import { createBookingController, deleteBookingController, getAllBookingController, getBookingByIdController, updateBookingController } from '@/controllers/bookingController';
+import { optionalAuth } from '@/middleware/authMiddleware';
 import { Express } from 'express';
 
 
@@ -19,6 +20,7 @@ export const bookingRoute = (app:Express)=>{
 
     )
     app.route('/bookings/:id').get(
+        optionalAuth,
         async (req, res, next) => {
             try {
                 await getBookingByIdController(req, res);
