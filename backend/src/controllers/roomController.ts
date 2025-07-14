@@ -9,73 +9,81 @@ export const createRoomController = async (req: Request, res: Response) => {
     try {
         const roomData = req.body;
         if (!roomData.hotel_id || !roomData.room_type || !roomData.room_number || !roomData.price_per_night || !roomData.amenities || !roomData.capacity) {
-            return res.status(400).json({ error: "Missing required fields" });
+            return res.status(400).json({ message: "Missing required fields" });
         }
         const newRoom = await createRoomService(roomData);
-        res.status(201).json({
-            message: "Room created successfully",
-            room: newRoom
-        });
+        // Return the room object directly, not wrapped
+        res.status(201).json(newRoom[0]);
         
     } catch (error) {
         console.error("Error in createRoomController:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ message: "Internal Server Error" });
     }
 }
 
 export const getAllRoomsController = async (req: Request, res: Response) => {
     try {
-
-        const rooms = req.body;
         const allRooms = await getAllRoomsService();
         if (!allRooms || allRooms.length === 0) {
-            return res.status(404).json({ error: "No rooms found" });
+            return res.status(404).json({ message: "No rooms found" });
         }
-        res.status(200).json({
-            message: "Rooms retrieved successfully",
-            rooms: allRooms
-        });
+        // Return the rooms array directly
+        res.status(200).json(allRooms);
         
     } catch (error) {
-        console.error("Error in getAllHotelsController:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error("Error in getAllRoomsController:", error);
+        res.status(500).json({ message: "Internal Server Error" });
         
     }
 }
 export const getRoomByIdController = async (req: Request, res: Response) => {
     try {
         const roomId = parseInt(req.params.id);
+        if (isNaN(roomId)) {
+            return res.status(400).json({ message: "Invalid room ID" });
+        }
         const oneRoom = await getRoomByIdService(roomId);
         if (!oneRoom) {
-            return res.status(404).json({ error: "Room not found" });
+            return res.status(404).json({ message: "Room not found" });
         }
-        res.status(200).json({
-            message: "Room found successfully",
-            room: oneRoom
-        });
+        // Return the room object directly
+        res.status(200).json(oneRoom);
         
     } catch (error) {
         console.error("Error in getRoomByIdController:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ message: "Internal Server Error" });
         
     }
 }
 export const updateRoomController = async (req: Request, res: Response) => {
     try {
         const roomId = parseInt(req.params.id);
-        const roomData = req.body;
-        if (!roomData.hotel_id || !roomData.room_type || !roomData.room_number || !roomData.price_per_night || !roomData.amenities || !roomData.capacity) {
-            return res.status(400).json({ error: "Missing required fields" });
+        if (isNaN(roomId)) {
+            return res.status(400).json({ message: "Invalid room ID" });
         }
+        const roomData = req.body;
+        
+        // Check if the room exists first
+        const existingRoom = await getRoomByIdService(roomId);
+        if (!existingRoom) {
+            return res.status(404).json({ message: "Room not found" });
+        }
+        
+        // Allow partial updates - only validate if the request body is completely empty
+        if (Object.keys(roomData).length === 0) {
+            return res.status(400).json({ message: "No update data provided" });
+        }
+        
         const updatedRoom = await updateRoomService(roomId, roomData);
-        res.status(200).json({
-            message: "Room updated successfully",
-            room: updatedRoom
-        });
+        if (!updatedRoom || updatedRoom.length === 0) {
+            return res.status(404).json({ message: "Room not found or update failed" });
+        }
+        // Return the updated room object directly
+        res.status(200).json(updatedRoom[0]);
         
     } catch (error) {
         console.error("Error in updateRoomController:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ message: "Internal Server Error" });
         
     }
 }
@@ -83,20 +91,19 @@ export const deleteRoomController = async (req: Request, res: Response) => {
     try {
         const roomId = parseInt(req.params.id);
         if (isNaN(roomId)) {
-            return res.status(400).json({ error: "Invalid room ID" });
+            return res.status(400).json({ message: "Invalid room ID" });
         }
         const deletedRoom = await deleteRoomService(roomId);
-        if (!deletedRoom) {
-            return res.status(404).json({ error: "Room not found" });
+        if (!deletedRoom || deletedRoom.length === 0) {
+            return res.status(404).json({ message: "Room not found" });
         }
         res.status(200).json({
-            message: "Room deleted successfully",
-            room: deletedRoom
+            message: "Room deleted successfully"
         });
         
     } catch (error) {
         console.error("Error in deleteRoomController:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        res.status(500).json({ message: "Internal Server Error" });
         
     }
 }
