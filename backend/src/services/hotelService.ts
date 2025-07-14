@@ -36,14 +36,8 @@ export const getHotelByIdService = async (hotelId: number) => {
         columns: {
             hotel_id: true,
             name: true,
-            address: true,
-            location: true,
-            contact_number: true,
-            category: true,
-            rating: true,
-            created_at: true,
-            updated_at: true,
         }
+        
     });
     return hotel;
 }
