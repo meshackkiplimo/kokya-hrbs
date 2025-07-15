@@ -39,6 +39,7 @@ export const hotelApi = createApi({
         }),
         getHotels: builder.query<THotel[], void>({
             query: () => "/hotels",
+          
            
             providesTags: ["Hotels"],
         }),

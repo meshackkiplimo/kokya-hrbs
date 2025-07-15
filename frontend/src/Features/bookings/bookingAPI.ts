@@ -45,6 +45,7 @@ export const bookingApi = createApi({
         }),
         getBookings: builder.query<TBooking[], void>({
             query: () => "/bookings",
+            transformResponse: (response: { data: TBooking[] }) => response.data,
             providesTags: ["Bookings"],
         }),
         updateBookingStatus: builder.mutation<TBooking, { booking_id: number; status: string }>({
