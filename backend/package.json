@@ -13,6 +13,7 @@
     "spike": "k6 run loadtest/spike/booking.test.ts",
     "stress": "k6 run loadtest/stress/booking.test.ts",
     "stress2": "k6 run loadtest/stress2/login.test.ts",
+    "soak": "k6 run loadtest/soak/payment.test.ts",
     "seed": "tsx src/Drizzle/seed.ts"
   },
   "keywords": [],
