@@ -12,6 +12,7 @@
     "smoke": "k6 run loadtest/smoke/login.test.ts",
     "spike": "k6 run loadtest/spike/booking.test.ts",
     "stress": "k6 run loadtest/stress/booking.test.ts",
+    "stress2": "k6 run loadtest/stress2/login.test.ts",
     "seed": "tsx src/Drizzle/seed.ts"
   },
   "keywords": [],
