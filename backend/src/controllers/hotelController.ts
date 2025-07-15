@@ -1,4 +1,4 @@
-import { createHotelService, deleteHotelService, getAllHotelService, getHotelByIdService, updateHotelService } from "@/services/hotelService";
+import { createHotelService, deleteHotelService, getAllHotelService, getAllHotelsWithoutPaginationService, getHotelByIdService, updateHotelService } from "@/services/hotelService";
 import { Request, Response } from "express";
 
 export const createHotelController = async (req: Request, res: Response) => {
@@ -54,6 +54,19 @@ export const getAllHotelController = async (req: Request, res: Response) => {
         
     } catch (error) {
         console.error("Error in getAllHotelController:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+export const getAllHotelsWithoutPaginationController = async (req: Request, res: Response) => {
+    try {
+        const hotels = await getAllHotelsWithoutPaginationService();
+        
+        // Return array directly (for analytics and other components that need all hotels)
+        res.status(200).json(hotels || []);
+        
+    } catch (error) {
+        console.error("Error in getAllHotelsWithoutPaginationController:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 };

@@ -1,9 +1,22 @@
-import { createHotelController, deleteHotelController, getAllHotelController, getHotelByIdController, updateHotelController } from "@/controllers/hotelController";
+import { createHotelController, deleteHotelController, getAllHotelController, getAllHotelsWithoutPaginationController, getHotelByIdController, updateHotelController } from "@/controllers/hotelController";
 import { Express } from "express";
 
 
 
 export const hotelRoute = (app:Express)=>{
+    // Place specific routes before parameterized routes to avoid conflicts
+    app.route("/hotels/all").get(
+        async (req,res,next) => {
+           try {
+            await getAllHotelsWithoutPaginationController(req,res);
+            
+           } catch (error) {
+            next(error);
+            
+           }
+            
+        }
+    )
     app.route("/hotels").get(
         async (req,res,next) => {
            try {

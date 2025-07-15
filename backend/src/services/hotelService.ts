@@ -73,6 +73,23 @@ export const getHotelByIdService = async (hotelId: number) => {
     return hotel;
 }
 
+export const getAllHotelsWithoutPaginationService = async () => {
+    const getAllHotels = await db.query.HotelTable.findMany({
+        columns:{
+            hotel_id: true,
+            name: true,
+            address: true,
+            location: true,
+            contact_number: true,
+            category: true,
+            rating: true,
+            created_at: true,
+            updated_at: true,
+        }
+    })
+    return getAllHotels;
+}
+
 export const updateHotelService = async (hotelId: number, hotel: TIHotel) => {
     const updatedHotel = await db.update(HotelTable)
         .set(hotel)

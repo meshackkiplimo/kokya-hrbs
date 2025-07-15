@@ -63,5 +63,9 @@ export const hotelApi = createApi({
             }),
             providesTags: ["Hotels"],
         }),
+        getAllHotels: builder.query<THotel[], void>({
+            query: () => "/hotels/all",
+            providesTags: ["Hotels"],
+        }),
     }),
 });
