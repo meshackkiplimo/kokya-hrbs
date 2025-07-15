@@ -1,4 +1,4 @@
-import { createBookingService, deleteBookingService, getAllBookingService, getBookingByIdService, updateBookingService } from '@/services/bookingService';
+import { createBookingService, deleteBookingService, getAllBookingService, getBookingByIdService, updateBookingService, checkRoomConflictService } from '@/services/bookingService';
 import { updateHotelService } from '@/services/hotelService';
 import { Request, Response } from 'express';
 
@@ -28,20 +28,12 @@ export const createBookingController = async (req:Request,res:Response) => {
             return res.status(400).json({ message: 'Invalid booking data' });
         }
 
-        // Check for booking conflicts - Get all bookings for the specific room
-        const allBookings = await getAllBookingService();
-        const existingRoomBookings = allBookings.filter(booking =>
-            booking.room_id === room_id &&
-            (booking.status === 'confirmed' || booking.status === 'pending')
+        // Check for booking conflicts using optimized query
+        const hasConflict = await checkRoomConflictService(
+            room_id,
+            check_in_date,
+            check_out_date
         );
-        
-        const hasConflict = existingRoomBookings.some(booking => {
-            const existingCheckIn = new Date(booking.check_in_date);
-            const existingCheckOut = new Date(booking.check_out_date);
-            
-            // Check for overlap: new booking overlaps with existing booking
-            return (checkInDate < existingCheckOut && checkOutDate > existingCheckIn);
-        });
 
         if (hasConflict) {
             return res.status(409).json({ message: 'Booking conflict detected' });
@@ -67,10 +59,11 @@ export const getAllBookingController = async (req: Request, res: Response) => {
     try {
         const userId = req.query.user_id as string;
         const allBookings = await getAllBookingService(userId ? parseInt(userId) : undefined);
-        if (allBookings.length === 0) {
+        if (!allBookings ) {
             return res.status(404).json({ message: 'No bookings found' });
         }
-        res.status(200).json(allBookings);
+       
+        res.status(200).json({ data: allBookings });
         
     } catch (error) {
         console.error('Error fetching all bookings:', error);

@@ -21,7 +21,12 @@ export const options = {
 };
 
 export default function () {
-    const res = http.get(`${BASE_URL}/cars`, {
+    const res = http.get(`${BASE_URL}/bookings`, {
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+        },
+
      
     });
 

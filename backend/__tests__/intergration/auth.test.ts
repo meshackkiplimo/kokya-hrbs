@@ -51,7 +51,7 @@ describe("Auth Integration Tests", () => {
             const newUser = {
                 first_name: "New",
                 last_name: "User",
-                email: "newuser@gmail.com",
+                email: "newuserhhh@gmail.com",
                 password: "newpassword123",
                 role: "user"
             };
