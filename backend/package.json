@@ -11,6 +11,7 @@
     "migrate": "tsx src/Drizzle/migrate.ts",
     "smoke": "k6 run loadtest/smoke/login.test.ts",
     "spike": "k6 run loadtest/spike/booking.test.ts",
+    "stress": "k6 run loadtest/stress/booking.test.ts",
     "seed": "tsx src/Drizzle/seed.ts"
   },
   "keywords": [],
