@@ -31,8 +31,8 @@ export const createPaymentController = async (req: Request, res: Response) => {
 export const getAllPaymentsController = async (req: Request, res: Response) => {
     try {
         const payments = await getAllPaymentsService();
-        // Return array directly (as expected by tests)
-        res.status(200).json(payments || []);
+        // Return wrapped in data property (as expected by tests)
+        res.status(200).json({ data: payments || [] });
         
     } catch (error) {
         console.error("Error in getAllPaymentsController:", error);
