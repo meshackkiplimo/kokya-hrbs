@@ -52,7 +52,7 @@ export const authRoute = (app:Express)=>{
                 next(error);
             }
         })
-        app.route('/auth/users/:id').put(
+        app.route('/users/:id').put(
         async (req, res, next) => {
             try {
                 await updateUserController(req, res);

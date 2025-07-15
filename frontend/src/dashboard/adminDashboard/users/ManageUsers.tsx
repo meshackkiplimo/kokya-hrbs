@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { type TUser, UserApi } from '../../../Features/users/userAPI';
 import DeleteUser from './DeleteUser';
+import ChangeRole from './ChangeRole';
 
 const ManageUsers = () => {
     const {data:usersData, isLoading, error} = UserApi.useGetUsersQuery(
@@ -26,8 +27,9 @@ const ManageUsers = () => {
                 <th className="px-4 py-2">Last Name</th>
                 <th className="px-4 py-2">Email</th>
                 <th className="px-4 py-2">Role</th>
-                <th className="px-4 py-2">Verified</th>
-                <th className="px-4 py-2">Actions</th>
+                <th className="px-4 py-2">Status</th>
+                <th className="px-4 py-2">Delete User</th>
+                 <th className="px-4 py-2">Change Role</th>
               </tr>
             </thead>
             <tbody>
@@ -52,7 +54,19 @@ const ManageUsers = () => {
                       <DeleteUser userId={user.user_id} />
                     </div>
                   </td>
-                 
+                  <td className="px-4 py-2">
+                    <button
+                      className="btn btn-primary bg-gray-600 text-white rounded-2xl"
+                      onClick={() => {
+                        setSelectedUser(user);
+                        (document.getElementById('role_modal') as HTMLDialogElement)?.showModal();
+                      }}
+                    >
+                      Change Role
+                    </button>
+                    <ChangeRole user={selectedUser} />
+                  </td>
+                
                 </tr>
               ))}
             </tbody>

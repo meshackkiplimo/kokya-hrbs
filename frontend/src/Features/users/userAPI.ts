@@ -60,7 +60,7 @@ export const UserApi = createApi({
     updateUserRole: builder.mutation<TUser, { id: number; role: string }>({
       query: ({ id, role }) => ({
         url: `/users/${id}`,
-        method: "PATCH",
+        method: "PUT",
         body: { role },
       }),
       invalidatesTags: ["Users"],
