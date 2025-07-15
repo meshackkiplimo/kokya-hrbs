@@ -43,7 +43,7 @@ export const roomsApi = createApi({
         }),
         getRooms: builder.query<TRoom[], void>({
             query: () => "/rooms",
-            transformResponse: (response: { rooms: TRoom[] }) => response.rooms,
+           
             providesTags: ["Rooms"],
         }),
     }),

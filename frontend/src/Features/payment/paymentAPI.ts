@@ -45,7 +45,7 @@ export const paymentApi = createApi({
         }),
         getPayments: builder.query<TPayment[], void>({
             query: () => "/payments",
-            transformResponse: (response: {payments:TPayment[]}) => response.payments,
+            
             providesTags: ["Payments"],
         }),
         updatePaymentStatus: builder.mutation<TPayment, { payment_id: number; status: string }>({
