@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { type TUser, UserApi } from '../../../Features/users/userAPI';
+import DeleteUser from './DeleteUser';
 
 const ManageUsers = () => {
     const {data:usersData, isLoading, error} = UserApi.useGetUsersQuery(
@@ -44,6 +45,12 @@ const ManageUsers = () => {
                         <span className="text-yellow-700">Not Verified</span>
                       )}
                     </span>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="flex space-x-2">
+                      
+                      <DeleteUser userId={user.user_id} />
+                    </div>
                   </td>
                  
                 </tr>

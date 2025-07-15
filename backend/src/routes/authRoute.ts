@@ -43,7 +43,7 @@ export const authRoute = (app:Express)=>{
                 next(error);
             }
         })
-    app.route('/auth/users/:id').delete(
+    app.route('/users/:id').delete(
         async (req, res, next) => {
             try {
              
