@@ -16,7 +16,14 @@ export const createHotelService = async (hotel:TIHotel) => {
    return newHotel; // For unit tests that return single object
 }
 
-export const getAllHotelService = async () => {
+export const getAllHotelService = async (page: number = 1, limit: number = 10) => {
+    const offset = (page - 1) * limit;
+    
+    // Get total count for pagination
+    const totalCount = await db.query.HotelTable.findMany();
+    const total = totalCount.length;
+    
+    // Get paginated results
     const getAllHotels = await db.query.HotelTable.findMany({
         columns:{
             hotel_id: true,
@@ -28,11 +35,22 @@ export const getAllHotelService = async () => {
             rating: true,
             created_at: true,
             updated_at: true,
+        },
+        limit: limit,
+        offset: offset
+    });
+    
+    return {
+        hotels: getAllHotels,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            itemsPerPage: limit,
+            hasNextPage: page < Math.ceil(total / limit),
+            hasPrevPage: page > 1
         }
-
-
-    })
-    return getAllHotels;
+    };
 }
 
 export const getHotelByIdService = async (hotelId: number) => {

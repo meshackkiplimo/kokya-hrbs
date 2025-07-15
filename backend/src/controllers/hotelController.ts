@@ -35,10 +35,22 @@ export const createHotelController = async (req: Request, res: Response) => {
 
 export const getAllHotelController = async (req: Request, res: Response) => {
     try {
-        const hotels = await getAllHotelService();
+        // Extract pagination parameters from query string
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
         
-        // Return array directly (as expected by tests)
-        res.status(200).json(hotels || []);
+        // Validate pagination parameters
+        if (page < 1) {
+            return res.status(400).json({ message: "Page must be greater than 0" });
+        }
+        if (limit < 1 || limit > 100) {
+            return res.status(400).json({ message: "Limit must be between 1 and 100" });
+        }
+        
+        const result = await getAllHotelService(page, limit);
+        
+        // Return paginated result
+        res.status(200).json(result);
         
     } catch (error) {
         console.error("Error in getAllHotelController:", error);

@@ -15,6 +15,25 @@ export type THotel={
     rating: number;
 }
 
+export type TPaginationInfo = {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+}
+
+export type THotelResponse = {
+    hotels: THotel[];
+    pagination: TPaginationInfo;
+}
+
+export type TPaginationParams = {
+    page?: number;
+    limit?: number;
+}
+
 export const hotelApi = createApi({
     reducerPath: "hotelApi",
     baseQuery: fetchBaseQuery({
@@ -37,10 +56,11 @@ export const hotelApi = createApi({
             }),
             invalidatesTags: ["Hotels"],
         }),
-        getHotels: builder.query<THotel[], void>({
-            query: () => "/hotels",
-          
-           
+        getHotels: builder.query<THotelResponse, TPaginationParams>({
+            query: ({ page = 1, limit = 10 } = {}) => ({
+                url: "/hotels",
+                params: { page, limit }
+            }),
             providesTags: ["Hotels"],
         }),
     }),
