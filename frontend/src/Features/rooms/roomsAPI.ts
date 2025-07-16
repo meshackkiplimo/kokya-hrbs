@@ -89,4 +89,11 @@ export const roomsApi = createApi({
         }),
     }),
 });
-        
+
+export const {
+    useCreateRoomMutation,
+    useGetRoomsQuery,
+    useGetAllRoomsQuery,
+    useGetRoomByIdQuery,
+    useUpdateRoomMutation,
+} = roomsApi;
