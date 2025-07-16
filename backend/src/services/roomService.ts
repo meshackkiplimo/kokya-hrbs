@@ -9,6 +9,25 @@ export const createRoomService = async (room: TIRoom) => {
     return newRoom;
 }
 
+// Get all rooms without pagination
+export const getAllRoomsWithoutPaginationService = async () => {
+    const rooms = await db.query.RoomTable.findMany({
+        columns: {
+            room_id: true,
+            hotel_id: true,
+            room_number: true,
+            room_type: true,
+            price_per_night: true,
+            amenities: true,
+            capacity: true,
+            availability: true,
+            created_at: true,
+            updated_at: true,
+        }
+    });
+    return rooms;
+}
+
 
 
 export const getAllRoomsService = async (page:number=1,limit:number=10) => {

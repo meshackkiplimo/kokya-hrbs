@@ -37,7 +37,7 @@ const ManageAnalytics = () => {
   const { data: payments = [], isLoading: paymentsLoading } = paymentApi.useGetPaymentsQuery();
   const { data: bookings = [], isLoading: bookingsLoading } = bookingApi.useGetBookingsQuery();
   const { data: hotels = [], isLoading: hotelsLoading } = hotelApi.useGetAllHotelsQuery();
-  const { data: rooms = [], isLoading: roomsLoading } = roomsApi.useGetRoomsQuery();
+  const { data: rooms = [], isLoading: roomsLoading } = roomsApi.useGetAllRoomsQuery();
 
   const isLoading = paymentsLoading || bookingsLoading || hotelsLoading || roomsLoading;
 

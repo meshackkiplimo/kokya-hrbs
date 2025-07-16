@@ -1,4 +1,4 @@
-import { createRoomService, deleteRoomService, getAllRoomsService, getRoomByIdService, updateRoomService } from "@/services/roomService";
+import { createRoomService, deleteRoomService, getAllRoomsService, getAllRoomsWithoutPaginationService, getRoomByIdService, updateRoomService } from "@/services/roomService";
 import { Request, Response } from "express";
 
 
@@ -17,6 +17,18 @@ export const createRoomController = async (req: Request, res: Response) => {
         
     } catch (error) {
         console.error("Error in createRoomController:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+}
+
+// rooms with pagination
+export const getAllRoomsWithoutPaginationController = async (req: Request, res: Response) => {
+    try {
+        const rooms = await getAllRoomsWithoutPaginationService();
+        // Return the rooms array directly, not wrapped
+        res.status(200).json(rooms);
+    } catch (error) {
+        console.error("Error in getAllRoomsWithoutPaginationController:", error);
         res.status(500).json({ message: "Internal Server Error" });
     }
 }

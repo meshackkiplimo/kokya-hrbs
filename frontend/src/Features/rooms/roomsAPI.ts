@@ -67,6 +67,26 @@ export const roomsApi = createApi({
            
           
         }),
+        getAllRooms: builder.query<TRoom[], void>({
+            query: () => ({
+                url: "/rooms/all",
+            }),
+            providesTags: ["Rooms"],
+        }),
+        getRoomById: builder.query<TRoom, number>({
+            query: (roomId) => ({
+                url: `/rooms/${roomId}`,
+            }),
+            providesTags: (result, error, roomId) => [{ type: "Rooms", id: roomId }],
+        }),
+        updateRoom: builder.mutation<TRoom, { roomId: number; roomData: Partial<TRoom> }>({
+            query: ({ roomId, roomData }) => ({
+                url: `/rooms/${roomId}`,
+                method: "PUT",
+                body: roomData,
+            }),
+            invalidatesTags: (result, error, { roomId }) => [{ type: "Rooms", id: roomId }],
+        }),
     }),
 });
         

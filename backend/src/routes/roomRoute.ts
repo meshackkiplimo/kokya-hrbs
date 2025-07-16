@@ -1,8 +1,18 @@
 
-import { createRoomController, deleteRoomController, getAllRoomsController, getRoomByIdController, updateRoomController } from "@/controllers/roomController";
+import { createRoomController, deleteRoomController, getAllRoomsController, getAllRoomsWithoutPaginationController, getRoomByIdController, updateRoomController } from "@/controllers/roomController";
 import { Express } from "express";
 
 export const roomRoute = (app: Express) => {
+
+    app.route("/rooms/all").get(
+        async (req, res, next) => {
+            try {
+                await getAllRoomsWithoutPaginationController(req, res);
+            } catch (error) {
+                next(error);
+            }
+        }
+    )
 
     app.route("/rooms").get(
         async (req, res, next) => {
