@@ -48,8 +48,16 @@ const AdminDashboard = () => {
 
     // Close mobile drawer when clicking outside
     useEffect(() => {
-        const handleClickOutside = () => {
-            if (drawerOpen) setDrawerOpen(false);
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            const sidebar = document.getElementById('admin-sidebar');
+            const menuButton = document.getElementById('mobile-menu-button');
+            
+            // Don't close if clicking inside sidebar or on menu button
+            if (drawerOpen && sidebar && menuButton &&
+                !sidebar.contains(target) && !menuButton.contains(target)) {
+                setDrawerOpen(false);
+            }
         };
         
         if (drawerOpen) {
@@ -60,6 +68,11 @@ const AdminDashboard = () => {
             document.removeEventListener('click', handleClickOutside);
         };
     }, [drawerOpen]);
+
+    // Close drawer when route changes (mobile)
+    useEffect(() => {
+        setDrawerOpen(false);
+    }, [location.pathname]);
 
     // Mock notifications
     const notifications = [
@@ -72,12 +85,13 @@ const AdminDashboard = () => {
         <div className={`flex min-h-screen ${darkMode ? 'dark' : ''}`}>
             {/* Sidebar */}
             <aside
+                id="admin-sidebar"
                 className={`
-                    fixed top-0 left-0 z-50 w-72 h-screen transition-transform duration-300 ease-in-out
-                    ${drawerOpen ? 'translate-x-0' : '-translate-x-full'} 
-                    lg:translate-x-0 lg:static lg:z-auto
+                    fixed top-0 left-0 z-50 w-80 h-screen transition-transform duration-300 ease-in-out
+                    ${drawerOpen ? 'translate-x-0' : '-translate-x-full'}
+                    lg:translate-x-0 lg:static lg:z-auto lg:w-72
                     bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900
-                    border-r border-slate-700/50
+                    border-r border-slate-700/50 shadow-2xl lg:shadow-none
                 `}
             >
                 {/* Sidebar Content */}
@@ -96,8 +110,12 @@ const AdminDashboard = () => {
                         
                         {/* Close button for mobile */}
                         <button
-                            className="lg:hidden text-slate-400 hover:text-white transition-colors"
-                            onClick={handleDrawerToggle}
+                            className="lg:hidden text-slate-400 hover:text-white transition-colors p-1 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleDrawerToggle();
+                            }}
+                            aria-label="Close navigation menu"
                         >
                             <IoCloseSharp size={24} />
                         </button>
@@ -138,20 +156,36 @@ const AdminDashboard = () => {
                         <div className="flex items-center space-x-4">
                             {/* Mobile Menu Button */}
                             <button
-                                className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors"
-                                onClick={handleDrawerToggle}
+                                id="mobile-menu-button"
+                                className="lg:hidden p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDrawerToggle();
+                                }}
+                                aria-label="Toggle navigation menu"
                             >
-                                <FaBars className="w-5 h-5 text-slate-600" />
+                                {drawerOpen ? (
+                                    <IoCloseSharp className="w-5 h-5 text-slate-600" />
+                                ) : (
+                                    <FaBars className="w-5 h-5 text-slate-600" />
+                                )}
                             </button>
 
                             {/* Page Title */}
-                            <div>
+                            <div className="hidden sm:block">
                                 <h2 className="text-xl font-semibold text-slate-800">
                                     {getPageTitle()}
                                 </h2>
                                 <p className="text-sm text-slate-500">
                                     Manage your hotel business efficiently
                                 </p>
+                            </div>
+                            
+                            {/* Mobile Page Title */}
+                            <div className="sm:hidden">
+                                <h2 className="text-lg font-semibold text-slate-800">
+                                    {getPageTitle().split(' ')[0]}
+                                </h2>
                             </div>
                         </div>
 
@@ -284,9 +318,13 @@ const AdminDashboard = () => {
 
             {/* Mobile Overlay */}
             {drawerOpen && (
-                <div 
-                    className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-                    onClick={handleDrawerToggle}
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleDrawerToggle();
+                    }}
+                    aria-label="Close navigation menu"
                 ></div>
             )}
         </div>

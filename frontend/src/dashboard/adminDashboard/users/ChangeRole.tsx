@@ -64,8 +64,8 @@ const ChangeRole = ({ user }: ChangeRoleProps) => {
     };
 
     return (
-        <dialog id="role_modal" className="modal sm:modal-middle">
-            <div className="modal-box bg-gray-600 text-white w-full max-w-xs sm:max-w-lg mx-auto rounded-lg">
+        <dialog id="role_modal" className="modal modal-bottom sm:modal-middle z-[60]">
+            <div className="modal-box bg-gray-600 text-white w-11/12 max-w-xs sm:max-w-lg mx-auto my-8 rounded-lg">
                 <h3 className="font-bold text-lg mb-4">
                     Change Role for {user?.first_name} {user?.last_name}
                 </h3>
