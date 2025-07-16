@@ -30,15 +30,30 @@ export const createPaymentController = async (req: Request, res: Response) => {
 
 export const getAllPaymentsController = async (req: Request, res: Response) => {
     try {
-        const payments = await getAllPaymentsService();
-        // Return wrapped in data property (as expected by tests)
-        res.status(200).json({ data: payments || [] });
+        // Extract pagination parameters from query string
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        // Validate pagination parameters
+        if (page < 1) {
+            return res.status(400).json({ message: "Page must be greater than 0" });
+        }
+        if (limit < 1 || limit > 100) {
+            return res.status(400).json({ message: "Limit must be between 1 and 100" });
+        }
+        const result = await getAllPaymentsService(page, limit);
+        if (!result) {
+            return res.status(400).json({ message: "No payments found" });
+        }
+        // Return paginated result
+        res.status(200).json(result);
+        
         
     } catch (error) {
         console.error("Error in getAllPaymentsController:", error);
         res.status(500).json({ message: "Internal Server Error" });
+        
     }
-};
+}
 
 export const getPaymentByIdController = async (req: Request, res: Response) => {
     try {

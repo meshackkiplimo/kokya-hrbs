@@ -9,7 +9,11 @@ export const createPaymentService = async (payment:TIPayment) => {
     return newpayment[0];
 }
 
-export const getAllPaymentsService = async () => {
+export const getAllPaymentsService = async (page:number=1,limit:number=10) => {
+    const offset = (page - 1) * limit;
+    const totalCount = await db.query.PaymentTable.findMany();
+    const total = totalCount.length;    
+
     const payments = await db.query.PaymentTable.findMany({
         columns:{
             payment_id: true,
@@ -20,9 +24,21 @@ export const getAllPaymentsService = async () => {
             transaction_id: true,
             payment_date: true,
            
-        }
+        },
+        limit: limit,
+        offset: offset
     })
-    return payments;
+    return {
+        payments: payments,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            itemsPerPage: limit,
+            hasNextPage: page < Math.ceil(total / limit),
+            hasPrevPage: page > 1
+        }
+    }
 }
 
 export const getPaymentByIdService = async (paymentId: number) => {

@@ -19,6 +19,23 @@ export type TPayment = {
 
 
 }
+export type TPaginationInfo = {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+}
+export type TPaymentResponse = {
+    payments: TPayment[];
+    pagination: TPaginationInfo;
+}
+export type TPaginationParams = {
+    page?: number;
+    limit?: number;
+}
+
 
 
 export const paymentApi = createApi({
@@ -43,10 +60,11 @@ export const paymentApi = createApi({
             }),
             invalidatesTags: ["Payments"],
         }),
-        getPayments: builder.query<TPayment[], void>({
-            query: () => "/payments",
-            transformResponse: (response: { data: TPayment[] }) => response.data,
-            
+        getPayments: builder.query<TPaymentResponse, TPaginationParams>({
+            query: ({page=1,limit=10}) => ({
+                url: "/payments",
+                params: { page, limit }
+            }),
             providesTags: ["Payments"],
         }),
         updatePaymentStatus: builder.mutation<TPayment, { payment_id: number; status: string }>({
