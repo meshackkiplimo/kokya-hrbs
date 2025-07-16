@@ -94,8 +94,23 @@ export const loginAuthService = async (user: TIUser) => {
     return result;
 }
 
-export const getAllUsersService = async () => {
+export const getAllUsersService = async (page?: number, limit?: number) => {
     try {
+        // Default pagination values
+        const currentPage = page && page > 0 ? page : 1;
+        const pageSize = limit && limit > 0 ? limit : 10;
+        const offset = (currentPage - 1) * pageSize;
+
+        // Get total count for pagination info
+        const totalUsers = await db.query.UserTable.findMany({
+            columns: {
+                user_id: true
+            }
+        });
+        const totalCount = totalUsers.length;
+        const totalPages = Math.ceil(totalCount / pageSize);
+
+        // Get paginated users
         const allUsers = await db.query.UserTable.findMany({
             columns: {
                 user_id: true,
@@ -106,9 +121,22 @@ export const getAllUsersService = async () => {
                 is_verified: true,
                 created_at: true,
                 updated_at: true
-            }
+            },
+            limit: pageSize,
+            offset: offset
         });
-        return allUsers;
+
+        return {
+            users: allUsers,
+            pagination: {
+                currentPage,
+                pageSize,
+                totalCount,
+                totalPages,
+                hasNextPage: currentPage < totalPages,
+                hasPreviousPage: currentPage > 1
+            }
+        };
     } catch (error) {
         console.error("Error fetching all users:", error);
         throw new Error("Failed to fetch all users");

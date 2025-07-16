@@ -51,9 +51,28 @@ export const UserApi = createApi({
       invalidatesTags: ["Users"],
     }),
 
-    getUsers: builder.query<TUser[], void>({
-      query: () => "/users",
-      
+    getUsers: builder.query<
+      {
+        users: TUser[];
+        pagination: {
+          currentPage: number;
+          pageSize: number;
+          totalCount: number;
+          totalPages: number;
+          hasNextPage: boolean;
+          hasPreviousPage: boolean;
+        };
+      },
+      { page?: number; limit?: number } | void
+    >({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        if (params?.page) queryParams.append("page", params.page.toString());
+        if (params?.limit) queryParams.append("limit", params.limit.toString());
+        
+        const queryString = queryParams.toString();
+        return `/users${queryString ? `?${queryString}` : ""}`;
+      },
       providesTags: ["Users"],
     }),
 

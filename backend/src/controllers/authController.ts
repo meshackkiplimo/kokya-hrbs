@@ -215,11 +215,26 @@ export const verifyEmailController = async (req: Request, res: Response) => {
 };
 export const getAllUsersController = async (req: Request, res: Response) => {
     try {
-        const users = await getAllUsersService();
-        if (!users || users.length === 0) {
-            return res.status(404).json({ message: "No users found" });
+        // Extract pagination parameters from query string
+        const page = req.query.page ? parseInt(req.query.page as string) : undefined;
+        const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+
+        // Validate pagination parameters
+        if (page !== undefined && (isNaN(page) || page < 1)) {
+            return res.status(400).json({ message: "Invalid page number. Page must be a positive integer." });
         }
-        res.status(200).json(users);
+        if (limit !== undefined && (isNaN(limit) || limit < 1 || limit > 100)) {
+            return res.status(400).json({ message: "Invalid limit. Limit must be between 1 and 100." });
+        }
+
+        const result = await getAllUsersService(page, limit);
+        if (!result || !result.users || result.users.length === 0) {
+            return res.status(404).json({
+                message: "No users found",
+                pagination: result?.pagination || null
+            });
+        }
+        res.status(200).json(result);
     } catch (error) {
         console.error("Error in getAllUsersController:", error);
         res.status(500).json({ message: "Internal server error" });
