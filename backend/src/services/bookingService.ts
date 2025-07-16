@@ -12,6 +12,25 @@ export const createBookingService = async (booking:TIBooking) => {
     
 }
 
+// bookings without pagination
+export const getAllBookingsWithoutPaginationService = async () => {
+    const allBookings = await db.query.BookingTable.findMany({
+        columns: {
+            booking_id: true,
+            user_id: true,
+            hotel_id: true,
+            room_id: true,
+            check_in_date: true,
+            check_out_date: true,
+            total_amount: true,
+            status: true,
+            created_at: true,
+            updated_at: true,
+        }
+    });
+    return allBookings;
+}
+
 export const getAllBookingService = async (userId?: number,page:number=1,limit:number=10) => {
     const cacheKey = `bookings_${userId || 'all'}_page_${page}_limit_${limit}`;
     

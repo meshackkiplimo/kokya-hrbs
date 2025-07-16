@@ -1,4 +1,4 @@
-import { createBookingController, deleteBookingController, getAllBookingController, getBookingByIdController, updateBookingController } from '@/controllers/bookingController';
+import { createBookingController, deleteBookingController, getAllBookingController, getAllBookingsWithoutPaginationController, getBookingByIdController, updateBookingController } from '@/controllers/bookingController';
 import { optionalAuth } from '@/middleware/authMiddleware';
 import { Express } from 'express';
 
@@ -30,6 +30,16 @@ export const bookingRoute = (app:Express)=>{
                 
             }
             
+        }
+    )
+    app.route('/bookings/without-pagination').get(
+        async (req, res, next) => {
+            try {
+                await getAllBookingsWithoutPaginationController(req, res);
+            } catch (error) {
+                next(error);
+                
+            }
         }
     )
     app.route('/bookings').post(

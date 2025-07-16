@@ -35,7 +35,7 @@ import { roomsApi } from '../../../Features/rooms/roomsAPI';
 const ManageAnalytics = () => {
   // Fetch data from all APIs
   const { data: payments = [], isLoading: paymentsLoading } = paymentApi.useGetAllPaymentsQuery();
-  const { data: bookings = [], isLoading: bookingsLoading } = bookingApi.useGetBookingsQuery();
+  const { data: bookings = [], isLoading: bookingsLoading } = bookingApi.useGetAllBookingsQuery();
   const { data: hotels = [], isLoading: hotelsLoading } = hotelApi.useGetAllHotelsQuery();
   const { data: rooms = [], isLoading: roomsLoading } = roomsApi.useGetAllRoomsQuery();
 

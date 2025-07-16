@@ -67,6 +67,10 @@ export const bookingApi = createApi({
             }),
             providesTags: ["Bookings"],
         }),
+        getAllBookings: builder.query<TBooking[], void>({
+            query: () => "/bookings/without-pagination",
+            providesTags: ["Bookings"],
+        }),
         updateBookingStatus: builder.mutation<TBooking, { booking_id: number; status: string }>({
             query: ({ booking_id, status }) => ({
                 url: `/bookings/${booking_id}`,
