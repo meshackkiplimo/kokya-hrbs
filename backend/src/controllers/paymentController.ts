@@ -1,4 +1,4 @@
-import { createPaymentService, deletePaymentService, getAllPaymentsService, getPaymentByIdService, updatePaymentService } from "@/services/paymentService";
+import { createPaymentService, deletePaymentService, getAllPaymentsService, getAllPaymentsWithoutPaginationService, getPaymentByIdService, updatePaymentService } from "@/services/paymentService";
 import { Request, Response } from "express";
 
 export const createPaymentController = async (req: Request, res: Response) => {
@@ -27,6 +27,20 @@ export const createPaymentController = async (req: Request, res: Response) => {
         res.status(400).json({ message: "Payment creation failed" });
     }
 };
+// get all payments without pagination
+export const getAllPaymentsWithoutPaginationController = async (req: Request, res: Response) => {
+    try {
+        const allPayments = await getAllPaymentsWithoutPaginationService();
+        if (!allPayments) {
+            return res.status(400).json({ message: "No payments found" });
+        }
+        // Return all payments directly (as expected by tests)
+        res.status(200).json(allPayments);
+    } catch (error) {
+        console.error("Error in getAllPaymentsWithoutPaginationController:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
 
 export const getAllPaymentsController = async (req: Request, res: Response) => {
     try {
@@ -46,7 +60,7 @@ export const getAllPaymentsController = async (req: Request, res: Response) => {
         }
         // Return paginated result
         res.status(200).json(result);
-        
+
         
     } catch (error) {
         console.error("Error in getAllPaymentsController:", error);

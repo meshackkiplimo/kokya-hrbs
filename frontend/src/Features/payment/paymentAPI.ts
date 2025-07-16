@@ -67,6 +67,12 @@ export const paymentApi = createApi({
             }),
             providesTags: ["Payments"],
         }),
+        getAllPayments: builder.query<TPayment[], void>({
+            query: () => "/payments/without-pagination",
+            providesTags: ["Payments"],
+        }),
+
+       
         updatePaymentStatus: builder.mutation<TPayment, { payment_id: number; status: string }>({
             query: ({ payment_id, status }) => ({
                 url: `/payments/${payment_id}`,

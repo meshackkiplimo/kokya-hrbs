@@ -1,4 +1,4 @@
-import { createPaymentController, deletePaymentController, getAllPaymentsController, getPaymentByIdController, updatePaymentController } from "@/controllers/paymentController";
+import { createPaymentController, deletePaymentController, getAllPaymentsController, getAllPaymentsWithoutPaginationController, getPaymentByIdController, updatePaymentController } from "@/controllers/paymentController";
 import { Express } from "express";
 
 
@@ -8,6 +8,15 @@ export const paymentRoute = (app: Express) => {
         async (req, res, next) => {
             try {
                 await getAllPaymentsController(req, res);
+            } catch (error) {
+                next(error);
+            }
+        }
+    );
+    app.route("/payments/without-pagination").get(
+        async (req, res, next) => {
+            try {
+                await getAllPaymentsWithoutPaginationController(req, res);
             } catch (error) {
                 next(error);
             }
