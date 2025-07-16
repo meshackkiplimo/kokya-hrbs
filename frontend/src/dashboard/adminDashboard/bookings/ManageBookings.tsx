@@ -1,19 +1,70 @@
-import React from 'react'
+import React, {  useState } from 'react'
 import { bookingApi } from '../../../Features/bookings/bookingAPI'
 
 const ManageBookings = () => {
-    const {data:bookingsData, isLoading, error} = bookingApi.useGetBookingsQuery(
-        undefined,
+    const [currentPage, setCurrentPage] = useState(1);
+    const limit = 10; // 10 bookings per page
+    const {data:bookingResponse, isLoading, error} = bookingApi.useGetBookingsQuery(
+        { page: currentPage, limit },
         {
             refetchOnMountOrArgChange: true,
             pollingInterval: 30000, // Poll every 30 seconds
         }
     )
+    const [selectedBooking, setSelectedBooking] = useState(null);
+   const bookingsData = bookingResponse?.bookings || [];
+    const pagination = bookingResponse?.pagination;
+    const handlePageChange = (newPage: number) => {
+        setCurrentPage(newPage);
+    }
+    const renderPagination = () => {
+        if (!pagination) return null;
+         const { currentPage, totalPages, hasNextPage, hasPrevPage } = pagination;
+        
+        return (
+            <div className="flex justify-center items-center space-x-2 mt-4">
+                <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={!hasPrevPage}
+                    className={`px-3 py-1 rounded ${
+                        hasPrevPage
+                            ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                >
+                    Previous
+                </button>
+                
+                <span className="px-3 py-1 bg-gray-100 rounded">
+                    Page {currentPage} of {totalPages}
+                </span>
+                
+                <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={!hasNextPage}
+                    className={`px-3 py-1 rounded ${
+                        hasNextPage
+                            ? 'bg-blue-500 hover:bg-blue-600 text-white'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                >
+                    Next
+                </button>
+            </div>
+        );
+    };
+        
   return (
     <div className='p-4'>
         <h2 className='text-xl font-bold mb-4'>Manage Bookings page</h2>
         {isLoading && <p>Loading bookings...</p>}
         {error && <p className='text-red-500'>Error loading bookings</p>}
+        {pagination && (
+            <div className="mb-4 text-sm text-gray-600">
+                Showing {bookingsData.length} of {pagination.totalItems} bookings
+            </div>
+
+        )}
         {bookingsData && bookingsData.length > 0 ? (
             <div className="overflow-x-auto">
                 <table className="table table-xs w-full">
@@ -65,7 +116,9 @@ const ManageBookings = () => {
                         ))}
                     </tbody>
                 </table>
+                {renderPagination()}
             </div>
+            
         ) : (
             !isLoading && <p>No bookings found.</p>
         )}

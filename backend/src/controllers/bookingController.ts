@@ -57,13 +57,20 @@ export const createBookingController = async (req:Request,res:Response) => {
 
 export const getAllBookingController = async (req: Request, res: Response) => {
     try {
-        const userId = req.query.user_id as string;
-        const allBookings = await getAllBookingService(userId ? parseInt(userId) : undefined);
-        if (!allBookings ) {
+        const userId = req.query.user_id ? parseInt(req.query.user_id as string, 10) : undefined;
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+       if(page<1){
+            return res.status(400).json({ message: "Page must be greater than 0" });
+       }
+        if(limit<1 || limit>100){
+            return res.status(400).json({ message: "Limit must be between 1 and 100" });
+        }
+        const bookings = await getAllBookingService(userId, page, limit);
+        if (!bookings) {
             return res.status(404).json({ message: 'No bookings found' });
         }
-       
-        res.status(200).json({ data: allBookings });
+        res.status(200).json(bookings);
         
     } catch (error) {
         console.error('Error fetching all bookings:', error);

@@ -21,6 +21,23 @@ export type TBooking = {
     
 }
 
+export type TPaginationInfo = {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+}
+export type TBookingResponse = {
+    bookings: TBooking[];
+    pagination: TPaginationInfo;
+}
+export type TPaginationParams = {
+    page?: number;
+    limit?: number;
+}
+
 export const bookingApi = createApi({
     reducerPath: "bookingApi",
     baseQuery: fetchBaseQuery({
@@ -43,9 +60,11 @@ export const bookingApi = createApi({
             }),
             invalidatesTags: ["Bookings"],
         }),
-        getBookings: builder.query<TBooking[], void>({
-            query: () => "/bookings",
-            transformResponse: (response: { data: TBooking[] }) => response.data,
+        getBookings: builder.query<TBookingResponse, TPaginationParams>({
+            query: ({page=1,limit=10}={}) => ({
+                url: "/bookings",
+                params: { page, limit }
+            }),
             providesTags: ["Bookings"],
         }),
         updateBookingStatus: builder.mutation<TBooking, { booking_id: number; status: string }>({

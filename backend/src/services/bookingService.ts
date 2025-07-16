@@ -12,14 +12,19 @@ export const createBookingService = async (booking:TIBooking) => {
     
 }
 
-export const getAllBookingService = async (userId?: number) => {
-    const cacheKey = `bookings_${userId || 'all'}`;
+export const getAllBookingService = async (userId?: number,page:number=1,limit:number=10) => {
+    const cacheKey = `bookings_${userId || 'all'}_page_${page}_limit_${limit}`;
     
     // Try to get from cache first
     const cachedBookings = cache.get(cacheKey);
     if (cachedBookings) {
         return cachedBookings;
     }
+    const offset = (page - 1) * limit;
+    const totalCount = await db.query.BookingTable.findMany({
+        where: userId ? (table, { eq }) => eq(table.user_id, userId) : undefined,
+    });
+    const total = totalCount.length;
     
     const getAllBookings = await db.query.BookingTable.findMany({
         where: userId ? (table, { eq }) => eq(table.user_id, userId) : undefined,
@@ -35,16 +40,29 @@ export const getAllBookingService = async (userId?: number) => {
             created_at: true,
             updated_at: true,
 
-        }
+        },
+        limit: limit,
+        offset: offset
 
     });
     
     // Cache for 10 seconds since booking data changes frequently
-    cache.set(cacheKey, getAllBookings, 10000);
+    const result = {
+        bookings: getAllBookings,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            itemsPerPage: limit,
+            hasNextPage: page < Math.ceil(total / limit),
+            hasPrevPage: page > 1
+        }
+    };
+    cache.set(cacheKey, result, 10000);
     
-    return getAllBookings;
-    
+    return result;
 }
+    
 
 export const getBookingByIdService = async (bookingId: number) => {
     const oneBooking = await db.query.BookingTable.findFirst({
