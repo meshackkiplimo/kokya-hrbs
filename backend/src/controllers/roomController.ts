@@ -23,12 +23,17 @@ export const createRoomController = async (req: Request, res: Response) => {
 
 export const getAllRoomsController = async (req: Request, res: Response) => {
     try {
-        const allRooms = await getAllRoomsService();
-        if (!allRooms || allRooms.length === 0) {
-            return res.status(404).json({ message: "No rooms found" });
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        if (page<1) {
+            return res.status(400).json({ message: "Page must be greater than 0" });
         }
-        // Return the rooms array directly
-        res.status(200).json(allRooms);
+        if (limit<1 || limit>100) {
+            return res.status(400).json({ message: "Limit must be between 1 and 100" });
+        }
+        const result = await getAllRoomsService(page, limit);
+        // Return paginated result
+        res.status(200).json(result);
         
     } catch (error) {
         console.error("Error in getAllRoomsController:", error);

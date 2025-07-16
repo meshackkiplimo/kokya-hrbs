@@ -18,6 +18,23 @@ export type TRoom = {
    
 
 }
+export type TPaginationInfo = {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+}
+export type TRoomResponse = {
+    rooms: TRoom[];
+    pagination: TPaginationInfo;
+}
+export type TPaginationParams = {
+    page?: number;
+    limit?: number;
+}
+    
 
 export const roomsApi = createApi({
     reducerPath: "roomsApi",
@@ -41,10 +58,14 @@ export const roomsApi = createApi({
             }),
             invalidatesTags: ["Rooms"],
         }),
-        getRooms: builder.query<TRoom[], void>({
-            query: () => "/rooms",
-           
+        getRooms: builder.query<TRoomResponse, TPaginationParams>({
+            query: ({page=1,limit=10}={}) => ({
+                url: "/rooms",
+                params: { page, limit }
+            }),
             providesTags: ["Rooms"],
+           
+          
         }),
     }),
 });

@@ -11,7 +11,10 @@ export const createRoomService = async (room: TIRoom) => {
 
 
 
-export const getAllRoomsService = async () => {
+export const getAllRoomsService = async (page:number=1,limit:number=10) => {
+    const offset =(page - 1) * limit;
+    const totalCount = await db.query.RoomTable.findMany();
+    const total = totalCount.length;
     const rooms = await db.query.RoomTable.findMany({
         columns:{
             room_id: true,
@@ -25,11 +28,26 @@ export const getAllRoomsService = async () => {
             created_at: true,
             updated_at: true,
 
-        }
+        },
+        limit: limit,
+        offset: offset
     })
-    return rooms;
+    return {
+        rooms: rooms,
+        pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            itemsPerPage: limit,
+            hasNextPage: page < Math.ceil(total / limit),
+            hasPrevPage: page > 1
+        }
+    };
+}   
+        
     
-}
+    
+
 
 export const getRoomByIdService = async (roomId: number) => {
     const room = await db.query.RoomTable.findFirst({
