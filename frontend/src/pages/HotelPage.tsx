@@ -22,9 +22,9 @@ const HotelPage = () => {
   const [priceRange, setPriceRange] = useState('all');
   const [selectedHotel, setSelectedHotel] = useState<number | null>(null);
 
-  // Fetch data
-  const { data: hotels = [], isLoading: hotelsLoading, error: hotelsError } = hotelApi.useGetHotelsQuery();
-  const { data: rooms = [], isLoading: roomsLoading, error: roomsError } = roomsApi.useGetRoomsQuery();
+  // Fetch data - use getAllHotels and getAllRooms for the public page to get all data without pagination
+  const { data: hotels = [], isLoading: hotelsLoading, error: hotelsError } = hotelApi.useGetAllHotelsQuery();
+  const { data: rooms = [], isLoading: roomsLoading, error: roomsError } = roomsApi.useGetAllRoomsQuery();
 
   const isLoading = hotelsLoading || roomsLoading;
 
