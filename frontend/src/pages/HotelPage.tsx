@@ -15,12 +15,25 @@ import {
 } from 'lucide-react';
 import { hotelApi } from '../Features/hotels/hotelAPI';
 import { roomsApi } from '../Features/rooms/roomsAPI';
+import { bookingApi } from '../Features/bookings/bookingAPI';
+import { useSelector } from 'react-redux';
+import { type RootState } from '../app/store';
 
 const HotelPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
   const [selectedHotel, setSelectedHotel] = useState<number | null>(null);
+  const [checkInDate, setCheckInDate] = useState('');
+  const [checkOutDate, setCheckOutDate] = useState('');
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [selectedRoom, setSelectedRoom] = useState<any>(null);
+  
+  // Get user info from Redux store
+  const user = useSelector((state: RootState) => state.user);
+  
+  // Booking mutation
+  const [createBooking, { isLoading: isBookingLoading }] = bookingApi.useCreateBookingMutation();
 
   // Fetch data - use getAllHotels and getAllRooms for the public page to get all data without pagination
   const { data: hotels = [], isLoading: hotelsLoading, error: hotelsError } = hotelApi.useGetAllHotelsQuery();
@@ -64,9 +77,63 @@ const HotelPage = () => {
   }, [hotels]);
 
   const handleBookRoom = (roomId: number, hotelId: number) => {
-    // Here you would implement booking logic
-    console.log(`Booking room ${roomId} in hotel ${hotelId}`);
-    alert(`Booking functionality would be implemented here for room ${roomId}`);
+    // Check if user is logged in
+    if (!user.token || !user.user?.id) {
+      alert('Please log in to make a booking');
+      return;
+    }
+    
+    // Find the selected room
+    const room = rooms.find(r => r.room_id === roomId);
+    if (!room) {
+      alert('Room not found');
+      return;
+    }
+    
+    setSelectedRoom({ ...room, hotel_id: hotelId });
+    setShowBookingModal(true);
+  };
+
+  const handleConfirmBooking = async () => {
+    if (!selectedRoom || !checkInDate || !checkOutDate) {
+      alert('Please fill in all booking details');
+      return;
+    }
+
+    // Calculate total amount (number of nights * price per night)
+    const checkIn = new Date(checkInDate);
+    const checkOut = new Date(checkOutDate);
+    const timeDiff = checkOut.getTime() - checkIn.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    
+    if (daysDiff <= 0) {
+      alert('Check-out date must be after check-in date');
+      return;
+    }
+
+    const totalAmount = daysDiff * selectedRoom.price_per_night;
+
+    const bookingData = {
+      user_id: user.user.id,
+      hotel_id: selectedRoom.hotel_id,
+      room_id: selectedRoom.room_id,
+      check_in_date: checkInDate,
+      check_out_date: checkOutDate,
+      total_amount: totalAmount,
+      status: 'pending'
+    };
+
+    try {
+      await createBooking(bookingData).unwrap();
+      alert(`Booking successful! Total amount: KSH ${totalAmount.toLocaleString()}`);
+      setShowBookingModal(false);
+      setCheckInDate('');
+      setCheckOutDate('');
+      setSelectedRoom(null);
+    } catch (error) {
+      console.error('Booking failed:', error);
+      alert('Booking failed. Please try again.');
+    }
   };
 
   const renderStars = (rating: number) => {
@@ -301,6 +368,83 @@ const HotelPage = () => {
             <Filter size={48} className="mx-auto text-gray-400 mb-4" />
             <h3 className="text-xl font-semibold text-gray-600 mb-2">No hotels found</h3>
             <p className="text-gray-500">Try adjusting your search criteria or filters.</p>
+          </div>
+        )}
+
+        {/* Booking Modal */}
+        {showBookingModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+              <h3 className="text-xl font-bold mb-4">Book Room</h3>
+              
+              {selectedRoom && (
+                <div className="mb-4 p-3 bg-gray-50 rounded">
+                  <p className="font-medium">{selectedRoom.room_type}</p>
+                  <p className="text-sm text-gray-600">Room #{selectedRoom.room_number}</p>
+                  <p className="text-sm text-gray-600">KSH {selectedRoom.price_per_night.toLocaleString()}/night</p>
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Check-in Date
+                  </label>
+                  <input
+                    type="date"
+                    value={checkInDate}
+                    onChange={(e) => setCheckInDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Check-out Date
+                  </label>
+                  <input
+                    type="date"
+                    value={checkOutDate}
+                    onChange={(e) => setCheckOutDate(e.target.value)}
+                    min={checkInDate || new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+
+                {checkInDate && checkOutDate && (
+                  <div className="p-3 bg-blue-50 rounded">
+                    <p className="text-sm text-blue-800">
+                      Total nights: {Math.ceil((new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / (1000 * 3600 * 24))}
+                    </p>
+                    <p className="font-medium text-blue-900">
+                      Total amount: KSH {(Math.ceil((new Date(checkOutDate).getTime() - new Date(checkInDate).getTime()) / (1000 * 3600 * 24)) * (selectedRoom?.price_per_night || 0)).toLocaleString()}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    onClick={() => {
+                      setShowBookingModal(false);
+                      setCheckInDate('');
+                      setCheckOutDate('');
+                      setSelectedRoom(null);
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleConfirmBooking}
+                    disabled={isBookingLoading || !checkInDate || !checkOutDate}
+                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isBookingLoading ? 'Booking...' : 'Confirm Booking'}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
