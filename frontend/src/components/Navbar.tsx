@@ -100,6 +100,12 @@ const Navbar = () => {
           >
             Admin Dashboard
           </NavLink>
+           <NavLink
+            to="/user-dashboard"
+            className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
+          >
+          User Dashboard
+          </NavLink>
         </div>
 
         {/* Auth Section - Absolute Far Right Edge */}

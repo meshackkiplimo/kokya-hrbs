@@ -24,6 +24,7 @@ import ManageHotels from './dashboard/adminDashboard/hotels/ManageHotels'
 import ManageAnalytics from './dashboard/adminDashboard/analytics/ManageAnalytics'
 import ManageSettings from './dashboard/adminDashboard/settings/ManageSettings'
 import HotelPage from './pages/HotelPage'
+import UserDashboard from './dashboard/userDashboard/UserDashboard'
 
 // Landing Page Component
 const LandingPage = () => {
@@ -60,6 +61,16 @@ function App() {
                         <Route path="rooms" element={<ManageRooms />} />
                         <Route path="hotels" element={<ManageHotels />} />
                            <Route path="analytics" element={<ManageAnalytics />} />
+                           <Route path="settings" element={<ManageSettings />} />
+          
+            </Route>
+            
+
+
+               <Route path="/user-dashboard" element={<UserDashboard />  }>
+                  
+                  
+             
                            <Route path="settings" element={<ManageSettings />} />
           
             </Route>
