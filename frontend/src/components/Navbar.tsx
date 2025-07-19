@@ -94,18 +94,23 @@ const Navbar = () => {
           >
             Contact
           </NavLink>
-           <NavLink
-            to="/admin-dashboard"
-            className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
-          >
-            Admin Dashboard
-          </NavLink>
-           <NavLink
-            to="/user-dashboard"
-            className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
-          >
-          User Dashboard
-          </NavLink>
+          {/* Role-based Dashboard Links */}
+          {isAuthenticated && user?.role === 'admin' && (
+            <NavLink
+              to="/admin-dashboard"
+              className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
+            >
+              Admin Dashboard
+            </NavLink>
+          )}
+          {isAuthenticated && user?.role === 'user' && (
+            <NavLink
+              to="/user-dashboard"
+              className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
+            >
+              User Dashboard
+            </NavLink>
+          )}
         </div>
 
         {/* Auth Section - Absolute Far Right Edge */}
@@ -244,6 +249,27 @@ const Navbar = () => {
           >
             Contact
           </NavLink>
+          
+          {/* Role-based Dashboard Links for Mobile */}
+          {isAuthenticated && user?.role === 'admin' && (
+            <NavLink
+              to="/admin-dashboard"
+              className={({ isActive }) => `${isActive ? 'bg-amber-600 text-white' : 'text-amber-100 hover:bg-amber-700'} block px-4 py-3 rounded-lg font-medium transition-colors duration-200`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Admin Dashboard
+            </NavLink>
+          )}
+          {isAuthenticated && user?.role === 'user' && (
+            <NavLink
+              to="/user-dashboard"
+              className={({ isActive }) => `${isActive ? 'bg-amber-600 text-white' : 'text-amber-100 hover:bg-amber-700'} block px-4 py-3 rounded-lg font-medium transition-colors duration-200`}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              User Dashboard
+            </NavLink>
+          )}
+          
           <div className="pt-2">
             {isAuthenticated ? (
               <div className="space-y-2">
