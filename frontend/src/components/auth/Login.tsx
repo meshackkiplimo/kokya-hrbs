@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../../Features/login/userSlice';
 import { useToast } from '../toaster/ToasterContext';
+import Spinner from '../spinner/Spinner';
 
 
 
@@ -22,8 +23,8 @@ const schema = yup.object({
 
 const Login = () => {
     const navigate = useNavigate();
-    const emailFromState = navigate.state?.email || ''; // Get email from state if available
-    const location= useLocation();
+    const location = useLocation();
+    const emailFromState = location.state?.email || ''; // Get email from state if available
     const [isLoading, setIsLoading] = useState(false);
     const {showToast} = useToast();
     const dispatch = useDispatch();
@@ -34,7 +35,7 @@ const Login = () => {
     const {
         register,
         handleSubmit,
-        formState: { errors, isSubmitting }
+        formState: { errors }
     } = useForm<LoginInputs>({
         resolver: yupResolver(schema)
     });
@@ -43,19 +44,19 @@ const Login = () => {
         try {
             const response = await LoginUser(data).unwrap();
             dispatch(loginSuccess(response)); // Dispatch login success action
-              showToast("Login successful! Redirecting...", "success");
+            showToast("Login successful! Redirecting...", "success");
             console.log('Login successful:', response);
           
-           setTimeout(() => {
-               navigate('/', {
-                state: { email: data.email }
+            setTimeout(() => {
+                navigate('/', {
+                    state: { email: data.email }
                 });
-            }
-            , 1000);
+            }, 3000);
         } catch (error) {
             console.error('Login failed:', error);
             showToast("Login failed. Please check your credentials.", "error");
-            
+        } finally {
+            setIsLoading(false);
         }
     }
     
@@ -110,12 +111,18 @@ const Login = () => {
                 <div>
                     
               
-                <button
+               {
+                isLoading ?(
+                    <Spinner />
+                ):(
+                     <button
                     type="submit"
                     className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-amber-400 hover:bg-green-800 focus:outline-none focus:ring-offset-2 focus:ring-indigo-500"
                 >
                     Sign In
                 </button>
+                )
+               }
                           
                 <div>
                     <p className="mt-2 text-center text-sm text-gray-600">
