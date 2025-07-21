@@ -88,8 +88,68 @@ export const paymentApi = createApi({
             }),
             invalidatesTags: ["Payments"],
         }),
+
+        // MPESA STK Push initiation
+        initiateMpesaPayment: builder.mutation<{
+            success: boolean;
+            message: string;
+            data: {
+                MerchantRequestID: string;
+                CheckoutRequestID: string;
+                ResponseCode: string;
+                ResponseDescription: string;
+            };
+        }, {
+            phone: string;
+            amount: number;
+            bookingId?: number;
+            accountReference?: string;
+            transactionDesc?: string;
+        }>({
+            query: (paymentData) => ({
+                url: "/mpesa/stk-push",
+                method: "POST",
+                body: paymentData,
+            }),
+            invalidatesTags: ["Payments"],
+        }),
+
+        // Check MPESA payment status
+        checkMpesaPaymentStatus: builder.query<{
+            success: boolean;
+            data: any;
+        }, string>({
+            query: (checkoutRequestId) => ({
+                url: `/mpesa/status/${checkoutRequestId}`,
+                method: "GET",
+            }),
+        }),
+
+        // Test MPESA service
+        testMpesaService: builder.query<{
+            success: boolean;
+            message: string;
+            environment: string;
+            shortcode: string;
+        }, void>({
+            query: () => ({
+                url: "/mpesa/test",
+                method: "GET",
+            }),
+        }),
         
     }),
         
     
 })
+
+export const {
+    useCreatePaymentMutation,
+    useGetPaymentsQuery,
+    useGetAllPaymentsQuery,
+    useUpdatePaymentStatusMutation,
+    useDeletePaymentMutation,
+    useInitiateMpesaPaymentMutation,
+    useCheckMpesaPaymentStatusQuery,
+    useTestMpesaServiceQuery,
+} = paymentApi;

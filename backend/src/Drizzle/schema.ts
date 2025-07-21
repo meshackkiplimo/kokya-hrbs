@@ -66,10 +66,10 @@ export const RoomTable = pgTable("rooms", {
 export const PaymentTable = pgTable("payments", {
     payment_id: serial("payment_id").primaryKey(),
     booking_id: integer("booking_id").notNull(),
+    user_id: integer("user_id").notNull(),
     amount: integer("amount").notNull(),
     payment_method: varchar("payment_method", { length: 50 }).notNull(),
-    payment_status: varchar("payment_status", { length: 20 }).default("pending").
-notNull(),
+    payment_status: varchar("payment_status", { length: 20 }).default("pending").notNull(),
     transaction_id: varchar("transaction_id", { length: 100 }).notNull(),
     payment_date: timestamp("payment_date").defaultNow(),
     
@@ -117,6 +117,10 @@ export const PaymentRelations = relations(PaymentTable, ({ one }) => ({
     booking: one(BookingTable, {
         fields: [PaymentTable.booking_id],
         references: [BookingTable.booking_id],
+    }),
+    user: one(UserTable, {
+        fields: [PaymentTable.user_id],
+        references: [UserTable.user_id],
     }),
 }));
 export const CustomerSupportRelations = relations(CustomerSupportTable, ({ one }) => ({

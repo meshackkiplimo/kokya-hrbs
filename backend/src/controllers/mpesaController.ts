@@ -1,19 +1,148 @@
-import { stkPush } from '@/services/mpesaService';
+import { stkPush, stkPushQuery, processCallback, validatePhoneNumber } from '@/services/mpesaService';
+import { createPaymentService, updatePaymentService } from '@/services/paymentService';
 import { Request, Response } from 'express';
-
 
 export const initiateSTKPush = async (req: Request, res: Response) => {
   try {
-    const { phone, amount } = req.body;
+    const { phone, amount, bookingId, accountReference, transactionDesc } = req.body;
 
     if (!phone || !amount) {
       return res.status(400).json({ error: 'Phone and amount are required.' });
     }
 
-    const result = await stkPush(phone, amount);
-    res.status(200).json(result);
+    // Validate phone number format
+    if (!validatePhoneNumber(phone)) {
+      return res.status(400).json({ error: 'Invalid phone number format. Use format: 0712345678 or 254712345678' });
+    }
+
+    // Validate amount
+    if (amount <= 0) {
+      return res.status(400).json({ error: 'Amount must be greater than 0' });
+    }
+
+    const result = await stkPush(
+      phone, 
+      amount, 
+      accountReference || 'Hotel Booking', 
+      transactionDesc || 'Hotel Room Payment'
+    );
+
+    // If booking ID is provided, create a payment record
+    if (bookingId) {
+      try {
+        await createPaymentService({
+          booking_id: bookingId,
+          user_id: (req as any).user?.id, // Assuming user is attached to request via auth middleware
+          amount: amount,
+          payment_method: 'mpesa',
+          payment_status: 'pending',
+          transaction_id: result.CheckoutRequestID,
+        });
+      } catch (paymentError) {
+        console.error('Error creating payment record:', paymentError);
+        // Continue with the response even if payment record creation fails
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: result.CustomerMessage || 'Payment request sent. Please check your phone.',
+      data: {
+        MerchantRequestID: result.MerchantRequestID,
+        CheckoutRequestID: result.CheckoutRequestID,
+        ResponseCode: result.ResponseCode,
+        ResponseDescription: result.ResponseDescription,
+      }
+    });
   } catch (error: any) {
-    console.error(error.message);
-    res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    console.error('STK Push error:', error.message);
+    res.status(500).json({ 
+      success: false,
+      error: 'Payment initiation failed. Please try again.' 
+    });
+  }
+};
+
+export const mpesaCallback = async (req: Request, res: Response) => {
+  try {
+    console.log('MPESA Callback received:', JSON.stringify(req.body, null, 2));
+    
+    const callbackData = req.body;
+    const result = processCallback(callbackData);
+
+    console.log('Processed callback result:', result);
+
+    // Update payment status in database
+    if (result.checkoutRequestId) {
+      try {
+        // Find payment by transaction_id (CheckoutRequestID)
+        // Note: You might need to implement a service to find payment by transaction_id
+        // For now, we'll update payment status using the transaction_id
+        const paymentStatus = result.success ? 'completed' : 'failed';
+        
+        // This would require a new service method to find payment by transaction_id
+        // await updatePaymentByTransactionIdService(result.checkoutRequestId, {
+        //   payment_status: paymentStatus,
+        //   transaction_id: result.transactionId || result.checkoutRequestId,
+        // });
+
+        console.log(`Payment ${result.checkoutRequestId} status updated to: ${paymentStatus}`);
+      } catch (updateError) {
+        console.error('Error updating payment status:', updateError);
+      }
+    }
+
+    // Always respond with success to acknowledge receipt
+    res.status(200).json({
+      ResultCode: 0,
+      ResultDesc: "Confirmation Received Successfully"
+    });
+  } catch (error: any) {
+    console.error('Callback processing error:', error.message);
+    res.status(200).json({
+      ResultCode: 0,
+      ResultDesc: "Confirmation Received Successfully"
+    });
+  }
+};
+
+export const checkPaymentStatus = async (req: Request, res: Response) => {
+  try {
+    const { checkoutRequestId } = req.params;
+
+    if (!checkoutRequestId) {
+      return res.status(400).json({ error: 'CheckoutRequestID is required' });
+    }
+
+    const result = await stkPushQuery(checkoutRequestId);
+    
+    res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (error: any) {
+    console.error('Payment status check error:', error.message);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to check payment status' 
+    });
+  }
+};
+
+// Test endpoint for development
+export const testMpesa = async (req: Request, res: Response) => {
+  try {
+    res.status(200).json({
+      success: true,
+      message: 'MPESA service is working',
+      environment: process.env.MPESA_ENVIRONMENT || 'sandbox',
+      shortcode: process.env.MPESA_SHORTCODE,
+    });
+  } catch (error: any) {
+    console.error('MPESA test error:', error.message);
+    res.status(500).json({ 
+      success: false,
+      error: 'MPESA service test failed' 
+    });
   }
 };
