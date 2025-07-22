@@ -11,6 +11,7 @@ import { authRoute } from './routes/authRoute';
 import cors from 'cors';
 import {v2 as cloudinary} from 'cloudinary';
 import { mpesaRoute } from './routes/mpesaRoute';
+import { paystackRoute } from './routes/paystackRoute';
 
 dotenv.config();
 
@@ -50,6 +51,7 @@ complainRoute(app);
 bookingRoute(app);
 authRoute(app);
 mpesaRoute(app);
+paystackRoute(app);
 
 
 app.listen(port, () => {

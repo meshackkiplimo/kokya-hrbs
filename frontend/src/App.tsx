@@ -26,6 +26,7 @@ import ManageSettings from './dashboard/adminDashboard/settings/ManageSettings'
 import HotelPage from './pages/HotelPage'
 import UserDashboard from './dashboard/userDashboard/UserDashboard'
 import UserBooking from './dashboard/userDashboard/userBooking/UserBooking'
+import PaymentCallbackPage from './pages/PaymentCallbackPage'
 
 // Landing Page Component
 const LandingPage = () => {
@@ -53,6 +54,7 @@ function App() {
                         <Route path="/login" element={<Login />} />
                              <Route path="/verify" element={<Verify />} />
                              <Route path="/hotels" element={<HotelPage />} />
+                             <Route path="/payment/callback" element={<PaymentCallbackPage />} />
                             <Route path="/admin-dashboard" element={<AdminDashboard />  }>
                   
                   

@@ -137,6 +137,111 @@ export const paymentApi = createApi({
                 method: "GET",
             }),
         }),
+
+        // Paystack payment initialization
+        initializePaystackPayment: builder.mutation<{
+            success: boolean;
+            message: string;
+            data: {
+                authorization_url: string;
+                access_code: string;
+                reference: string;
+            };
+        }, {
+            email: string;
+            amount: number;
+            bookingId?: number;
+            metadata?: any;
+        }>({
+            query: (paymentData) => ({
+                url: "/api/v1/paystack/initialize",
+                method: "POST",
+                body: paymentData,
+            }),
+            invalidatesTags: ["Payments"],
+        }),
+
+        // Verify Paystack payment
+        verifyPaystackPayment: builder.query<{
+            success: boolean;
+            message: string;
+            data: {
+                reference: string;
+                amount: number;
+                status: string;
+                gateway_response: string;
+                paid_at: string;
+                channel: string;
+                customer: any;
+                authorization: any;
+            };
+        }, string>({
+            query: (reference) => ({
+                url: `/api/v1/paystack/verify/${reference}`,
+                method: "GET",
+            }),
+        }),
+
+        // Get supported banks for Paystack
+        getPaystackBanks: builder.query<{
+            success: boolean;
+            message: string;
+            data: Array<{
+                name: string;
+                slug: string;
+                code: string;
+                longcode: string;
+                gateway: string;
+                pay_with_bank: boolean;
+                active: boolean;
+                country: string;
+                currency: string;
+                type: string;
+                is_deleted: boolean;
+            }>;
+        }, void>({
+            query: () => ({
+                url: "/api/v1/paystack/banks",
+                method: "GET",
+            }),
+        }),
+
+        // Validate bank account for Paystack
+        validatePaystackAccount: builder.mutation<{
+            success: boolean;
+            message: string;
+            data: {
+                account_number: string;
+                account_name: string;
+                bank_id: number;
+            };
+        }, {
+            account_number: string;
+            bank_code: string;
+        }>({
+            query: (accountData) => ({
+                url: "/api/v1/paystack/validate-account",
+                method: "POST",
+                body: accountData,
+            }),
+        }),
+
+        // Test Paystack service
+        testPaystackService: builder.query<{
+            success: boolean;
+            message: string;
+            data: {
+                public_key: string;
+                secret_key: string;
+                callback_url: string;
+                webhook_url: string;
+            };
+        }, void>({
+            query: () => ({
+                url: "/api/v1/paystack/test",
+                method: "GET",
+            }),
+        }),
         
     }),
         
@@ -152,4 +257,9 @@ export const {
     useInitiateMpesaPaymentMutation,
     useCheckMpesaPaymentStatusQuery,
     useTestMpesaServiceQuery,
+    useInitializePaystackPaymentMutation,
+    useVerifyPaystackPaymentQuery,
+    useGetPaystackBanksQuery,
+    useValidatePaystackAccountMutation,
+    useTestPaystackServiceQuery,
 } = paymentApi;
