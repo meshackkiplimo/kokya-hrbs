@@ -25,6 +25,7 @@ import ManageAnalytics from './dashboard/adminDashboard/analytics/ManageAnalytic
 import ManageSettings from './dashboard/adminDashboard/settings/ManageSettings'
 import HotelPage from './pages/HotelPage'
 import UserDashboard from './dashboard/userDashboard/UserDashboard'
+import UserBooking from './dashboard/userDashboard/userBooking/UserBooking'
 
 // Landing Page Component
 const LandingPage = () => {
@@ -72,6 +73,8 @@ function App() {
                   
              
                            <Route path="settings" element={<ManageSettings />} />
+                           
+                           <Route path="bookings" element={<UserBooking />} />
           
             </Route>
 
