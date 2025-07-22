@@ -1,5 +1,5 @@
 
-import { creatUserController, deleteUserController, getAllUsersController, loginUserController, updateUserController, verifyEmailController } from '@/controllers/authController';
+import { creatUserController, deleteUserController, getAllUsersController, getUserByIdController, loginUserController, updateUserController, verifyEmailController } from '@/controllers/authController';
 import { Express } from 'express';
 
 
@@ -43,6 +43,15 @@ export const authRoute = (app:Express)=>{
                 next(error);
             }
         })
+        app.route('/users/:id').get(
+        async (req, res, next) => {
+            try {
+                await getUserByIdController(req, res);
+            } catch (error) {
+                next(error);
+            }
+        })
+        
     app.route('/users/:id').delete(
         async (req, res, next) => {
             try {
@@ -61,4 +70,5 @@ export const authRoute = (app:Express)=>{
                 next(error);
             }
         })
+
 }
