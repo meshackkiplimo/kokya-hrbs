@@ -10,8 +10,9 @@ export const createPaymentService = async (payment:TIPayment) => {
 }
 
 /// get all payments without pagination with joins
-export const getAllPaymentsWithoutPaginationService = async () => {
+export const getAllPaymentsWithoutPaginationService = async (userId?: number) => {
     const allPayments = await db.query.PaymentTable.findMany({
+        where: userId ? (table, { eq }) => eq(table.user_id, userId) : undefined,
         columns: {
             payment_id: true,
             booking_id: true,
@@ -64,12 +65,17 @@ export const getAllPaymentsWithoutPaginationService = async () => {
     return allPayments;
 }
 
-export const getAllPaymentsService = async (page:number=1,limit:number=10) => {
+export const getAllPaymentsService = async (userId?: number, page: number = 1, limit: number = 10) => {
     const offset = (page - 1) * limit;
-    const totalCount = await db.query.PaymentTable.findMany();
+    
+    // Get total count with user filter if provided
+    const totalCount = await db.query.PaymentTable.findMany({
+        where: userId ? (table, { eq }) => eq(table.user_id, userId) : undefined,
+    });
     const total = totalCount.length;
 
     const payments = await db.query.PaymentTable.findMany({
+        where: userId ? (table, { eq }) => eq(table.user_id, userId) : undefined,
         columns:{
             payment_id: true,
             booking_id: true,

@@ -30,7 +30,10 @@ export const createPaymentController = async (req: Request, res: Response) => {
 // get all payments without pagination
 export const getAllPaymentsWithoutPaginationController = async (req: Request, res: Response) => {
     try {
-        const allPayments = await getAllPaymentsWithoutPaginationService();
+        // Extract user_id from query string
+        const userId = req.query.user_id ? parseInt(req.query.user_id as string, 10) : undefined;
+        
+        const allPayments = await getAllPaymentsWithoutPaginationService(userId);
         if (!allPayments) {
             return res.status(400).json({ message: "No payments found" });
         }
@@ -44,9 +47,11 @@ export const getAllPaymentsWithoutPaginationController = async (req: Request, re
 
 export const getAllPaymentsController = async (req: Request, res: Response) => {
     try {
-        // Extract pagination parameters from query string
+        // Extract user_id and pagination parameters from query string
+        const userId = req.query.user_id ? parseInt(req.query.user_id as string, 10) : undefined;
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
+        
         // Validate pagination parameters
         if (page < 1) {
             return res.status(400).json({ message: "Page must be greater than 0" });
@@ -54,7 +59,8 @@ export const getAllPaymentsController = async (req: Request, res: Response) => {
         if (limit < 1 || limit > 100) {
             return res.status(400).json({ message: "Limit must be between 1 and 100" });
         }
-        const result = await getAllPaymentsService(page, limit);
+        
+        const result = await getAllPaymentsService(userId, page, limit);
         if (!result) {
             return res.status(400).json({ message: "No payments found" });
         }

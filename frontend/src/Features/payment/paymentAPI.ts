@@ -71,6 +71,21 @@ export const paymentApi = createApi({
             query: () => "/payments/without-pagination",
             providesTags: ["Payments"],
         }),
+        getUserPayments: builder.query<TPayment[], number>({
+            query: (userId) => ({
+                url: `/payments/without-pagination?user_id=${userId}`,
+                method: "GET"
+            }),
+            providesTags: ["Payments"],
+            transformResponse: (response: any) => {
+                // Backend returns array directly for without-pagination endpoint
+                if (Array.isArray(response)) {
+                    return response;
+                }
+                // Empty result
+                return [];
+            },
+        }),
 
        
         updatePaymentStatus: builder.mutation<TPayment, { payment_id: number; status: string }>({
@@ -252,6 +267,7 @@ export const {
     useCreatePaymentMutation,
     useGetPaymentsQuery,
     useGetAllPaymentsQuery,
+    useGetUserPaymentsQuery,
     useUpdatePaymentStatusMutation,
     useDeletePaymentMutation,
     useInitiateMpesaPaymentMutation,
