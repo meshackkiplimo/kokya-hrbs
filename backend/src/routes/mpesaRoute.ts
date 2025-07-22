@@ -17,7 +17,7 @@ export const mpesaRoute = (app: Express) => {
     );
 
     // MPESA callback (no authentication needed - called by Safaricom)
-    app.route("/v1/mpesa/callback").post(
+    app.route("/mpesa/callback").post(
         async (req, res, next) => {
             try {
                 await mpesaCallback(req, res);
