@@ -18,7 +18,8 @@ export type TBooking = {
     check_out_date: string;
     total_amount: number;
     status: string;
-    
+    created_at?: string;
+    updated_at?: string;
 }
 
 export type TPaginationInfo = {
@@ -86,6 +87,24 @@ export const bookingApi = createApi({
             }),
             invalidatesTags: ["Bookings"],
         }),
+        // Get user-specific bookings
+        getUserBookings: builder.query<TBooking[], number>({
+            query: (userId) => ({
+                url: `/bookings?user_id=${userId}`,
+                method: "GET"
+            }),
+            providesTags: ["Bookings"],
+            transformResponse: (response: TBookingResponse) => response.bookings,
+        }),
     }),
     
 })
+
+export const {
+    useCreateBookingMutation,
+    useGetBookingsQuery,
+    useGetAllBookingsQuery,
+    useGetUserBookingsQuery,
+    useUpdateBookingStatusMutation,
+    useDeleteBookingMutation
+} = bookingApi;

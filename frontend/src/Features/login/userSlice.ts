@@ -6,11 +6,13 @@ import { createSlice } from '@reduxjs/toolkit';
 export type TLoginResponse ={
     token: string | null;
     user: {
-        user_id: number;
+        id?: number;
+        user_id?: number;
         first_name: string;
         last_name: string;
         email: string;
         role: string;
+        isVerified?: boolean;
     } | null;
 }
 
