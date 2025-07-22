@@ -23,7 +23,7 @@ export const getAllHotelService = async (page: number = 1, limit: number = 10) =
     const totalCount = await db.query.HotelTable.findMany();
     const total = totalCount.length;
     
-    // Get paginated results
+    // Get paginated results with joins
     const getAllHotels = await db.query.HotelTable.findMany({
         columns:{
             hotel_id: true,
@@ -37,6 +37,28 @@ export const getAllHotelService = async (page: number = 1, limit: number = 10) =
             description: true,
             created_at: true,
             updated_at: true,
+        },
+        with: {
+            rooms: {
+                columns: {
+                    room_id: true,
+                    room_number: true,
+                    room_type: true,
+                    price_per_night: true,
+                    capacity: true,
+                    availability: true,
+                }
+            },
+            bookings: {
+                columns: {
+                    booking_id: true,
+                    user_id: true,
+                    check_in_date: true,
+                    check_out_date: true,
+                    total_amount: true,
+                    status: true,
+                }
+            }
         },
         limit: limit,
         offset: offset
@@ -70,6 +92,33 @@ export const getHotelByIdService = async (hotelId: number) => {
             description: true,
             created_at: true,
             updated_at: true,
+        },
+        with: {
+            rooms: {
+                columns: {
+                    room_id: true,
+                    room_number: true,
+                    room_type: true,
+                    price_per_night: true,
+                    capacity: true,
+                    amenities: true,
+                    availability: true,
+                    img_url: true,
+                    description: true,
+                }
+            },
+            bookings: {
+                columns: {
+                    booking_id: true,
+                    user_id: true,
+                    room_id: true,
+                    check_in_date: true,
+                    check_out_date: true,
+                    total_amount: true,
+                    status: true,
+                    created_at: true,
+                }
+            }
         }
     });
     return hotel;
@@ -89,6 +138,28 @@ export const getAllHotelsWithoutPaginationService = async () => {
             description: true,
             created_at: true,
             updated_at: true,
+        },
+        with: {
+            rooms: {
+                columns: {
+                    room_id: true,
+                    room_number: true,
+                    room_type: true,
+                    price_per_night: true,
+                    capacity: true,
+                    availability: true,
+                }
+            },
+            bookings: {
+                columns: {
+                    booking_id: true,
+                    user_id: true,
+                    check_in_date: true,
+                    check_out_date: true,
+                    total_amount: true,
+                    status: true,
+                }
+            }
         }
     })
     return getAllHotels;

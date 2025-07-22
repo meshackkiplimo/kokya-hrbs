@@ -12,7 +12,7 @@ export const createBookingService = async (booking:TIBooking) => {
     
 }
 
-// bookings without pagination
+// bookings without pagination with joins
 export const getAllBookingsWithoutPaginationService = async () => {
     const allBookings = await db.query.BookingTable.findMany({
         columns: {
@@ -26,6 +26,39 @@ export const getAllBookingsWithoutPaginationService = async () => {
             status: true,
             created_at: true,
             updated_at: true,
+        },
+        with: {
+            user: {
+                columns: {
+                    user_id: true,
+                    first_name: true,
+                    last_name: true,
+                    email: true,
+                }
+            },
+            hotel: {
+                columns: {
+                    hotel_id: true,
+                    name: true,
+                    location: true,
+                    address: true,
+                    contact_number: true,
+                    category: true,
+                    rating: true,
+                }
+            },
+            room: {
+                columns: {
+                    room_id: true,
+                    room_number: true,
+                    room_type: true,
+                    price_per_night: true,
+                    capacity: true,
+                    amenities: true,
+                    availability: true,
+                    img_url: true,
+                }
+            }
         }
     });
     return allBookings;
@@ -59,6 +92,39 @@ export const getAllBookingService = async (userId?: number,page:number=1,limit:n
             created_at: true,
             updated_at: true,
 
+        },
+        with: {
+            user: {
+                columns: {
+                    user_id: true,
+                    first_name: true,
+                    last_name: true,
+                    email: true,
+                }
+            },
+            hotel: {
+                columns: {
+                    hotel_id: true,
+                    name: true,
+                    location: true,
+                    address: true,
+                    contact_number: true,
+                    category: true,
+                    rating: true,
+                }
+            },
+            room: {
+                columns: {
+                    room_id: true,
+                    room_number: true,
+                    room_type: true,
+                    price_per_night: true,
+                    capacity: true,
+                    amenities: true,
+                    availability: true,
+                    img_url: true,
+                }
+            }
         },
         limit: limit,
         offset: offset
@@ -97,6 +163,42 @@ export const getBookingByIdService = async (bookingId: number) => {
             status: true,
             created_at: true,
             updated_at: true,
+        },
+        with: {
+            user: {
+                columns: {
+                    user_id: true,
+                    first_name: true,
+                    last_name: true,
+                    email: true,
+                }
+            },
+            hotel: {
+                columns: {
+                    hotel_id: true,
+                    name: true,
+                    location: true,
+                    address: true,
+                    contact_number: true,
+                    category: true,
+                    rating: true,
+                    img_url: true,
+                    description: true,
+                }
+            },
+            room: {
+                columns: {
+                    room_id: true,
+                    room_number: true,
+                    room_type: true,
+                    price_per_night: true,
+                    capacity: true,
+                    amenities: true,
+                    availability: true,
+                    img_url: true,
+                    description: true,
+                }
+            }
         }
     });
     return oneBooking;

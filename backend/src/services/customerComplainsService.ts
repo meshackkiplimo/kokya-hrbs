@@ -32,6 +32,17 @@ export const getAllComplainsService = async () => {
             created_at: true,
             updated_at: true,
 
+        },
+        with: {
+            user: {
+                columns: {
+                    user_id: true,
+                    first_name: true,
+                    last_name: true,
+                    email: true,
+                    role: true,
+                }
+            }
         }
     })
     return allComplains;
@@ -48,6 +59,18 @@ export const getComplainsByIdService = async (ticketId: number) => {
             status: true,
             created_at: true,
             updated_at: true,
+        },
+        with: {
+            user: {
+                columns: {
+                    user_id: true,
+                    first_name: true,
+                    last_name: true,
+                    email: true,
+                    role: true,
+                    created_at: true,
+                }
+            }
         }
     });
     return complain;

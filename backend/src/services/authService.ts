@@ -164,6 +164,48 @@ export const getUserByIdService = async (userId: number) => {
             is_verified: true,
             created_at: true,
             updated_at: true
+        },
+        with: {
+            bookings: {
+                columns: {
+                    booking_id: true,
+                    hotel_id: true,
+                    room_id: true,
+                    check_in_date: true,
+                    check_out_date: true,
+                    total_amount: true,
+                    status: true,
+                    created_at: true,
+                },
+                with: {
+                    hotel: {
+                        columns: {
+                            hotel_id: true,
+                            name: true,
+                            location: true,
+                            category: true,
+                        }
+                    },
+                    room: {
+                        columns: {
+                            room_id: true,
+                            room_number: true,
+                            room_type: true,
+                            price_per_night: true,
+                        }
+                    }
+                }
+            },
+            customerSupportTickets: {
+                columns: {
+                    ticket_id: true,
+                    subject: true,
+                    description: true,
+                    status: true,
+                    created_at: true,
+                    updated_at: true,
+                }
+            }
         }
     });
     return user;

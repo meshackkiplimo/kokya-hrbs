@@ -9,7 +9,7 @@ export const createRoomService = async (room: TIRoom) => {
     return newRoom;
 }
 
-// Get all rooms without pagination
+// Get all rooms without pagination with joins
 export const getAllRoomsWithoutPaginationService = async () => {
     const rooms = await db.query.RoomTable.findMany({
         columns: {
@@ -22,8 +22,24 @@ export const getAllRoomsWithoutPaginationService = async () => {
             capacity: true,
             availability: true,
             img_url: true,
+            description: true,
             created_at: true,
             updated_at: true,
+        },
+        with: {
+            hotel: {
+                columns: {
+                    hotel_id: true,
+                    name: true,
+                    location: true,
+                    address: true,
+                    contact_number: true,
+                    category: true,
+                    rating: true,
+                    img_url: true,
+                    description: true,
+                }
+            }
         }
     });
     return rooms;
@@ -46,8 +62,24 @@ export const getAllRoomsService = async (page:number=1,limit:number=10) => {
             capacity: true,
             availability: true,
             img_url: true,
+            description: true,
             created_at: true,
             updated_at: true,
+        },
+        with: {
+            hotel: {
+                columns: {
+                    hotel_id: true,
+                    name: true,
+                    location: true,
+                    address: true,
+                    contact_number: true,
+                    category: true,
+                    rating: true,
+                    img_url: true,
+                    description: true,
+                }
+            }
         },
         limit: limit,
         offset: offset
@@ -63,7 +95,7 @@ export const getAllRoomsService = async (page:number=1,limit:number=10) => {
             hasPrevPage: page > 1
         }
     };
-}   
+}
         
     
     
@@ -82,8 +114,24 @@ export const getRoomByIdService = async (roomId: number) => {
             capacity: true,
             availability: true,
             img_url: true,
+            description: true,
             created_at: true,
             updated_at: true,
+        },
+        with: {
+            hotel: {
+                columns: {
+                    hotel_id: true,
+                    name: true,
+                    location: true,
+                    address: true,
+                    contact_number: true,
+                    category: true,
+                    rating: true,
+                    img_url: true,
+                    description: true,
+                }
+            }
         }
     });
     return room;
