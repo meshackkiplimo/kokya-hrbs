@@ -1,6 +1,6 @@
 import { relations } from "drizzle-orm";
 
-import { integer, pgTable, serial, timestamp, varchar, boolean,date } from "drizzle-orm/pg-core";
+import { integer, pgTable, serial, timestamp, varchar, boolean, date } from "drizzle-orm/pg-core";
 
 
 
@@ -37,10 +37,10 @@ export const HotelTable = pgTable("hotels", {
 
 export const BookingTable = pgTable("bookings", {
     booking_id: serial("booking_id").primaryKey(),
-    user_id: integer("user_id").notNull(),
-    hotel_id: integer("hotel_id").notNull(),
-    room_id: integer("room_id").notNull(),
-    check_in_date:date("check_in_date").notNull(),
+    user_id: integer("user_id").notNull().references(() => UserTable.user_id),
+    hotel_id: integer("hotel_id").notNull().references(() => HotelTable.hotel_id),
+    room_id: integer("room_id").notNull().references(() => RoomTable.room_id),
+    check_in_date: date("check_in_date").notNull(),
     check_out_date: date("check_out_date").notNull(),
     total_amount: integer("total_amount").notNull(),
     status: varchar("status", { length: 20 }).default("pending").notNull(),
@@ -49,7 +49,7 @@ export const BookingTable = pgTable("bookings", {
 });
 export const RoomTable = pgTable("rooms", {
     room_id: serial("room_id").primaryKey(),
-    hotel_id: integer("hotel_id").notNull(),
+    hotel_id: integer("hotel_id").notNull().references(() => HotelTable.hotel_id),
     room_number: varchar("room_number", { length: 20 }).notNull(),
     room_type: varchar("room_type", { length: 50 }).notNull(),
     price_per_night: integer("price_per_night").notNull(),
@@ -65,8 +65,8 @@ export const RoomTable = pgTable("rooms", {
 
 export const PaymentTable = pgTable("payments", {
     payment_id: serial("payment_id").primaryKey(),
-    booking_id: integer("booking_id").notNull(),
-    user_id: integer("user_id").notNull(),
+    booking_id: integer("booking_id").notNull().references(() => BookingTable.booking_id),
+    user_id: integer("user_id").notNull().references(() => UserTable.user_id),
     amount: integer("amount").notNull(),
     payment_method: varchar("payment_method", { length: 50 }).notNull(),
     payment_status: varchar("payment_status", { length: 20 }).default("pending").notNull(),
@@ -77,7 +77,7 @@ export const PaymentTable = pgTable("payments", {
 
 export const CustomerSupportTable = pgTable("customer_support", {
     ticket_id: serial("ticket_id").primaryKey(),
-    user_id: integer("user_id").notNull(),
+    user_id: integer("user_id").notNull().references(() => UserTable.user_id),
     subject: varchar("subject", { length: 100 }).notNull(),
     description: varchar("message", { length: 500 }).notNull(),
     status: varchar("status", { length: 20 }).default("open").notNull(),

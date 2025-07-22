@@ -476,11 +476,11 @@ async function seed() {
         },
         {
             user_id: 10,
-            hotel_id: 10,
+            hotel_id: 1,
             room_id: 2,
             check_in_date: '2023-10-10',
             check_out_date: '2023-10-12',
-            total_amount: 8000, // 1 night * 8000
+            total_amount: 16000, // 2 nights * 8000
             status: "pending",
             created_at: new Date(),
             updated_at: new Date(),
@@ -555,7 +555,7 @@ async function seed() {
         {
             booking_id: 8,
             user_id: 8,
-            amount: 88000,
+            amount: 44000,
             payment_method: "Credit Card",
             payment_status: "completed",
             transaction_id: "TXN369852",
@@ -573,7 +573,7 @@ async function seed() {
         {
             booking_id: 10,
             user_id: 10,
-            amount: 8000,
+            amount: 16000,
             payment_method: "Bank Transfer",
             payment_status: "pending",
             transaction_id: "TXN963741",
