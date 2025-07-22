@@ -1,8 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
+import { hotelApi } from '../Features/hotels/hotelAPI';
 
 const Testimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Fetch real data for stats
+  const { data: hotels = [] } = hotelApi.useGetAllHotelsQuery();
+
+  // Calculate real stats
+  const stats = useMemo(() => {
+    const hotelCount = hotels.length;
+    const avgRating = hotels.length > 0
+      ? Math.round((hotels.reduce((sum, hotel) => sum + hotel.rating, 0) / hotels.length) * 10) / 10
+      : 4.9;
+    
+    return {
+      travelers: '50K+', // This would typically come from booking/user data
+      hotels: hotelCount > 0 ? `${hotelCount}+` : '500+',
+      rating: avgRating,
+      support: '24/7'
+    };
+  }, [hotels]);
 
   const testimonials = [
     {
@@ -177,19 +196,19 @@ const Testimonials = () => {
         {/* Statistics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 mt-16 pt-16 border-t border-gray-200">
           <div className="text-center">
-            <div className="text-4xl lg:text-5xl font-bold text-amber-600 mb-2">50K+</div>
+            <div className="text-4xl lg:text-5xl font-bold text-amber-600 mb-2">{stats.travelers}</div>
             <div className="text-gray-600 font-medium">Happy Travelers</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl lg:text-5xl font-bold text-amber-600 mb-2">500+</div>
+            <div className="text-4xl lg:text-5xl font-bold text-amber-600 mb-2">{stats.hotels}</div>
             <div className="text-gray-600 font-medium">Partner Hotels</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl lg:text-5xl font-bold text-amber-600 mb-2">4.9</div>
+            <div className="text-4xl lg:text-5xl font-bold text-amber-600 mb-2">{stats.rating}</div>
             <div className="text-gray-600 font-medium">Average Rating</div>
           </div>
           <div className="text-center">
-            <div className="text-4xl lg:text-5xl font-bold text-amber-600 mb-2">24/7</div>
+            <div className="text-4xl lg:text-5xl font-bold text-amber-600 mb-2">{stats.support}</div>
             <div className="text-gray-600 font-medium">Customer Support</div>
           </div>
         </div>

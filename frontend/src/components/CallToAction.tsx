@@ -1,7 +1,29 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ArrowRight, Download, Smartphone, Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { hotelApi } from '../Features/hotels/hotelAPI';
 
 const CallToAction = () => {
+  const navigate = useNavigate();
+
+  // Fetch real data for stats
+  const { data: hotels = [] } = hotelApi.useGetAllHotelsQuery();
+
+  // Calculate real stats
+  const stats = useMemo(() => {
+    const hotelCount = hotels.length;
+    const avgRating = hotels.length > 0
+      ? Math.round((hotels.reduce((sum, hotel) => sum + hotel.rating, 0) / hotels.length) * 10) / 10
+      : 4.9;
+    
+    return {
+      travelers: '50K+',
+      hotels: hotelCount > 0 ? `${hotelCount}+` : '500+',
+      rating: `${avgRating}★`,
+      support: '24/7'
+    };
+  }, [hotels]);
+
   return (
     <section className="py-20 bg-gradient-to-br from-amber-900 via-orange-800 to-amber-900 relative overflow-hidden">
       {/* Background Pattern */}
@@ -37,12 +59,18 @@ const CallToAction = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <button className="group bg-white text-amber-900 font-bold px-8 py-4 rounded-xl hover:bg-amber-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-3">
+              <button
+                onClick={() => navigate('/hotels')}
+                className="group bg-white text-amber-900 font-bold px-8 py-4 rounded-xl hover:bg-amber-50 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center space-x-3"
+              >
                 <span className="text-lg">Book Your Stay Now</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               
-              <button className="group border-2 border-white/30 text-white font-bold px-8 py-4 rounded-xl hover:bg-white/10 transition-all duration-300 flex items-center space-x-3">
+              <button
+                onClick={() => navigate('/contact')}
+                className="group border-2 border-white/30 text-white font-bold px-8 py-4 rounded-xl hover:bg-white/10 transition-all duration-300 flex items-center space-x-3"
+              >
                 <Bell className="w-5 h-5" />
                 <span className="text-lg">Get Price Alerts</span>
               </button>
@@ -123,19 +151,19 @@ const CallToAction = () => {
           <div className="border-t border-white/20 pt-12 mt-16">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-amber-300 mb-2">50K+</div>
+                <div className="text-3xl lg:text-4xl font-bold text-amber-300 mb-2">{stats.travelers}</div>
                 <div className="text-amber-100">Happy Travelers</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-amber-300 mb-2">500+</div>
+                <div className="text-3xl lg:text-4xl font-bold text-amber-300 mb-2">{stats.hotels}</div>
                 <div className="text-amber-100">Partner Hotels</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-amber-300 mb-2">4.9★</div>
+                <div className="text-3xl lg:text-4xl font-bold text-amber-300 mb-2">{stats.rating}</div>
                 <div className="text-amber-100">App Rating</div>
               </div>
               <div className="text-center">
-                <div className="text-3xl lg:text-4xl font-bold text-amber-300 mb-2">24/7</div>
+                <div className="text-3xl lg:text-4xl font-bold text-amber-300 mb-2">{stats.support}</div>
                 <div className="text-amber-100">Support</div>
               </div>
             </div>

@@ -1,8 +1,62 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { MapPin, Star, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { hotelApi } from '../Features/hotels/hotelAPI';
+import { roomsApi } from '../Features/rooms/roomsAPI';
 
 const PopularDestinations = () => {
-  const destinations = [
+  const navigate = useNavigate();
+
+  // Fetch real data from APIs
+  const { data: hotels = [], isLoading: hotelsLoading } = hotelApi.useGetAllHotelsQuery();
+  const { data: rooms = [], isLoading: roomsLoading } = roomsApi.useGetAllRoomsQuery();
+
+  // Process data to create destinations with real hotel data
+  const destinations = useMemo(() => {
+    if (hotelsLoading || roomsLoading || !hotels.length || !rooms.length) {
+      return [];
+    }
+
+    // Group hotels by location and calculate stats
+    const locationStats = hotels.reduce((acc: any, hotel) => {
+      const location = hotel.location;
+      if (!acc[location]) {
+        acc[location] = {
+          name: location,
+          country: "Kenya",
+          hotels: [],
+          image: hotel.img_url || `https://images.unsplash.com/photo-1611348586804-61bf6c080437?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80`,
+          description: `Experience the best of ${location} with our curated selection of hotels`
+        };
+      }
+      acc[location].hotels.push(hotel);
+      return acc;
+    }, {});
+
+    // Calculate stats for each location
+    return Object.values(locationStats).map((location: any) => {
+      const locationRooms = rooms.filter(room =>
+        location.hotels.some((hotel: any) => hotel.hotel_id === room.hotel_id)
+      );
+      
+      const avgRating = location.hotels.reduce((sum: number, hotel: any) => sum + hotel.rating, 0) / location.hotels.length;
+      const minPrice = locationRooms.length > 0 ? Math.min(...locationRooms.map(room => room.price_per_night)) : 0;
+
+      return {
+        id: location.name,
+        name: location.name,
+        country: location.country,
+        image: location.image,
+        hotels: location.hotels.length,
+        rating: Math.round(avgRating * 10) / 10,
+        priceFrom: minPrice,
+        description: location.description
+      };
+    }).slice(0, 6); // Show top 6 destinations
+  }, [hotels, rooms, hotelsLoading, roomsLoading]);
+
+  // Fallback static data while loading or if no data
+  const staticDestinations = [
     {
       id: 1,
       name: "Nairobi",
@@ -65,6 +119,9 @@ const PopularDestinations = () => {
     }
   ];
 
+  // Use real data if available, otherwise use static data
+  const displayDestinations = destinations.length > 0 ? destinations : staticDestinations;
+
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
       <Star
@@ -97,7 +154,7 @@ const PopularDestinations = () => {
 
         {/* Destinations Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {destinations.map((destination) => (
+          {displayDestinations.map((destination) => (
             <div 
               key={destination.id} 
               className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:-translate-y-2"
@@ -151,7 +208,10 @@ const PopularDestinations = () => {
                     <span className="text-sm text-gray-500">per night</span>
                   </div>
                   
-                  <button className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-2 group-hover:scale-105">
+                  <button
+                    onClick={() => navigate(`/hotels?location=${encodeURIComponent(destination.name)}`)}
+                    className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl transition-all duration-300 flex items-center space-x-2 group-hover:scale-105"
+                  >
                     <span className="font-medium">Explore</span>
                     <ArrowRight className="w-4 h-4" />
                   </button>
@@ -172,10 +232,16 @@ const PopularDestinations = () => {
               and we'll help you find the perfect accommodation.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold px-8 py-4 rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+              <button
+                onClick={() => navigate('/contact')}
+                className="bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold px-8 py-4 rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
                 Request Destination
               </button>
-              <button className="border-2 border-amber-600 text-amber-600 font-bold px-8 py-4 rounded-xl hover:bg-amber-600 hover:text-white transition-all duration-300">
+              <button
+                onClick={() => navigate('/hotels')}
+                className="border-2 border-amber-600 text-amber-600 font-bold px-8 py-4 rounded-xl hover:bg-amber-600 hover:text-white transition-all duration-300"
+              >
                 View All Destinations
               </button>
             </div>

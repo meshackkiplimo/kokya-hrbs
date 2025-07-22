@@ -1,17 +1,20 @@
 import React from 'react';
-import { 
-  Shield, 
-  Clock, 
-  Award, 
-  Heart, 
-  Smartphone, 
+import {
+  Shield,
+  Clock,
+  Award,
+  Heart,
+  Smartphone,
   Globe,
   CreditCard,
   Headphones,
   MapPin
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Features = () => {
+  const navigate = useNavigate();
+
   const features = [
     {
       icon: Shield,
@@ -116,10 +119,16 @@ const Features = () => {
         {/* Bottom CTA */}
         <div className="text-center mt-16">
           <div className="inline-flex flex-col sm:flex-row gap-4">
-            <button className="bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold px-8 py-4 rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
+            <button
+              onClick={() => navigate('/hotels')}
+              className="bg-gradient-to-r from-amber-600 to-orange-600 text-white font-bold px-8 py-4 rounded-xl hover:from-amber-700 hover:to-orange-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+            >
               Start Your Journey
             </button>
-            <button className="border-2 border-gray-300 text-gray-700 font-bold px-8 py-4 rounded-xl hover:border-amber-600 hover:text-amber-600 transition-all duration-300">
+            <button
+              onClick={() => navigate('/about')}
+              className="border-2 border-gray-300 text-gray-700 font-bold px-8 py-4 rounded-xl hover:border-amber-600 hover:text-amber-600 transition-all duration-300"
+            >
               Learn More
             </button>
           </div>

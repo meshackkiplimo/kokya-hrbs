@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Search, Star, MapPin, Calendar, Users, ArrowRight, Play, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { hotelApi } from '../Features/hotels/hotelAPI';
+import { roomsApi } from '../Features/rooms/roomsAPI';
 import bgImg from '../assets/img/bg.jpg';
 
 const Hero = () => {
@@ -7,10 +10,36 @@ const Hero = () => {
   const [checkIn, setCheckIn] = useState('');
   const [checkOut, setCheckOut] = useState('');
   const [guests, setGuests] = useState('2');
+  const navigate = useNavigate();
+
+  // Fetch real data for stats
+  const { data: hotels = [] } = hotelApi.useGetAllHotelsQuery();
+  const { data: rooms = [] } = roomsApi.useGetAllRoomsQuery();
+
+  // Calculate real stats
+  const stats = useMemo(() => {
+    const hotelCount = hotels.length;
+    const avgRating = hotels.length > 0
+      ? Math.round((hotels.reduce((sum, hotel) => sum + hotel.rating, 0) / hotels.length) * 10) / 10
+      : 4.9;
+    
+    return {
+      hotels: hotelCount > 0 ? hotelCount : 500,
+      guests: '50K+', // This would typically come from booking data
+      rating: avgRating
+    };
+  }, [hotels]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Search:', { location, checkIn, checkOut, guests });
+    // Navigate to hotels page with search parameters
+    const searchParams = new URLSearchParams();
+    if (location) searchParams.set('location', location);
+    if (checkIn) searchParams.set('checkIn', checkIn);
+    if (checkOut) searchParams.set('checkOut', checkOut);
+    if (guests) searchParams.set('guests', guests);
+    
+    navigate(`/hotels?${searchParams.toString()}`);
   };
 
   return (
@@ -165,15 +194,15 @@ const Hero = () => {
                 {/* Quick Stats */}
                 <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-gray-200">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600">500+</div>
+                    <div className="text-2xl font-bold text-amber-600">{stats.hotels}+</div>
                     <div className="text-xs text-gray-600">Hotels</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600">50K+</div>
+                    <div className="text-2xl font-bold text-amber-600">{stats.guests}</div>
                     <div className="text-xs text-gray-600">Happy Guests</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-amber-600">4.9★</div>
+                    <div className="text-2xl font-bold text-amber-600">{stats.rating}★</div>
                     <div className="text-xs text-gray-600">Rating</div>
                   </div>
                 </div>

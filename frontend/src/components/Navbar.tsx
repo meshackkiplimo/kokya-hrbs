@@ -70,12 +70,7 @@ const Navbar = () => {
           >
             Home
           </NavLink>
-          <NavLink
-            to="/rooms"
-            className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
-          >
-            Rooms
-          </NavLink>
+          
           <NavLink
             to="/hotels"
             className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
