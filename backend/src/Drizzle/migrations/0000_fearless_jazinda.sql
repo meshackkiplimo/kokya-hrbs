@@ -38,6 +38,7 @@ CREATE TABLE "hotels" (
 CREATE TABLE "payments" (
 	"payment_id" serial PRIMARY KEY NOT NULL,
 	"booking_id" integer NOT NULL,
+	"user_id" integer NOT NULL,
 	"amount" integer NOT NULL,
 	"payment_method" varchar(50) NOT NULL,
 	"payment_status" varchar(20) DEFAULT 'pending' NOT NULL,

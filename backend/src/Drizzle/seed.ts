@@ -491,6 +491,7 @@ async function seed() {
     await db.insert(PaymentTable).values([
         {
             booking_id: 1,
+            user_id: 1,
             amount: 24000,
             payment_method: "Mpesa",
             payment_status: "completed",
@@ -499,6 +500,7 @@ async function seed() {
         },
         {
             booking_id: 2,
+            user_id: 2,
             amount: 60000,
             payment_method: "Credit Card",
             payment_status: "pending",
@@ -507,6 +509,7 @@ async function seed() {
         },
         {
             booking_id: 3,
+            user_id: 3,
             amount: 6000,
             payment_method: "Bank Transfer",
             payment_status: "completed",
@@ -515,6 +518,7 @@ async function seed() {
         },
         {
             booking_id: 4,
+            user_id: 4,
             amount: 30000,
             payment_method: "Mpesa",
             payment_status: "completed",
@@ -523,6 +527,7 @@ async function seed() {
         },
         {
             booking_id: 5,
+            user_id: 5,
             amount: 42000,
             payment_method: "Credit Card",
             payment_status: "pending",
@@ -531,6 +536,7 @@ async function seed() {
         },
         {
             booking_id: 6,
+            user_id: 6,
             amount: 36000,
             payment_method: "Mpesa",
             payment_status: "completed",
@@ -539,6 +545,7 @@ async function seed() {
         },
         {
             booking_id: 7,
+            user_id: 7,
             amount: 9000,
             payment_method: "Cash",
             payment_status: "pending",
@@ -547,6 +554,7 @@ async function seed() {
         },
         {
             booking_id: 8,
+            user_id: 8,
             amount: 88000,
             payment_method: "Credit Card",
             payment_status: "completed",
@@ -555,6 +563,7 @@ async function seed() {
         },
         {
             booking_id: 9,
+            user_id: 9,
             amount: 26000,
             payment_method: "Mpesa",
             payment_status: "completed",
@@ -563,6 +572,7 @@ async function seed() {
         },
         {
             booking_id: 10,
+            user_id: 10,
             amount: 8000,
             payment_method: "Bank Transfer",
             payment_status: "pending",

@@ -1,5 +1,5 @@
 {
-  "id": "370eb05c-ec30-4378-9906-4494fe504e0e",
+  "id": "0253872e-a738-4936-a2c6-7de5649f0ef1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -232,6 +232,12 @@
         },
         "booking_id": {
           "name": "booking_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true
