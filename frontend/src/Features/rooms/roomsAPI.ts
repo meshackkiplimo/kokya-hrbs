@@ -94,6 +94,13 @@ export const roomsApi = createApi({
             }),
             invalidatesTags: (result, error, { roomId }) => [{ type: "Rooms", id: roomId }],
         }),
+        deleteRoom: builder.mutation<void, number>({
+            query: (roomId) => ({
+                url: `/rooms/${roomId}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: (result, error, roomId) => [{ type: "Rooms", id: roomId }],
+        }),
     }),
 });
 

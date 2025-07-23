@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { roomsApi } from '../../../Features/rooms/roomsAPI';
 import { hotelApi } from '../../../Features/hotels/hotelAPI';
 import CreateRoom from './CreateRoom';
+import { Delete } from 'lucide-react';
+import DeleteRoom from './DeleteRoom';
 
 const ManageRooms = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -200,7 +202,8 @@ const ManageRooms = () => {
                         <table className="table table-xs w-full">
                             <thead>
                                 <tr className="bg-gray-600 text-white text-md lg:text-lg">
-                                    <th className="px-4 py-2">Room ID</th>
+                                    
+                                      <th className="px-4 py-2">Room ID</th>
                                     <th className="px-4 py-2">Hotel ID</th>
                                     <th className="px-4 py-2">Room Type</th>
                                     <th className="px-4 py-2">Room Number</th>
@@ -208,6 +211,7 @@ const ManageRooms = () => {
                                     <th className="px-4 py-2">Capacity</th>
                                     <th className="px-4 py-2">Amenities</th>
                                     <th className="px-4 py-2">Availability</th>
+                                    <th className="px-4 py-2">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -225,6 +229,12 @@ const ManageRooms = () => {
                                                 {room.availability}
                                             </span>
                                         </td>
+
+                                        <td>
+                                            <DeleteRoom roomId={room.room_id} />
+                                        </td>
+                                        
+                                        
                                     </tr>
                                 ))}
                             </tbody>
