@@ -1,5 +1,5 @@
 import { createBookingController, deleteBookingController, getAllBookingController, getAllBookingsWithoutPaginationController, getBookingByIdController, updateBookingController } from '../controllers/bookingController';
-import { optionalAuth } from '@/middleware/authMiddleware';
+import { optionalAuth } from '../middleware/authMiddleware';
 import { Express } from 'express';
 
 
