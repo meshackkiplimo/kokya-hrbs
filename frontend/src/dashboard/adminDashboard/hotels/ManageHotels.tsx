@@ -185,7 +185,8 @@ const ManageHotels = () => {
                             <table className="table table-xs w-full">
                                 <thead>
                                     <tr className="bg-gray-600 text-white text-md lg:text-lg">
-                                        <th className="px-4 py-2">Image</th>
+                                       <th className="px-4 py-2">Hotel Name</th>
+                                          <th className="px-4 py-2">Location</th>
                                         <th className="px-4 py-2">Hotel ID</th>
                                         <th className="px-4 py-2">Name</th>
                                         <th className="px-4 py-2">Location</th>
@@ -199,23 +200,9 @@ const ManageHotels = () => {
                                 <tbody>
                                     {hotelsData.map((hotel) => (
                                         <tr key={hotel.hotel_id} className="hover:bg-gray-300 border-b border-gray-400">
-                                            <td className="px-4 py-2 border-r border-gray-400">
-                                                {hotel.img_url ? (
-                                                    <img
-                                                        src={hotel.img_url}
-                                                        alt={hotel.name}
-                                                        className="w-16 h-12 object-cover rounded border"
-                                                        onError={(e) => {
-                                                            e.currentTarget.style.display = 'none';
-                                                            e.currentTarget.parentElement!.innerHTML = '<div class="w-16 h-12 bg-gray-200 rounded border flex items-center justify-center"><span class="text-xs text-gray-500">No Image</span></div>';
-                                                        }}
-                                                    />
-                                                ) : (
-                                                    <div className="w-16 h-12 bg-gray-200 rounded border flex items-center justify-center">
-                                                        <span className="text-xs text-gray-500">No Image</span>
-                                                    </div>
-                                                )}
-                                            </td>
+                                            
+                                              <td className="px-4 py-2 border-r border-gray-400">{hotel.name}</td>
+                                                <td className="px-4 py-2 border-r border-gray-400">{hotel.location}</td>
                                             <td className="px-4 py-2 border-r border-gray-400">{hotel.hotel_id}</td>
                                             <td className="px-4 py-2 border-r border-gray-400">{hotel.name}</td>
                                             <td className="px-4 py-2 border-r border-gray-400">{hotel.location}</td>
