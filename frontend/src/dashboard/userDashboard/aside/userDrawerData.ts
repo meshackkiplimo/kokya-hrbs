@@ -24,7 +24,7 @@ export const userDrawerData: DrawerData[] = [
         id: "dashboard",
         name: "Dashboard",
         icon: FaTachometerAlt,
-        link: "/admin-dashboard",
+        link: "user-dashboard",
         description: "Overview & Statistics"
     },
     
@@ -54,11 +54,11 @@ export const userDrawerData: DrawerData[] = [
         description: "Reports & Insights"
     },
     {
-        id: "settings",
+        id: "user_settings",
         name: "Settings",
         icon: FaCog,
-        link: "settings",
-        description: "System Configuration"
+        link: "user_settings",
+        description: "User Preferences"
     },
     {
         id: "logout",
