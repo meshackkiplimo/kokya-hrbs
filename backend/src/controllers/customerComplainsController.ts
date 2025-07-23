@@ -1,5 +1,5 @@
-import { createNewComplainsService, deleteComplainsService, getAllComplainsService, getComplainsByIdService, updateComplainsService } from "@/services/customerComplainsService";
-import { getUserByIdService } from "@/services/authService";
+import { createNewComplainsService, deleteComplainsService, getAllComplainsService, getComplainsByIdService, updateComplainsService } from "../services/customerComplainsService";
+import { getUserByIdService } from "../services/authService";
 import { Request, Response } from "express";
 
 

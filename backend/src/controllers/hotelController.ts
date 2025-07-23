@@ -1,7 +1,7 @@
-import { createHotelService, deleteHotelService, getAllHotelService, getAllHotelsWithoutPaginationService, getHotelByIdService, updateHotelService } from "@/services/hotelService";
+import { createHotelService, deleteHotelService, getAllHotelService, getAllHotelsWithoutPaginationService, getHotelByIdService, updateHotelService } from "../services/hotelService";
 import { Request, Response } from "express";
 import cloudinary from 'cloudinary';
-import { TIHotel } from "@/Drizzle/schema";
+import { TIHotel } from "../Drizzle/schema";
 
 
 

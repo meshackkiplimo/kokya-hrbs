@@ -7,11 +7,11 @@ import {
   processWebhookEvent,
   getSupportedBanks,
   validateAccountNumber
-} from '@/services/paystackService';
-import { createPaymentService, updatePaymentService } from '@/services/paymentService';
-import { getPaymentByIdService } from '@/services/paymentService';
-import db from '@/Drizzle/db';
-import { PaymentTable } from '@/Drizzle/schema';
+} from '../services/paystackService';
+import { createPaymentService, updatePaymentService } from '../services/paymentService';
+
+import db from '../Drizzle/db';
+import { PaymentTable } from '../Drizzle/schema';
 import { eq } from 'drizzle-orm';
 
 /**

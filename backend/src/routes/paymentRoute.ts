@@ -1,4 +1,4 @@
-import { createPaymentController, deletePaymentController, getAllPaymentsController, getAllPaymentsWithoutPaginationController, getPaymentByIdController, updatePaymentController } from "@/controllers/paymentController";
+import { createPaymentController, deletePaymentController, getAllPaymentsController, getAllPaymentsWithoutPaginationController, getPaymentByIdController, updatePaymentController } from "../controllers/paymentController";
 import { Express } from "express";
 
 

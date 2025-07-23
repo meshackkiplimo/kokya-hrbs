@@ -1,5 +1,5 @@
-import db from "@/Drizzle/db";
-import { TIUser, UserTable } from "@/Drizzle/schema";
+import db from "../Drizzle/db";
+import { TIUser, UserTable } from "../Drizzle/schema";
 import { sql, eq } from "drizzle-orm";
 
 

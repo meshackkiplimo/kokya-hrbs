@@ -1,4 +1,4 @@
-import { sendEmail } from "@/config/emailConfig";
+import { sendEmail } from "../config/emailConfig";
 
 
 class EmailService {

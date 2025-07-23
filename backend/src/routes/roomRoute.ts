@@ -1,5 +1,5 @@
 
-import { createRoomController, deleteRoomController, getAllRoomsController, getAllRoomsWithoutPaginationController, getRoomByIdController, updateRoomController } from "@/controllers/roomController";
+import { createRoomController, deleteRoomController, getAllRoomsController, getAllRoomsWithoutPaginationController, getRoomByIdController, updateRoomController } from "../controllers/roomController";
 import { Express } from "express";
 
 import multer from "multer"

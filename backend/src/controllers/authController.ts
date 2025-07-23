@@ -4,8 +4,8 @@ import { createAuthService, deleteUserService, getAllUsersService, getUserByIdSe
 
 import jwt from 'jsonwebtoken';
 
-import { TIUser } from '@/Drizzle/schema';
-import { emailService } from '@/services/emailService';
+import { TIUser } from '../Drizzle/schema';
+import { emailService } from '../services/emailService';
 
 // Store verification codes with expiry (in memory - consider using Redis in production)
 const verificationCodes = new Map<string, { code: string; expires: Date }>();

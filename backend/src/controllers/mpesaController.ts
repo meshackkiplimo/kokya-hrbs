@@ -1,5 +1,5 @@
-import { stkPush, stkPushQuery, processCallback, validatePhoneNumber } from '@/services/mpesaService';
-import { createPaymentService, updatePaymentService } from '@/services/paymentService';
+import { stkPush, stkPushQuery, processCallback, validatePhoneNumber } from '../services/mpesaService';
+import { createPaymentService, updatePaymentService } from '../services/paymentService';
 import { Request, Response } from 'express';
 
 export const initiateSTKPush = async (req: Request, res: Response) => {

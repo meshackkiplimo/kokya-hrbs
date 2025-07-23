@@ -1,4 +1,4 @@
-import { createPaymentService, deletePaymentService, getAllPaymentsService, getAllPaymentsWithoutPaginationService, getPaymentByIdService, updatePaymentService } from "@/services/paymentService";
+import { createPaymentService, deletePaymentService, getAllPaymentsService, getAllPaymentsWithoutPaginationService, getPaymentByIdService, updatePaymentService } from "../services/paymentService";
 import { Request, Response } from "express";
 
 export const createPaymentController = async (req: Request, res: Response) => {

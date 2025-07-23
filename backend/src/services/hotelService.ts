@@ -1,5 +1,5 @@
-import db from "@/Drizzle/db";
-import { HotelTable, TIHotel } from "@/Drizzle/schema";
+import db from "../Drizzle/db";
+import { HotelTable, TIHotel } from "../Drizzle/schema";
 import { sql } from "drizzle-orm";
 import express from "express";
 

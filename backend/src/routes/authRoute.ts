@@ -1,5 +1,5 @@
 
-import { creatUserController, deleteUserController, getAllUsersController, getUserByIdController, loginUserController, updateUserController, verifyEmailController } from '@/controllers/authController';
+import { creatUserController, deleteUserController, getAllUsersController, getUserByIdController, loginUserController, updateUserController, verifyEmailController } from '../controllers/authController';
 import { Express } from 'express';
 
 

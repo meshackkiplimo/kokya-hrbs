@@ -1,5 +1,5 @@
-import db from "@/Drizzle/db";
-import { PaymentTable, TIPayment } from "@/Drizzle/schema"
+import db from "../Drizzle/db";
+import { PaymentTable, TIPayment } from "../Drizzle/schema"
 import { sql } from "drizzle-orm";
 
 

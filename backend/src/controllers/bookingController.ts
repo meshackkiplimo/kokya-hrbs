@@ -1,5 +1,5 @@
-import { createBookingService, deleteBookingService, getAllBookingService, getBookingByIdService, updateBookingService, checkRoomConflictService, getAllBookingsWithoutPaginationService } from '@/services/bookingService';
-import { updateHotelService } from '@/services/hotelService';
+import { createBookingService, deleteBookingService, getAllBookingService, getBookingByIdService, updateBookingService, checkRoomConflictService, getAllBookingsWithoutPaginationService } from '../services/bookingService';
+
 import { Request, Response } from 'express';
 
 

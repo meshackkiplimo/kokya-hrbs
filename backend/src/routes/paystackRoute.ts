@@ -1,5 +1,5 @@
 import { Express } from 'express';
-import { verifyToken } from '@/middleware/authMiddleware';
+import { verifyToken } from '../middleware/authMiddleware';
 import {
   initializePaystackPayment,
   verifyPaystackPayment,
@@ -7,7 +7,7 @@ import {
   getPaystackBanks,
   validatePaystackAccount,
   testPaystack
-} from '@/controllers/paystackController';
+} from '../controllers/paystackController';
 
 export const paystackRoute = (app: Express) => {
   // Initialize payment (requires authentication)

@@ -1,7 +1,7 @@
-import { createRoomService, deleteRoomService, getAllRoomsService, getAllRoomsWithoutPaginationService, getRoomByIdService, updateRoomService } from "@/services/roomService";
+import { createRoomService, deleteRoomService, getAllRoomsService, getAllRoomsWithoutPaginationService, getRoomByIdService, updateRoomService } from "../services/roomService";
 import { Request, Response } from "express";
 import cloudinary from 'cloudinary';
-import { TIRoom } from "@/Drizzle/schema";
+import { TIRoom } from "../Drizzle/schema";
 
 const uploadImage = async (file: Express.Multer.File) => {
     const image = file

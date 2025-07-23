@@ -1,5 +1,5 @@
-import { createCustomerComplainsController, deleteCustomerComplainsController, getAllCustomerComplainsController, getcomplainsByIdController, updateCustomerComplainsController } from '@/controllers/customerComplainsController';
-import { createNewComplainsService } from '@/services/customerComplainsService';
+import { createCustomerComplainsController, deleteCustomerComplainsController, getAllCustomerComplainsController, getcomplainsByIdController, updateCustomerComplainsController } from '../controllers/customerComplainsController';
+
 import { Express } from 'express';
 
 

@@ -1,8 +1,8 @@
 
 
-import { initiateSTKPush, mpesaCallback, checkPaymentStatus, testMpesa } from '@/controllers/mpesaController';
+import { initiateSTKPush, mpesaCallback, checkPaymentStatus, testMpesa } from '../controllers/mpesaController';
 import { Express } from 'express';
-import { verifyToken } from '@/middleware/authMiddleware';
+import { verifyToken } from '../middleware/authMiddleware';
 
 export const mpesaRoute = (app: Express) => {
     // STK Push initiation (requires authentication)
