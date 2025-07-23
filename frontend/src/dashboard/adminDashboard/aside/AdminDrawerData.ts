@@ -79,6 +79,14 @@ export const adminDrawerData: DrawerData[] = [
         description: "System Configuration"
     },
     {
+        id: "complains",
+        name: "Complains",
+        icon: FaCog,
+        link: "complains",
+        description: "Customer Support"
+    },
+    
+    {
         id: "logout",
         name: "Logout",
         icon: FaSignOutAlt,

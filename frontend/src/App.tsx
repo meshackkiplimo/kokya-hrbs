@@ -29,6 +29,7 @@ import UserBooking from './dashboard/userDashboard/userBooking/UserBooking'
 import PaymentCallbackPage from './pages/PaymentCallbackPage'
 import UserPayment from './dashboard/userDashboard/payment/UserPayment'
 import UserSettings from './dashboard/userDashboard/settings/UserSettng'
+import TicketManagement from './dashboard/adminDashboard/customer_support/TicketManagement'
 
 // Landing Page Component
 const LandingPage = () => {
@@ -67,6 +68,7 @@ function App() {
                         <Route path="hotels" element={<ManageHotels />} />
                            <Route path="analytics" element={<ManageAnalytics />} />
                            <Route path="settings" element={<ManageSettings />} />
+                             <Route path="complains" element={<TicketManagement />} />
           
             </Route>
             
@@ -80,6 +82,7 @@ function App() {
                            
                            <Route path="bookings" element={<UserBooking />} />
                             <Route path="payments" element={<UserPayment />} />
+                           
           
             </Route>
 
