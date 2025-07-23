@@ -1,17 +1,19 @@
-import React, { useState, useMemo } from 'react';
-import { 
-  MapPin, 
-  Star, 
-  Phone, 
-  Users, 
-  Bed, 
-  Wifi, 
-  Car, 
+import React, { useState, useMemo, useEffect } from 'react';
+import {
+  MapPin,
+  Star,
+  Phone,
+  Users,
+  Bed,
+  Wifi,
+  Car,
   Coffee,
   Search,
   Filter,
   Calendar,
-  CreditCard
+  CreditCard,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { hotelApi } from '../Features/hotels/hotelAPI';
 import { roomsApi, parseImageUrls } from '../Features/rooms/roomsAPI';
@@ -33,6 +35,7 @@ const HotelPage = () => {
   const [roomForDetails, setRoomForDetails] = useState<any>(null);
   const [showPaymentOptions, setShowPaymentOptions] = useState(false);
   const [bookingData, setBookingData] = useState<any>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // Get user info from Redux store
   const user = useSelector((state: RootState) => state.user);
@@ -101,8 +104,49 @@ const HotelPage = () => {
 
   const handleViewRoomDetails = (room: any) => {
     setRoomForDetails(room);
+    setCurrentImageIndex(0); // Reset to first image
     setShowRoomDetailsModal(true);
   };
+
+  // Image navigation functions
+  const nextImage = (imageUrls: string[]) => {
+    setCurrentImageIndex((prev) => (prev + 1) % imageUrls.length);
+  };
+
+  const prevImage = (imageUrls: string[]) => {
+    setCurrentImageIndex((prev) => (prev - 1 + imageUrls.length) % imageUrls.length);
+  };
+
+  const goToImage = (index: number) => {
+    setCurrentImageIndex(index);
+  };
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!showRoomDetailsModal || !roomForDetails) return;
+      
+      const imageUrls = parseImageUrls(roomForDetails.img_url);
+      if (imageUrls.length <= 1) return;
+
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        prevImage(imageUrls);
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        nextImage(imageUrls);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        setShowRoomDetailsModal(false);
+        setRoomForDetails(null);
+      }
+    };
+
+    if (showRoomDetailsModal) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [showRoomDetailsModal, roomForDetails]);
 
   const handleConfirmBooking = async () => {
     if (!selectedRoom || !checkInDate || !checkOutDate) {
@@ -589,6 +633,7 @@ const HotelPage = () => {
                   onClick={() => {
                     setShowRoomDetailsModal(false);
                     setRoomForDetails(null);
+                    setCurrentImageIndex(0);
                   }}
                   className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
                 >
@@ -598,35 +643,126 @@ const HotelPage = () => {
 
               {/* Modal Content */}
               <div className="p-6">
-                {/* Room Images Gallery */}
+                {/* Room Images Carousel */}
                 <div className="mb-6">
                   <h4 className="text-lg font-semibold text-gray-800 mb-4">Room Images</h4>
                   {(() => {
                     const imageUrls = parseImageUrls(roomForDetails.img_url);
                     return imageUrls.length > 0 ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {imageUrls.map((imageUrl, index) => (
-                          <div key={index} className="relative">
-                            <img
-                              src={imageUrl}
-                              alt={`${roomForDetails.room_type} - Image ${index + 1}`}
-                              className="w-full h-48 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none';
-                              }}
-                              onClick={() => {
-                                // Optional: Add lightbox functionality here
-                                window.open(imageUrl, '_blank');
-                              }}
-                            />
-                            <div className="absolute top-2 left-2 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">
-                              {index + 1} of {imageUrls.length}
+                      <div className="relative">
+                        {/* Main Image Display */}
+                        <div className="relative w-full h-96 bg-gray-900 rounded-lg overflow-hidden">
+                          <img
+                            src={imageUrls[currentImageIndex]}
+                            alt={`${roomForDetails.room_type} - Image ${currentImageIndex + 1}`}
+                            className="w-full h-full object-cover transition-opacity duration-300 ease-in-out"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-gray-200 flex items-center justify-center"><div class="text-center"><div class="w-16 h-16 mx-auto text-gray-400 mb-2"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div><span class="text-gray-500 font-medium">Image not available</span></div></div>';
+                            }}
+                          />
+                          
+                          {/* Image Counter Overlay */}
+                          <div className="absolute top-4 right-4 bg-black bg-opacity-70 text-white text-sm px-3 py-1 rounded-full">
+                            {currentImageIndex + 1} / {imageUrls.length}
+                          </div>
+                          
+                          {/* Navigation Arrows */}
+                          {imageUrls.length > 1 && (
+                            <>
+                              <button
+                                onClick={() => prevImage(imageUrls)}
+                                className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                                aria-label="Previous image"
+                              >
+                                <ChevronLeft size={24} />
+                              </button>
+                              <button
+                                onClick={() => nextImage(imageUrls)}
+                                className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-2 rounded-full transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50"
+                                aria-label="Next image"
+                              >
+                                <ChevronRight size={24} />
+                              </button>
+                            </>
+                          )}
+                          
+                          {/* Click zones for navigation */}
+                          {imageUrls.length > 1 && (
+                            <>
+                              <div
+                                className="absolute left-0 top-0 w-1/3 h-full cursor-pointer"
+                                onClick={() => prevImage(imageUrls)}
+                                title="Previous image (← key)"
+                              />
+                              <div
+                                className="absolute right-0 top-0 w-1/3 h-full cursor-pointer"
+                                onClick={() => nextImage(imageUrls)}
+                                title="Next image (→ key)"
+                              />
+                            </>
+                          )}
+                        </div>
+                        
+                        {/* Image Indicators/Dots */}
+                        {imageUrls.length > 1 && (
+                          <div className="flex justify-center mt-4 space-x-2">
+                            {imageUrls.map((_, index) => (
+                              <button
+                                key={index}
+                                onClick={() => goToImage(index)}
+                                className={`w-3 h-3 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 ${
+                                  index === currentImageIndex
+                                    ? 'bg-blue-600 scale-125'
+                                    : 'bg-gray-300 hover:bg-gray-400'
+                                }`}
+                                aria-label={`Go to image ${index + 1}`}
+                              />
+                            ))}
+                          </div>
+                        )}
+                        
+                        {/* Thumbnail Navigation */}
+                        {imageUrls.length > 1 && (
+                          <div className="mt-4">
+                            <h5 className="text-sm font-medium text-gray-700 mb-2">All Images</h5>
+                            <div className="flex space-x-2 overflow-x-auto pb-2">
+                              {imageUrls.map((imageUrl, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => goToImage(index)}
+                                  className={`flex-shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                                    index === currentImageIndex
+                                      ? 'border-blue-600 scale-105'
+                                      : 'border-gray-300 hover:border-gray-400'
+                                  }`}
+                                >
+                                  <img
+                                    src={imageUrl}
+                                    alt={`Thumbnail ${index + 1}`}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none';
+                                      e.currentTarget.parentElement!.innerHTML = '<div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>';
+                                    }}
+                                  />
+                                </button>
+                              ))}
                             </div>
                           </div>
-                        ))}
+                        )}
+                        
+                        {/* Keyboard Navigation Hint */}
+                        {imageUrls.length > 1 && (
+                          <div className="mt-2 text-center">
+                            <p className="text-xs text-gray-500">
+                              Use ← → arrow keys or click on images to navigate
+                            </p>
+                          </div>
+                        )}
                       </div>
                     ) : (
-                      <div className="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+                      <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
                         <div className="text-center">
                           <Bed size={48} className="mx-auto text-gray-400 mb-2" />
                           <span className="text-gray-500">No images available</span>
@@ -713,6 +849,7 @@ const HotelPage = () => {
                     onClick={() => {
                       setShowRoomDetailsModal(false);
                       setRoomForDetails(null);
+                      setCurrentImageIndex(0);
                     }}
                     className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                   >
@@ -723,6 +860,7 @@ const HotelPage = () => {
                       onClick={() => {
                         setShowRoomDetailsModal(false);
                         setRoomForDetails(null);
+                        setCurrentImageIndex(0);
                         handleBookRoom(roomForDetails.room_id, roomForDetails.hotel_id);
                       }}
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
