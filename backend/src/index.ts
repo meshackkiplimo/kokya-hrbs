@@ -16,12 +16,20 @@ import { paystackRoute } from './routes/paystackRoute';
 dotenv.config();
 
 export const app = express();
+const  allowedOrigins = [
+  'http://localhost:5173',
+  'https://kokya-hrbs.vercel.app',
+  
+  
+]
 
 app.use(cors({
-  origin:"http://localhost:5173",
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
+  origin: allowedOrigins,
+  credentials: true, // Allow credentials to be sent
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+  
+  
 }))
 
 // middleware
