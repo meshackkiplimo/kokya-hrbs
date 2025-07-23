@@ -1,7 +1,7 @@
 import db from "../Drizzle/db";
 import { BookingTable, TIBooking } from "../Drizzle/schema";
 import { sql } from "drizzle-orm";
-import { cache } from "@/utils/cache";
+import { cache } from "../utils/cache";
 
 
 
