@@ -7,13 +7,21 @@ import { APIDomain } from "../../utils/utils";
 
 
 export type TTicket ={
-    ticketId: string;
-    userId: string;
+    ticket_id: number;
+   
     subject: string;
     description: string;
     status: 'open' | 'closed' | 'in-progress';
+  user:{
+        user_id: number;
+        first_name: string;
+        last_name: string;
+        email: string;
+    }
+    
+  }
 
-}
+
 
 export const ticketApi = createApi ({
     reducerPath: 'ticketApi',
@@ -31,6 +39,9 @@ export const ticketApi = createApi ({
     endpoints: (builder) => ({
         getTickets: builder.query<TTicket[], void>({
             query: () => '/complains',
+            transformResponse: (response: TTicket[]) => response,
+            providesTags: ['Ticket'],
+
         }),
         createTicket: builder.mutation<TTicket, Partial<TTicket>>({
             query: (newTicket) => ({

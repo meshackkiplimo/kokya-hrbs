@@ -21,20 +21,32 @@ const TicketManagement = () => {
               <table className="table table-xs w-full">
                 <thead>
                   <tr className="bg-gray-600 text-white text-md lg:text-lg">
-                    <th className="px-4 py-2 border-r border-gray-400">User ID</th>
+                    <th className="px-4 py-2 border-r border-gray-400">User email</th>
+                    <th className="px-4 py-2 border-r border-gray-400">First Name</th>
+                    <th className="px-4 py-2 border-r border-gray-400">Last Name</th>
+                    
+
+                      <th className="px-4 py-2 border-r border-gray-400">Ticket ID</th>
                     <th className="px-4 py-2 border-r border-gray-400">Description</th>
                     <th className="px-4 py-2 border-r border-gray-400">Subject</th>
-                    <th className="px-4 py-2 border-r border-gray-400">Ticket ID</th>
+                  
                     <th className="px-4 py-2 border-r border-gray-400">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {ticketsData.map((tickets) => (
-                    <tr key={tickets.ticketId} className="hover:bg-gray-300 border-b border-gray-400">
-                      <td className="px-4 py-2 border-r border-gray-400">{tickets.userId}</td>
+                    
+                    <tr key={tickets.ticket_id} className="hover:bg-gray-300 border-b border-gray-400">
+                       <td className="px-4 py-2 border-r border-gray-400">{tickets.user.email}</td>
+                         <td className="px-4 py-2 border-r border-gray-400">{tickets.user.first_name}</td>
+                            <td className="px-4 py-2 border-r border-gray-400">{tickets.user.last_name}</td>
+                     
+                     
+                     
+                        <td className="px-4 py-2 border-r border-gray-400">${tickets.ticket_id}</td>
                       <td className="px-4 py-2 border-r border-gray-400">{tickets.description}</td>
                       <td className="px-4 py-2 border-r border-gray-400">{tickets.subject}</td>
-                      <td className="px-4 py-2 border-r border-gray-400">${tickets.ticketId}</td>
+                    
                       
                       <td className="px-4 py-2 border-r border-gray-400">
                         <span className={`badge ${tickets.status === 'open' ? 'badge-success' : 'badge-warning'}`}>
