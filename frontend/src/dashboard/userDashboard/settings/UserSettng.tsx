@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
-import { 
-  User, 
-  Bell, 
-  Shield, 
-  Database, 
-  Palette, 
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import {
+  User,
+  Bell,
+  Shield,
+  Database,
+  Palette,
   Globe,
   Save,
-  RefreshCw 
+  RefreshCw
 } from 'lucide-react';
+import { type RootState } from '../../../app/store';
 
 const UserSettings = () => {
   const [activeTab, setActiveTab] = useState('profile');
+  const user = useSelector((state: RootState) => state.user.user);
+  
   const [settings, setSettings] = useState({
     profile: {
-      name: 'Admin User',
-      email: 'admin@kokyahrbs.com',
-      phone: '+254 700 000 000',
-      role: 'Administrator'
+      name: '',
+      email: '',
+      phone: '',
+      role: ''
     },
     notifications: {
       emailNotifications: true,
@@ -33,6 +37,33 @@ const UserSettings = () => {
     },
    
   });
+
+  // Update settings with user data when component mounts or user changes
+  useEffect(() => {
+    if (user) {
+      setSettings(prevSettings => ({
+        ...prevSettings,
+        profile: {
+          name: `${user.first_name} ${user.last_name}`,
+          email: user.email,
+          phone: prevSettings.profile.phone || '', // Keep existing phone or empty string
+          role: user.role
+        }
+      }));
+    }
+  }, [user]);
+
+  // Show loading state if user data is not available
+  if (!user) {
+    return (
+      <div className="p-6 bg-gray-50 min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading user information...</p>
+        </div>
+      </div>
+    );
+  }
 
   const tabs = [
     { id: 'profile', name: 'Profile', icon: User },
