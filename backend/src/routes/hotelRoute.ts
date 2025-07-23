@@ -1,4 +1,4 @@
-import { createHotelController, deleteHotelController, getAllHotelController, getAllHotelsWithoutPaginationController, getHotelByIdController, updateHotelController } from "@/controllers/hotelController";
+import { createHotelController, deleteHotelController, getAllHotelController, getAllHotelsWithoutPaginationController, getHotelByIdController, updateHotelController } from "../controllers/hotelController";
 import { Express } from "express";
 
 import multer from "multer"
