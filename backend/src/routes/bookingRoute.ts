@@ -32,7 +32,8 @@ export const bookingRoute = (app:Express)=>{
             
         }
     )
-    app.route('/bookings/without-pagination').get(
+    app.route('/bookp').get(
+        
         async (req, res, next) => {
             try {
                 await getAllBookingsWithoutPaginationController(req, res);
