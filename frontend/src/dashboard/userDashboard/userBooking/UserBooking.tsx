@@ -21,11 +21,11 @@ const UserBooking = () => {
 
     // Try user-specific query first, fallback to getAllBookings
     const {
-        data: userBookingsData,
+        data: userBookingsResponse,
         isLoading: isUserBookingsLoading,
         error: userBookingsError,
         refetch: refetchUserBookings
-    } = useGetUserBookingsQuery(userId, {
+    } = useGetUserBookingsQuery({ userId, page: 1, limit: 50 }, {
         refetchOnMountOrArgChange: true,
         pollingInterval: 30000, // Poll every 30 seconds for real-time updates
         skip: !userId, // Skip the query if no userId
@@ -38,16 +38,16 @@ const UserBooking = () => {
         error: allBookingsError,
         refetch: refetchAllBookings
     } = useGetAllBookingsQuery(undefined, {
-        skip: !!userBookingsData && !userBookingsError, // Only fetch if user-specific failed
+        skip: !!userBookingsResponse && !userBookingsError, // Only fetch if user-specific failed
     });
 
     // Determine which data to use
-    const bookingsData = userBookingsData || allBookingsData.filter(booking => 
+    const bookingsData = userBookingsResponse?.bookings || allBookingsData.filter(booking =>
         booking.user_id === userId || booking.user_id === user?.id
     );
     const isLoading = isUserBookingsLoading || isAllBookingsLoading;
     const error = userBookingsError || allBookingsError;
-    const refetch = userBookingsData ? refetchUserBookings : refetchAllBookings;
+    const refetch = userBookingsResponse ? refetchUserBookings : refetchAllBookings;
 
     // Loading state
     if (isLoading) {

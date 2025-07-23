@@ -89,13 +89,12 @@ export const bookingApi = createApi({
             invalidatesTags: ["Bookings"],
         }),
         // Get user-specific bookings
-        getUserBookings: builder.query<TBooking[], number>({
-            query: (userId) => ({
-                url: `/bookings?user_id=${userId}`,
+        getUserBookings: builder.query<TBookingResponse, { userId: number; page?: number; limit?: number }>({
+            query: ({ userId, page = 1, limit = 10 }) => ({
+                url: `/bookings?user_id=${userId}&page=${page}&limit=${limit}`,
                 method: "GET"
             }),
             providesTags: ["Bookings"],
-            transformResponse: (response: TBookingResponse) => response.bookings,
         }),
     }),
     
