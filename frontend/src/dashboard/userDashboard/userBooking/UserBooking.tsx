@@ -80,10 +80,12 @@ const UserBooking = () => {
     const handlePaymentSuccess = (transactionData: any, method: 'mpesa' | 'paystack') => {
         setShowPaymentModal(false);
         setSelectedBooking(null);
-        // Refetch payments to update UI
+        // Refetch payments and bookings to update UI
         refetchPayments();
+        refetch();
         // You can show a success toast here
         console.log('Payment successful:', transactionData, method);
+        alert(`Payment successful! Your ${method === 'mpesa' ? 'M-PESA' : 'Card'} payment has been processed.`);
     };
 
     const handlePaymentError = (error: string) => {
@@ -372,6 +374,7 @@ const UserBooking = () => {
                                     accountReference={`Booking #${selectedBooking.booking_id}`}
                                     transactionDesc={`Hotel Booking Payment - Booking #${selectedBooking.booking_id}`}
                                     metadata={{
+                                        user_id: userId,
                                         booking_id: selectedBooking.booking_id,
                                         hotel_id: selectedBooking.hotel_id,
                                         room_id: selectedBooking.room_id,

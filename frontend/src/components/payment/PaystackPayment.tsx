@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CreditCard, Mail, Loader, CheckCircle, XCircle, ExternalLink, ArrowLeft } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../app/store';
 import { useInitializePaystackPaymentMutation, useVerifyPaystackPaymentQuery } from '../../Features/payment/paymentAPI';
 
 interface PaystackPaymentProps {
@@ -26,6 +28,9 @@ const PaystackPayment: React.FC<PaystackPaymentProps> = ({
   const [paymentReference, setPaymentReference] = useState<string>('');
   const [authorizationUrl, setAuthorizationUrl] = useState<string>('');
   const [error, setError] = useState<string>('');
+
+  // Get user authentication status
+  const { token, user } = useSelector((state: RootState) => state.user);
 
   const [initializePaystackPayment, { isLoading: isInitiating }] = useInitializePaystackPaymentMutation();
   
@@ -83,6 +88,20 @@ const PaystackPayment: React.FC<PaystackPaymentProps> = ({
   };
 
   const handlePayment = async () => {
+    console.log('PaystackPayment - User authentication status:', { token, user });
+    console.log('PaystackPayment - BookingId:', bookingId);
+    console.log('PaystackPayment - Payment data being sent:', {
+      email,
+      amount,
+      bookingId,
+      metadata
+    });
+
+    if (!token) {
+      setError('You must be logged in to make a payment');
+      return;
+    }
+
     if (!validateEmail(email)) {
       setError('Please enter a valid email address');
       return;

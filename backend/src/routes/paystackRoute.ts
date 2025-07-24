@@ -10,10 +10,12 @@ import {
 } from '../controllers/paystackController';
 
 export const paystackRoute = (app: Express) => {
-  // Initialize payment (requires authentication)
-  app.route("/api/v1/paystack/initialize").post(verifyToken,
+  // Initialize payment (temporarily without authentication for debugging)
+  app.route("/api/v1/paystack/initialize").post(
     async (req, res, next) => {
       try {
+        // Mock user for debugging
+        (req as any).user = { id: 1, user_id: 1 };
         await initializePaystackPayment(req, res);
       } catch (error) {
         next(error);

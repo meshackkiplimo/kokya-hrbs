@@ -8,7 +8,8 @@ import {
   getSupportedBanks,
   validateAccountNumber
 } from '../services/paystackService';
-import { createPaymentService, updatePaymentService } from '../services/paymentService';
+import { createPaymentService, updatePaymentService, getPaymentByTransactionIdService } from '../services/paymentService';
+import { updateBookingService } from '../services/bookingService';
 
 import db from '../Drizzle/db';
 import { PaymentTable } from '../Drizzle/schema';
@@ -60,21 +61,60 @@ export const initializePaystackPayment = async (req: Request, res: Response) => 
       }
     );
 
+    // Debug: Log entire request body and user
+    console.log('Full request body:', req.body);
+    console.log('Authenticated user:', (req as any).user);
+    console.log('BookingId received:', bookingId);
+
     // Create payment record in database if booking ID is provided
     if (bookingId) {
       try {
-        await createPaymentService({
-          booking_id: bookingId,
-          user_id: (req as any).user?.id,
-          amount: amount,
+        const userId = (req as any).user?.id;
+        
+        // Check if we have required data
+        if (!userId) {
+          console.error('ERROR: No user ID found in request. User might not be authenticated.');
+          return res.status(401).json({
+            success: false,
+            message: 'Authentication required to create payment'
+          });
+        }
+
+        if (!bookingId) {
+          console.error('ERROR: No booking ID provided');
+          return res.status(400).json({
+            success: false,
+            message: 'Booking ID is required'
+          });
+        }
+
+        const paymentData = {
+          booking_id: parseInt(bookingId),
+          user_id: parseInt(userId),
+          amount: parseInt(amount),
           payment_method: 'paystack',
           payment_status: 'pending',
           transaction_id: reference,
+        };
+
+        console.log('Creating payment record with validated data:', paymentData);
+        
+        const createdPayment = await createPaymentService(paymentData);
+        
+        console.log('Payment record created successfully:', createdPayment);
+      } catch (paymentError: any) {
+        console.error('CRITICAL ERROR creating payment record:', paymentError);
+        console.error('Full error stack:', paymentError?.stack);
+        
+        // Don't continue if payment creation fails - this is critical
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to create payment record',
+          error: paymentError?.message || 'Unknown error'
         });
-      } catch (paymentError) {
-        console.error('Error creating payment record:', paymentError);
-        // Continue with response even if payment record creation fails
       }
+    } else {
+      console.log('WARNING: No booking ID provided, skipping payment record creation');
     }
 
     res.status(200).json({
@@ -126,21 +166,36 @@ export const verifyPaystackPayment = async (req: Request, res: Response) => {
 
     // Update payment status in database
     try {
-      // Find payment by transaction_id (reference)
-      const existingPayment = await db.query.PaymentTable.findFirst({
-        where: eq(PaymentTable.transaction_id, reference)
-      });
+      console.log(`Looking for payment with reference: ${reference}`);
+      
+      // Find payment by transaction_id (reference) using our service
+      const payment = await getPaymentByTransactionIdService(reference);
 
-      if (existingPayment) {
+      if (payment) {
+        console.log('Payment found:', payment);
         const paymentStatus = data.status === 'success' ? 'completed' : 'failed';
         
-        await updatePaymentService(existingPayment.payment_id, {
-          ...existingPayment,
+        console.log(`Updating payment ${payment.payment_id} status to: ${paymentStatus}`);
+        
+        await updatePaymentService(payment.payment_id, {
+          ...payment,
           payment_status: paymentStatus,
           transaction_id: reference,
         });
 
+        // If payment is successful, update booking status to confirmed
+        if (data.status === 'success' && payment.booking) {
+          console.log(`Updating booking ${payment.booking.booking_id} status to confirmed`);
+          await updateBookingService(payment.booking.booking_id, {
+            ...payment.booking,
+            status: 'confirmed'
+          });
+          console.log(`Booking ${payment.booking.booking_id} status updated to confirmed`);
+        }
+
         console.log(`Payment ${reference} status updated to: ${paymentStatus}`);
+      } else {
+        console.log(`No payment found with reference: ${reference}`);
       }
     } catch (updateError) {
       console.error('Error updating payment status:', updateError);
@@ -228,17 +283,24 @@ export const paystackWebhook = async (req: Request, res: Response) => {
   */
  const handleSuccessfulPayment = async (eventData: any) => {
    try {
-     // Find payment by transaction_id (reference)
-     const existingPayment = await db.query.PaymentTable.findFirst({
-       where: eq(PaymentTable.transaction_id, eventData.reference)
-     });
+     // Find payment by transaction_id (reference) using our service
+     const payment = await getPaymentByTransactionIdService(eventData.reference);
  
-     if (existingPayment) {
-       await updatePaymentService(existingPayment.payment_id, {
-         ...existingPayment,
+     if (payment) {
+       await updatePaymentService(payment.payment_id, {
+         ...payment,
          payment_status: 'completed',
          transaction_id: eventData.reference,
        });
+
+       // Update booking status to confirmed
+       if (payment.booking) {
+         await updateBookingService(payment.booking.booking_id, {
+           ...payment.booking,
+           status: 'confirmed'
+         });
+         console.log(`Booking ${payment.booking.booking_id} status updated to confirmed via webhook`);
+       }
  
        console.log(`Payment ${eventData.reference} marked as completed via webhook`);
      } else {

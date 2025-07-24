@@ -1,5 +1,6 @@
 import { stkPush, stkPushQuery, processCallback, validatePhoneNumber } from '../services/mpesaService';
-import { createPaymentService, updatePaymentService } from '../services/paymentService';
+import { createPaymentService, updatePaymentService, getPaymentByTransactionIdService } from '../services/paymentService';
+import { updateBookingService } from '../services/bookingService';
 import { Request, Response } from 'express';
 
 export const initiateSTKPush = async (req: Request, res: Response) => {
@@ -71,40 +72,54 @@ export const mpesaCallback = async (req: Request, res: Response) => {
     const result = processCallback(callbackData);
 
     console.log('Processed callback result:', result);
+// Update payment status in database
+if (result.checkoutRequestId) {
+  try {
+    // Find payment by transaction_id (CheckoutRequestID)
+    const payment = await getPaymentByTransactionIdService(result.checkoutRequestId);
+    
+    if (payment) {
+      const paymentStatus = result.success ? 'completed' : 'failed';
+      
+      // Update payment status
+      await updatePaymentService(payment.payment_id, {
+        ...payment,
+        payment_status: paymentStatus,
+        transaction_id: result.transactionId || result.checkoutRequestId,
+      });
 
-    // Update payment status in database
-    if (result.checkoutRequestId) {
-      try {
-        // Find payment by transaction_id (CheckoutRequestID)
-        // Note: You might need to implement a service to find payment by transaction_id
-        // For now, we'll update payment status using the transaction_id
-        const paymentStatus = result.success ? 'completed' : 'failed';
-        
-        // This would require a new service method to find payment by transaction_id
-        // await updatePaymentByTransactionIdService(result.checkoutRequestId, {
-        //   payment_status: paymentStatus,
-        //   transaction_id: result.transactionId || result.checkoutRequestId,
-        // });
+      // If payment is successful, update booking status to confirmed
+      if (result.success && payment.booking) {
+        await updateBookingService(payment.booking.booking_id, {
+          ...payment.booking,
+          status: 'confirmed'
+        });
+        console.log(`Booking ${payment.booking.booking_id} status updated to confirmed`);
+      }
 
         console.log(`Payment ${result.checkoutRequestId} status updated to: ${paymentStatus}`);
-      } catch (updateError) {
-        console.error('Error updating payment status:', updateError);
+      } else {
+        console.log(`Payment with transaction ID ${result.checkoutRequestId} not found`);
       }
+    } catch (updateError) {
+      console.error('Error updating payment status:', updateError);
     }
-
-    // Always respond with success to acknowledge receipt
-    res.status(200).json({
-      ResultCode: 0,
-      ResultDesc: "Confirmation Received Successfully"
-    });
-  } catch (error: any) {
-    console.error('Callback processing error:', error.message);
-    res.status(200).json({
-      ResultCode: 0,
-      ResultDesc: "Confirmation Received Successfully"
-    });
   }
+
+  // Always respond with success to acknowledge receipt
+  res.status(200).json({
+    ResultCode: 0,
+    ResultDesc: "Confirmation Received Successfully"
+  });
+} catch (error: any) {
+  console.error('Callback processing error:', error.message);
+  res.status(200).json({
+    ResultCode: 0,
+    ResultDesc: "Confirmation Received Successfully"
+  });
+}
 };
+
 
 export const checkPaymentStatus = async (req: Request, res: Response) => {
   try {

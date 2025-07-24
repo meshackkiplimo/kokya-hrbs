@@ -230,3 +230,35 @@ export const deletePaymentService = async (paymentId: number) => {
     return deletedPayment; // For unit tests that return single object
 }
 
+// Find payment by transaction ID
+export const getPaymentByTransactionIdService = async (transactionId: string) => {
+    const payment = await db.query.PaymentTable.findFirst({
+        where: (table, { eq }) => eq(table.transaction_id, transactionId),
+        columns: {
+            payment_id: true,
+            booking_id: true,
+            user_id: true,
+            amount: true,
+            payment_method: true,
+            payment_status: true,
+            transaction_id: true,
+            payment_date: true,
+        },
+        with: {
+            booking: {
+                columns: {
+                    booking_id: true,
+                    user_id: true,
+                    hotel_id: true,
+                    room_id: true,
+                    check_in_date: true,
+                    check_out_date: true,
+                    total_amount: true,
+                    status: true,
+                }
+            }
+        }
+    });
+    return payment;
+}
+

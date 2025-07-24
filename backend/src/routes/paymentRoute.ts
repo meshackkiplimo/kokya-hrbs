@@ -1,3 +1,4 @@
+import { verifyToken } from "@/middleware/authMiddleware";
 import { createPaymentController, deletePaymentController, getAllPaymentsController, getAllPaymentsWithoutPaginationController, getPaymentByIdController, updatePaymentController } from "../controllers/paymentController";
 import { Express } from "express";
 
@@ -35,6 +36,7 @@ export const paymentRoute = (app: Express) => {
     );
     app.route("/payments").post(
         async (req, res, next) => {
+            verifyToken
             try {
                 await createPaymentController(req, res);
             } catch (error) {
