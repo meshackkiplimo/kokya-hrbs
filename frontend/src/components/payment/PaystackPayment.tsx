@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Mail, Loader, CheckCircle, XCircle, ExternalLink, ArrowLeft } from 'lucide-react';
+import { CreditCard, Mail, Loader, CheckCircle, XCircle, ExternalLink, ArrowLeft, Download } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../app/store';
 import { useInitializePaystackPaymentMutation, useVerifyPaystackPaymentQuery } from '../../Features/payment/paymentAPI';
+import { generatePDFReceipt, formatReceiptData } from '../../utils/receiptGenerator';
 
 interface PaystackPaymentProps {
   amount: number;
@@ -11,6 +12,8 @@ interface PaystackPaymentProps {
   onSuccess?: (transactionData: any) => void;
   onError?: (error: string) => void;
   onCancel?: () => void;
+  existingPayment?: any; // For when payment is already completed
+  showReceiptOnly?: boolean; // To show only the paid status with receipt download
 }
 
 type PaymentStatus = 'idle' | 'initiating' | 'redirecting' | 'verifying' | 'success' | 'failed' | 'cancelled';
@@ -22,12 +25,17 @@ const PaystackPayment: React.FC<PaystackPaymentProps> = ({
   onSuccess,
   onError,
   onCancel,
+  existingPayment,
+  showReceiptOnly = false,
 }) => {
   const [email, setEmail] = useState('');
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle');
-  const [paymentReference, setPaymentReference] = useState<string>('');
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
+    showReceiptOnly || existingPayment ? 'success' : 'idle'
+  );
+  const [paymentReference, setPaymentReference] = useState<string>(existingPayment?.reference || '');
   const [authorizationUrl, setAuthorizationUrl] = useState<string>('');
   const [error, setError] = useState<string>('');
+  const [paymentData, setPaymentData] = useState<any>(existingPayment || null);
 
   // Get user authentication status
   const { token, user } = useSelector((state: RootState) => state.user);
@@ -49,6 +57,7 @@ const PaystackPayment: React.FC<PaystackPaymentProps> = ({
       const { status, gateway_response } = verificationData.data;
       if (status === 'success') {
         setPaymentStatus('success');
+        setPaymentData(verificationData.data);
         onSuccess?.(verificationData.data);
       } else {
         setPaymentStatus('failed');
@@ -176,6 +185,22 @@ const PaystackPayment: React.FC<PaystackPaymentProps> = ({
     setError('');
     setPaymentReference('');
     setAuthorizationUrl('');
+  };
+
+  const handleDownloadReceipt = () => {
+    const receiptData = formatReceiptData(
+      {
+        transaction_id: paymentData?.reference || paymentReference,
+        payment_method: 'Paystack',
+        amount: amount,
+        payment_date: paymentData?.paid_at || new Date().toISOString(),
+        booking_id: bookingId,
+        customer_email: email,
+      },
+      undefined, // booking data - could be fetched if needed
+      user
+    );
+    generatePDFReceipt(receiptData);
   };
 
   const renderContent = () => {
@@ -332,7 +357,7 @@ const PaystackPayment: React.FC<PaystackPaymentProps> = ({
 
       case 'success':
         return (
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-6">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
@@ -344,6 +369,26 @@ const PaystackPayment: React.FC<PaystackPaymentProps> = ({
                 Reference: <strong>{paymentReference}</strong><br/>
                 Email: <strong>{email}</strong>
               </p>
+            </div>
+            
+            {/* Payment Status Button - Disabled and Red */}
+            <div className="space-y-3">
+              <button
+                disabled
+                className="w-full bg-red-600 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-90 flex items-center justify-center space-x-2"
+              >
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-semibold">PAID</span>
+              </button>
+              
+              {/* Download Receipt Button */}
+              <button
+                onClick={handleDownloadReceipt}
+                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+              >
+                <Download className="w-5 h-5" />
+                <span>Download Receipt</span>
+              </button>
             </div>
           </div>
         );

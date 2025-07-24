@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Phone, CreditCard, Loader, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Phone, CreditCard, Loader, CheckCircle, XCircle, AlertCircle, Download } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../../app/store';
 import { useInitiateMpesaPaymentMutation, useCheckMpesaPaymentStatusQuery } from '../../Features/payment/paymentAPI';
+import { generatePDFReceipt, formatReceiptData } from '../../utils/receiptGenerator';
 
 interface MpesaPaymentProps {
   amount: number;
@@ -10,6 +13,8 @@ interface MpesaPaymentProps {
   onSuccess?: (transactionData: any) => void;
   onError?: (error: string) => void;
   onCancel?: () => void;
+  existingPayment?: any; // For when payment is already completed
+  showReceiptOnly?: boolean; // To show only the paid status with receipt download
 }
 
 type PaymentStatus = 'idle' | 'initiating' | 'pending' | 'checking' | 'success' | 'failed' | 'cancelled';
@@ -22,12 +27,20 @@ const MpesaPayment: React.FC<MpesaPaymentProps> = ({
   onSuccess,
   onError,
   onCancel,
+  existingPayment,
+  showReceiptOnly = false,
 }) => {
   const [phone, setPhone] = useState('');
-  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>('idle');
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>(
+    showReceiptOnly || existingPayment ? 'success' : 'idle'
+  );
   const [checkoutRequestId, setCheckoutRequestId] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [countdown, setCountdown] = useState(0);
+  const [paymentData, setPaymentData] = useState<any>(existingPayment || null);
+
+  // Get user data for receipt generation
+  const { user } = useSelector((state: RootState) => state.user);
 
   const [initiateMpesaPayment, { isLoading: isInitiating }] = useInitiateMpesaPaymentMutation();
   
@@ -66,6 +79,7 @@ const MpesaPayment: React.FC<MpesaPaymentProps> = ({
       if (ResultCode === '0') {
         setPaymentStatus('success');
         setCountdown(0);
+        setPaymentData(statusData.data);
         onSuccess?.(statusData.data);
       } else if (ResultCode && ResultCode !== '1032') { // 1032 means still pending
         setPaymentStatus('failed');
@@ -155,6 +169,21 @@ const MpesaPayment: React.FC<MpesaPaymentProps> = ({
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const handleDownloadReceipt = () => {
+    const receiptData = formatReceiptData(
+      {
+        transaction_id: paymentData?.transaction_id || checkoutRequestId,
+        payment_method: 'M-PESA',
+        amount: amount,
+        payment_date: paymentData?.payment_date || new Date().toISOString(),
+        booking_id: bookingId,
+      },
+      undefined, // booking data - could be fetched if needed
+      user
+    );
+    generatePDFReceipt(receiptData);
   };
 
   const renderContent = () => {
@@ -305,10 +334,9 @@ const MpesaPayment: React.FC<MpesaPaymentProps> = ({
             <p className="text-gray-600">Please wait while we verify your payment</p>
           </div>
         );
-
       case 'success':
         return (
-          <div className="text-center space-y-4">
+          <div className="text-center space-y-6">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
@@ -319,6 +347,26 @@ const MpesaPayment: React.FC<MpesaPaymentProps> = ({
                 Amount: <strong>KSH {amount.toLocaleString()}</strong><br/>
                 Reference: <strong>{accountReference}</strong>
               </p>
+            </div>
+            
+            {/* Payment Status Button - Disabled and Red */}
+            <div className="space-y-3">
+              <button
+                disabled
+                className="w-full bg-red-600 text-white px-6 py-3 rounded-lg cursor-not-allowed opacity-90 flex items-center justify-center space-x-2"
+              >
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-semibold">PAID</span>
+              </button>
+              
+              {/* Download Receipt Button */}
+              <button
+                onClick={handleDownloadReceipt}
+                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+              >
+                <Download className="w-5 h-5" />
+                <span>Download Receipt</span>
+              </button>
             </div>
           </div>
         );

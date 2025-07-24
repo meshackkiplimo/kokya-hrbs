@@ -4,6 +4,7 @@ import type { RootState } from '../../../app/store';
 import { useGetUserBookingsQuery, useGetAllBookingsQuery } from '../../../Features/bookings/bookingAPI';
 import { useGetUserPaymentsQuery } from '../../../Features/payment/paymentAPI';
 import PaymentOptions from '../../../components/payment/PaymentOptions';
+import { generatePDFReceipt, formatReceiptData } from '../../../utils/receiptGenerator';
 
 const UserBooking = () => {
     const { user } = useSelector((state: RootState) => state.user);
@@ -54,6 +55,8 @@ const UserBooking = () => {
         refetch: refetchPayments
     } = useGetUserPaymentsQuery(userId!, {
         skip: !userId,
+        refetchOnMountOrArgChange: true,
+        pollingInterval: 10000, // Poll every 10 seconds for updates
     });
 
     // Determine which data to use
@@ -67,7 +70,22 @@ const UserBooking = () => {
     // Helper function to check if booking is paid
     const isBookingPaid = (bookingId: number) => {
         return userPayments.some(payment =>
-            payment.booking_id === bookingId && payment.payment_status === 'completed'
+            payment.booking_id === bookingId &&
+            (payment.payment_status?.toLowerCase() === 'completed' ||
+             payment.payment_status?.toLowerCase() === 'success' ||
+             payment.payment_status?.toLowerCase() === 'paid' ||
+             payment.payment_status?.toLowerCase() === 'successful')
+        );
+    };
+
+    // Helper function to get payment for booking
+    const getBookingPayment = (bookingId: number) => {
+        return userPayments.find(payment =>
+            payment.booking_id === bookingId &&
+            (payment.payment_status?.toLowerCase() === 'completed' ||
+             payment.payment_status?.toLowerCase() === 'success' ||
+             payment.payment_status?.toLowerCase() === 'paid' ||
+             payment.payment_status?.toLowerCase() === 'successful')
         );
     };
 
@@ -96,6 +114,25 @@ const UserBooking = () => {
     const handleCloseModal = () => {
         setShowPaymentModal(false);
         setSelectedBooking(null);
+    };
+
+    // Handle receipt download
+    const handleDownloadReceipt = (booking: any) => {
+        const payment = getBookingPayment(booking.booking_id);
+        if (payment) {
+            const receiptData = formatReceiptData(
+                payment,
+                {
+                    booking_id: booking.booking_id,
+                    hotel_name: `Hotel #${booking.hotel_id}`,
+                    room_type: `Room #${booking.room_id}`,
+                    check_in_date: booking.check_in_date,
+                    check_out_date: booking.check_out_date,
+                },
+                user
+            );
+            generatePDFReceipt(receiptData);
+        }
     };
 
     // Loading state
@@ -195,9 +232,20 @@ const UserBooking = () => {
                             <span className="text-2xl font-bold text-amber-600">{bookingsData.length}</span>
                             <p className="text-sm text-gray-600">Total Booking{bookingsData.length !== 1 ? 's' : ''}</p>
                         </div>
-                        <button className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5">
-                            + New Booking
-                        </button>
+                        <div className="flex space-x-2">
+                            <button
+                                onClick={() => {
+                                    refetchPayments();
+                                    refetch();
+                                }}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200"
+                            >
+                                🔄 Refresh
+                            </button>
+                            <button className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-4 py-2 rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5">
+                                + New Booking
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -294,6 +342,51 @@ const UserBooking = () => {
                                     <p className="text-2xl font-bold text-green-600">${booking.total_amount}</p>
                                 </div>
                             </div>
+
+                            {/* Payment Status & Actions */}
+                            <div className="bg-blue-50 rounded-xl p-4 border-2 border-blue-200">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center">
+                                        <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <div>
+                                            {isBookingPaid(booking.booking_id) ? (
+                                                <>
+                                                    <p className="text-sm font-semibold text-blue-700">Payment Completed</p>
+                                                    <p className="text-xs text-blue-600">Receipt available for download</p>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <p className="text-sm font-semibold text-orange-700">Payment Pending</p>
+                                                    <p className="text-xs text-orange-600">Complete payment to download receipt</p>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            if (isBookingPaid(booking.booking_id)) {
+                                                handleDownloadReceipt(booking);
+                                            } else {
+                                                alert('Please complete payment first to download receipt');
+                                            }
+                                        }}
+                                        className={`font-semibold px-4 py-2 rounded-lg transition-colors duration-200 flex items-center shadow-md hover:shadow-lg ${
+                                            isBookingPaid(booking.booking_id)
+                                                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                        }`}
+                                        title={isBookingPaid(booking.booking_id) ? "Download Payment Receipt" : "Payment required"}
+                                        disabled={!isBookingPaid(booking.booking_id)}
+                                    >
+                                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        {isBookingPaid(booking.booking_id) ? 'Download Receipt' : 'Receipt (Pay First)'}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         
                         {/* Card Footer */}
@@ -317,12 +410,24 @@ const UserBooking = () => {
                                             Pay Now
                                         </button>
                                     ) : (
-                                        <span className="text-sm bg-green-100 text-green-800 font-semibold px-3 py-1 rounded-lg flex items-center">
-                                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                            </svg>
-                                            Paid
-                                        </span>
+                                        <>
+                                            <span className="text-sm bg-red-600 text-white font-semibold px-3 py-1 rounded-lg flex items-center cursor-not-allowed opacity-90">
+                                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                PAID
+                                            </span>
+                                            <button
+                                                onClick={() => handleDownloadReceipt(booking)}
+                                                className="text-sm bg-blue-600 hover:bg-blue-700 text-white font-semibold px-3 py-1 rounded-lg transition-colors duration-200 flex items-center"
+                                                title="Download Receipt"
+                                            >
+                                                <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                                Receipt
+                                            </button>
+                                        </>
                                     )}
                                     <button className="text-sm text-amber-600 hover:text-amber-700 font-semibold hover:bg-amber-50 px-3 py-1 rounded-lg transition-colors duration-200 flex items-center">
                                         View Details
@@ -368,21 +473,36 @@ const UserBooking = () => {
 
                             {/* Payment Options */}
                             <div className="p-6">
-                                <PaymentOptions
-                                    amount={selectedBooking.total_amount}
-                                    bookingId={selectedBooking.booking_id}
-                                    accountReference={`Booking #${selectedBooking.booking_id}`}
-                                    transactionDesc={`Hotel Booking Payment - Booking #${selectedBooking.booking_id}`}
-                                    metadata={{
-                                        user_id: userId,
-                                        booking_id: selectedBooking.booking_id,
-                                        hotel_id: selectedBooking.hotel_id,
-                                        room_id: selectedBooking.room_id,
-                                    }}
-                                    onSuccess={handlePaymentSuccess}
-                                    onError={handlePaymentError}
-                                    onCancel={handleCloseModal}
-                                />
+                                {(() => {
+                                    const existingPayment = getBookingPayment(selectedBooking.booking_id);
+                                    const isPaid = isBookingPaid(selectedBooking.booking_id);
+                                    
+                                    return (
+                                        <PaymentOptions
+                                            amount={selectedBooking.total_amount}
+                                            bookingId={selectedBooking.booking_id}
+                                            accountReference={`Booking #${selectedBooking.booking_id}`}
+                                            transactionDesc={`Hotel Booking Payment - Booking #${selectedBooking.booking_id}`}
+                                            metadata={{
+                                                user_id: userId,
+                                                booking_id: selectedBooking.booking_id,
+                                                hotel_id: selectedBooking.hotel_id,
+                                                room_id: selectedBooking.room_id,
+                                            }}
+                                            onSuccess={handlePaymentSuccess}
+                                            onError={handlePaymentError}
+                                            onCancel={handleCloseModal}
+                                            existingPayment={existingPayment}
+                                            showReceiptOnly={isPaid}
+                                            completedPaymentMethod={
+                                                existingPayment?.payment_method?.toLowerCase().includes('mpesa') ||
+                                                existingPayment?.payment_method?.toLowerCase().includes('m-pesa')
+                                                    ? 'mpesa' as const
+                                                    : 'paystack' as const
+                                            }
+                                        />
+                                    );
+                                })()}
                             </div>
                         </div>
                     </div>

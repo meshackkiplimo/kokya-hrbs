@@ -31,17 +31,38 @@ export const initiateSTKPush = async (req: Request, res: Response) => {
     // If booking ID is provided, create a payment record
     if (bookingId) {
       try {
+        // Get user ID from the booking record instead of authentication token
+        // This ensures consistency since the booking already has the correct user_id
+        const { getBookingByIdService } = require('../services/bookingService');
+        const booking = await getBookingByIdService(parseInt(bookingId));
+        
+        if (!booking) {
+          console.error('M-PESA ERROR: Booking not found with ID:', bookingId);
+          return res.status(404).json({
+            success: false,
+            error: 'Booking not found'
+          });
+        }
+
+        console.log('M-PESA - Found booking:', booking);
+        console.log('M-PESA - Using user_id from booking:', booking.user_id);
+        
         await createPaymentService({
           booking_id: bookingId,
-          user_id: (req as any).user?.id, // Assuming user is attached to request via auth middleware
+          user_id: booking.user_id, // Get user_id from the booking record
           amount: amount,
           payment_method: 'mpesa',
           payment_status: 'pending',
           transaction_id: result.CheckoutRequestID,
         });
+        
+        console.log('M-PESA payment record created successfully with user_id:', booking.user_id);
       } catch (paymentError) {
-        console.error('Error creating payment record:', paymentError);
-        // Continue with the response even if payment record creation fails
+        console.error('Error creating M-PESA payment record:', paymentError);
+        return res.status(500).json({
+          success: false,
+          error: 'Failed to create payment record'
+        });
       }
     }
 

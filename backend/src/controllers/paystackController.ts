@@ -69,17 +69,6 @@ export const initializePaystackPayment = async (req: Request, res: Response) => 
     // Create payment record in database if booking ID is provided
     if (bookingId) {
       try {
-        const userId = (req as any).user?.id;
-        
-        // Check if we have required data
-        if (!userId) {
-          console.error('ERROR: No user ID found in request. User might not be authenticated.');
-          return res.status(401).json({
-            success: false,
-            message: 'Authentication required to create payment'
-          });
-        }
-
         if (!bookingId) {
           console.error('ERROR: No booking ID provided');
           return res.status(400).json({
@@ -88,16 +77,32 @@ export const initializePaystackPayment = async (req: Request, res: Response) => 
           });
         }
 
+        // Get user ID from the booking record instead of authentication token
+        // This ensures consistency since the booking already has the correct user_id
+        const { getBookingByIdService } = require('../services/bookingService');
+        const booking = await getBookingByIdService(parseInt(bookingId));
+        
+        if (!booking) {
+          console.error('ERROR: Booking not found with ID:', bookingId);
+          return res.status(404).json({
+            success: false,
+            message: 'Booking not found'
+          });
+        }
+
+        console.log('Found booking:', booking);
+        console.log('Using user_id from booking:', booking.user_id);
+
         const paymentData = {
           booking_id: parseInt(bookingId),
-          user_id: parseInt(userId),
+          user_id: booking.user_id, // Get user_id from the booking record
           amount: parseInt(amount),
           payment_method: 'paystack',
           payment_status: 'pending',
           transaction_id: reference,
         };
 
-        console.log('Creating payment record with validated data:', paymentData);
+        console.log('Creating payment record with data from booking:', paymentData);
         
         const createdPayment = await createPaymentService(paymentData);
         

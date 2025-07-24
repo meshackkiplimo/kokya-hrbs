@@ -12,6 +12,9 @@ interface PaymentOptionsProps {
   onSuccess?: (transactionData: any, method: 'mpesa' | 'paystack') => void;
   onError?: (error: string) => void;
   onCancel?: () => void;
+  existingPayment?: any; // For when payment is already completed
+  showReceiptOnly?: boolean; // To show only the paid status with receipt download
+  completedPaymentMethod?: 'mpesa' | 'paystack'; // Which payment method was used
 }
 
 type PaymentMethod = 'selection' | 'mpesa' | 'paystack';
@@ -25,8 +28,13 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
   onSuccess,
   onError,
   onCancel,
+  existingPayment,
+  showReceiptOnly = false,
+  completedPaymentMethod,
 }) => {
-  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('selection');
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>(
+    showReceiptOnly && completedPaymentMethod ? completedPaymentMethod : 'selection'
+  );
 
   const handleMethodSelect = (method: PaymentMethod) => {
     setSelectedMethod(method);
@@ -40,32 +48,38 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
     onSuccess?.(transactionData, method);
   };
 
-  const renderMethodSelection = () => (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h3 className="text-2xl font-semibold text-gray-900 mb-2">Choose Payment Method</h3>
-        <p className="text-gray-600">Select your preferred payment option</p>
-      </div>
+  const renderMethodSelection = () => {
+    // If showing receipt only, don't show selection
+    if (showReceiptOnly) {
+      return null;
+    }
 
-      <div className="bg-blue-50 p-4 rounded-lg">
-        <div className="flex justify-between items-center">
-          <span className="text-gray-700">Amount to pay:</span>
-          <span className="text-2xl font-bold text-blue-900">KSH {amount.toLocaleString()}</span>
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h3 className="text-2xl font-semibold text-gray-900 mb-2">Choose Payment Method</h3>
+          <p className="text-gray-600">Select your preferred payment option</p>
         </div>
-        {accountReference && (
-          <div className="flex justify-between items-center mt-2">
-            <span className="text-gray-600 text-sm">Reference:</span>
-            <span className="text-sm text-gray-800">{accountReference}</span>
-          </div>
-        )}
-      </div>
 
-      <div className="grid gap-4">
-        {/* M-Pesa Option */}
-        <button
-          onClick={() => handleMethodSelect('mpesa')}
-          className="group p-6 border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all duration-200 text-left"
-        >
+        <div className="bg-blue-50 p-4 rounded-lg">
+          <div className="flex justify-between items-center">
+            <span className="text-gray-700">Amount to pay:</span>
+            <span className="text-2xl font-bold text-blue-900">KSH {amount.toLocaleString()}</span>
+          </div>
+          {accountReference && (
+            <div className="flex justify-between items-center mt-2">
+              <span className="text-gray-600 text-sm">Reference:</span>
+              <span className="text-sm text-gray-800">{accountReference}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="grid gap-4">
+          {/* M-Pesa Option */}
+          <button
+            onClick={() => handleMethodSelect('mpesa')}
+            className="group p-6 border-2 border-gray-200 rounded-lg hover:border-green-500 hover:bg-green-50 transition-all duration-200 text-left"
+          >
           <div className="flex items-center space-x-4">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200">
               <Phone className="w-6 h-6 text-green-600" />
@@ -131,9 +145,10 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
 
       <div className="text-center text-xs text-gray-500">
         <p>All payments are secured with end-to-end encryption</p>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderPaymentMethod = () => {
     switch (selectedMethod) {
@@ -156,7 +171,9 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
               transactionDesc={transactionDesc}
               onSuccess={(data) => handlePaymentSuccess(data, 'mpesa')}
               onError={onError}
-              onCancel={handleBackToSelection}
+              onCancel={showReceiptOnly ? onCancel : handleBackToSelection}
+              existingPayment={existingPayment}
+              showReceiptOnly={showReceiptOnly}
             />
           </div>
         );
@@ -183,7 +200,9 @@ const PaymentOptions: React.FC<PaymentOptionsProps> = ({
               }}
               onSuccess={(data) => handlePaymentSuccess(data, 'paystack')}
               onError={onError}
-              onCancel={handleBackToSelection}
+              onCancel={showReceiptOnly ? onCancel : handleBackToSelection}
+              existingPayment={existingPayment}
+              showReceiptOnly={showReceiptOnly}
             />
           </div>
         );

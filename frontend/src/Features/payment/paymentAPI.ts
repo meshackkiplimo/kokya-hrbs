@@ -78,11 +78,21 @@ export const paymentApi = createApi({
             }),
             providesTags: ["Payments"],
             transformResponse: (response: any) => {
-                // Backend returns array directly for without-pagination endpoint
+                // Handle different response formats
                 if (Array.isArray(response)) {
                     return response;
                 }
-                // Empty result
+                
+                // If response has payments array (like paginated format)
+                if (response?.payments && Array.isArray(response.payments)) {
+                    return response.payments;
+                }
+                
+                // If response has data array
+                if (response?.data && Array.isArray(response.data)) {
+                    return response.data;
+                }
+                
                 return [];
             },
         }),

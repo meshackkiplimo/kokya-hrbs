@@ -34,16 +34,24 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction): vo
             if (parts.length === 3) {
                 const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
                 console.log('Decoded token payload:', payload);
-                (req as AuthRequest).user = payload;
+                
+                // Ensure we have a user ID
+                if (payload.user_id || payload.id) {
+                    (req as AuthRequest).user = payload;
+                } else {
+                    console.error('No user ID found in token payload');
+                    res.status(401).json({ message: 'Invalid token: no user ID' });
+                    return;
+                }
             } else {
-                // Fallback - create a mock user with ID for development
-                console.log('Invalid token format, using fallback user');
-                (req as AuthRequest).user = { id: 1, user_id: 1, token };
+                console.error('Invalid token format');
+                res.status(401).json({ message: 'Invalid token format' });
+                return;
             }
         } catch (decodeError) {
-            // Last resort fallback - create a mock user (for development)
-            console.log('Token decode failed, using fallback user:', decodeError);
-            (req as AuthRequest).user = { id: 1, user_id: 1, token };
+            console.error('Token decode failed:', decodeError);
+            res.status(401).json({ message: 'Invalid token' });
+            return;
         }
         next();
     } catch (error) {
@@ -69,17 +77,17 @@ export const optionalAuth = (req: Request, res: Response, next: NextFunction): v
     }
 
     try {
-        // Same logic as verifyToken
+        // Same logic as verifyToken but optional
         try {
             const parts = token.split('.');
             if (parts.length === 3) {
                 const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-                (req as AuthRequest).user = payload;
-            } else {
-                (req as AuthRequest).user = { id: 1, user_id: 1, token };
+                if (payload.user_id || payload.id) {
+                    (req as AuthRequest).user = payload;
+                }
             }
         } catch (decodeError) {
-            (req as AuthRequest).user = { id: 1, user_id: 1, token };
+            console.log('Optional auth - token decode failed, continuing without user');
         }
         next();
     } catch (error) {

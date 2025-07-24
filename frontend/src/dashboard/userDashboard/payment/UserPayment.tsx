@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import type { RootState } from '../../../app/store'
 import { paymentApi } from '../../../Features/payment/paymentAPI'
+import { generatePDFReceipt, formatReceiptData } from '../../../utils/receiptGenerator'
 import {
     FaCreditCard,
     FaCalendarAlt,
@@ -12,7 +13,8 @@ import {
     FaSearch,
     FaFilter,
     FaMobile,
-    FaUniversity
+    FaUniversity,
+    FaDownload
 } from 'react-icons/fa'
 
 const UserPayment = () => {
@@ -123,6 +125,11 @@ const UserPayment = () => {
             hour: '2-digit',
             minute: '2-digit'
         })
+    }
+
+    const handleDownloadReceipt = (payment: any) => {
+        const receiptData = formatReceiptData(payment, undefined, user);
+        generatePDFReceipt(receiptData);
     }
 
     if (isLoading) {
@@ -275,6 +282,9 @@ const UserPayment = () => {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Date
                                     </th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Actions
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -320,6 +330,19 @@ const UserPayment = () => {
                                                 <FaCalendarAlt className="mr-2 text-gray-400" />
                                                 {formatDate(payment.payment_date)}
                                             </div>
+                                        </td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                            {(payment.payment_status?.toLowerCase() === 'completed' ||
+                                              payment.payment_status?.toLowerCase() === 'success') && (
+                                                <button
+                                                    onClick={() => handleDownloadReceipt(payment)}
+                                                    className="inline-flex items-center px-3 py-1 border border-blue-300 text-blue-700 rounded-md hover:bg-blue-50 transition-colors text-xs"
+                                                    title="Download Receipt"
+                                                >
+                                                    <FaDownload className="mr-1" />
+                                                    Receipt
+                                                </button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}
