@@ -20,7 +20,6 @@ import { roomsApi, parseImageUrls } from '../Features/rooms/roomsAPI';
 import { bookingApi } from '../Features/bookings/bookingAPI';
 import { useSelector } from 'react-redux';
 import { type RootState } from '../app/store';
-import PaymentOptions from '../components/payment/PaymentOptions';
 
 const HotelPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,8 +32,6 @@ const HotelPage = () => {
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
   const [showRoomDetailsModal, setShowRoomDetailsModal] = useState(false);
   const [roomForDetails, setRoomForDetails] = useState<any>(null);
-  const [showPaymentOptions, setShowPaymentOptions] = useState(false);
-  const [bookingData, setBookingData] = useState<any>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // Get user info from Redux store
@@ -180,17 +177,12 @@ const HotelPage = () => {
     try {
       const bookingResult = await createBooking(newBookingData).unwrap();
       
-      // Store booking data and show MPESA payment
-      setBookingData({
-        ...newBookingData,
-        booking_id: bookingResult.booking_id,
-        totalAmount,
-        daysDiff,
-        roomDetails: selectedRoom
-      });
-      
+      // Show success message and reset form
+      alert(`Booking confirmed! Your booking ID is ${bookingResult.booking_id}. You can complete payment from your dashboard.`);
       setShowBookingModal(false);
-      setShowPaymentOptions(true);
+      setCheckInDate('');
+      setCheckOutDate('');
+      setSelectedRoom(null);
       
     } catch (error) {
       console.error('Booking failed:', error);
@@ -198,35 +190,6 @@ const HotelPage = () => {
     }
   };
 
-  const handlePaymentSuccess = (transactionData: any, method: 'mpesa' | 'paystack') => {
-    console.log('Payment successful:', { transactionData, method });
-    
-    // Create appropriate success message based on payment method
-    let successMessage = '';
-    if (method === 'mpesa') {
-      successMessage = `Payment successful via M-PESA! Your booking is confirmed. Transaction ID: ${transactionData.MpesaReceiptNumber || transactionData.transactionId || 'N/A'}`;
-    } else if (method === 'paystack') {
-      successMessage = `Payment successful via Card! Your booking is confirmed. Reference: ${transactionData.reference || 'N/A'}`;
-    }
-    
-    alert(successMessage);
-    setShowPaymentOptions(false);
-    setCheckInDate('');
-    setCheckOutDate('');
-    setSelectedRoom(null);
-    setBookingData(null);
-  };
-
-  const handlePaymentError = (error: string) => {
-    console.error('Payment failed:', error);
-    alert(`Payment failed: ${error}`);
-  };
-
-  const handlePaymentCancel = () => {
-    setShowPaymentOptions(false);
-    // Optionally, you might want to cancel the booking here
-    // or keep it as pending for later payment
-  };
 
   const renderStars = (rating: number) => {
     return Array.from({ length: 5 }, (_, index) => (
@@ -875,41 +838,6 @@ const HotelPage = () => {
           </div>
         )}
 
-        {/* Payment Options Modal */}
-        {showPaymentOptions && bookingData && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
-              <div className="mb-4">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Complete Payment</h3>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <div className="text-sm text-gray-700 space-y-1">
-                    <p><strong>Room:</strong> {bookingData.roomDetails.room_type} #{bookingData.roomDetails.room_number}</p>
-                    <p><strong>Nights:</strong> {bookingData.daysDiff}</p>
-                    <p><strong>Dates:</strong> {bookingData.check_in_date} to {bookingData.check_out_date}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <PaymentOptions
-                amount={bookingData.totalAmount}
-                bookingId={bookingData.booking_id}
-                accountReference={`Booking-${bookingData.booking_id}`}
-                transactionDesc={`${bookingData.roomDetails.room_type} booking payment`}
-                metadata={{
-                  hotel_name: bookingData.roomDetails.hotel_name || 'Hotel',
-                  room_type: bookingData.roomDetails.room_type,
-                  room_number: bookingData.roomDetails.room_number,
-                  check_in_date: bookingData.check_in_date,
-                  check_out_date: bookingData.check_out_date,
-                  nights: bookingData.daysDiff,
-                }}
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
-                onCancel={handlePaymentCancel}
-              />
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

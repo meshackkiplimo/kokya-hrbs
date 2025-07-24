@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../../app/store';
 import { useGetUserBookingsQuery, useGetAllBookingsQuery } from '../../../Features/bookings/bookingAPI';
+import { useGetUserPaymentsQuery } from '../../../Features/payment/paymentAPI';
+import PaymentOptions from '../../../components/payment/PaymentOptions';
 
 const UserBooking = () => {
     const { user } = useSelector((state: RootState) => state.user);
     const userId = user?.id || user?.user_id; // Support both 'id' and 'user_id' fields
+    
+    // Payment modal state
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [selectedBooking, setSelectedBooking] = useState<any>(null);
 
     // Early return if user is not found
     if (!userId) {
@@ -41,6 +47,15 @@ const UserBooking = () => {
         skip: !!userBookingsResponse && !userBookingsError, // Only fetch if user-specific failed
     });
 
+    // Get user payments to check payment status
+    const {
+        data: userPayments = [],
+        isLoading: isPaymentsLoading,
+        refetch: refetchPayments
+    } = useGetUserPaymentsQuery(userId!, {
+        skip: !userId,
+    });
+
     // Determine which data to use
     const bookingsData = userBookingsResponse?.bookings || allBookingsData.filter(booking =>
         booking.user_id === userId || booking.user_id === user?.id
@@ -48,6 +63,38 @@ const UserBooking = () => {
     const isLoading = isUserBookingsLoading || isAllBookingsLoading;
     const error = userBookingsError || allBookingsError;
     const refetch = userBookingsResponse ? refetchUserBookings : refetchAllBookings;
+
+    // Helper function to check if booking is paid
+    const isBookingPaid = (bookingId: number) => {
+        return userPayments.some(payment =>
+            payment.booking_id === bookingId && payment.payment_status === 'completed'
+        );
+    };
+
+    // Payment handlers
+    const handlePayNow = (booking: any) => {
+        setSelectedBooking(booking);
+        setShowPaymentModal(true);
+    };
+
+    const handlePaymentSuccess = (transactionData: any, method: 'mpesa' | 'paystack') => {
+        setShowPaymentModal(false);
+        setSelectedBooking(null);
+        // Refetch payments to update UI
+        refetchPayments();
+        // You can show a success toast here
+        console.log('Payment successful:', transactionData, method);
+    };
+
+    const handlePaymentError = (error: string) => {
+        // You can show an error toast here
+        console.error('Payment error:', error);
+    };
+
+    const handleCloseModal = () => {
+        setShowPaymentModal(false);
+        setSelectedBooking(null);
+    };
 
     // Loading state
     if (isLoading) {
@@ -256,17 +303,88 @@ const UserBooking = () => {
                                     </svg>
                                     Booked {new Date(booking.created_at || '').toLocaleDateString()}
                                 </p>
-                                <button className="text-sm text-amber-600 hover:text-amber-700 font-semibold hover:bg-amber-50 px-3 py-1 rounded-lg transition-colors duration-200 flex items-center">
-                                    View Details
-                                    <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                    </svg>
-                                </button>
+                                <div className="flex items-center space-x-2">
+                                    {!isBookingPaid(booking.booking_id) ? (
+                                        <button
+                                            onClick={() => handlePayNow(booking)}
+                                            className="text-sm bg-green-600 hover:bg-green-700 text-white font-semibold px-3 py-1 rounded-lg transition-colors duration-200 flex items-center"
+                                        >
+                                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                            Pay Now
+                                        </button>
+                                    ) : (
+                                        <span className="text-sm bg-green-100 text-green-800 font-semibold px-3 py-1 rounded-lg flex items-center">
+                                            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Paid
+                                        </span>
+                                    )}
+                                    <button className="text-sm text-amber-600 hover:text-amber-700 font-semibold hover:bg-amber-50 px-3 py-1 rounded-lg transition-colors duration-200 flex items-center">
+                                        View Details
+                                        <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 ))}
             </div>
+
+            {/* Payment Modal */}
+            {showPaymentModal && selectedBooking && (
+                <div className="fixed inset-0 z-50 overflow-y-auto">
+                    {/* Backdrop */}
+                    <div className="fixed inset-0 bg-black bg-opacity-50 transition-opacity" onClick={handleCloseModal} />
+                    
+                    {/* Modal */}
+                    <div className="flex min-h-full items-center justify-center p-4">
+                        <div className="relative bg-white rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+                            {/* Header */}
+                            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                <div>
+                                    <h3 className="text-xl font-semibold text-gray-900">
+                                        Complete Payment
+                                    </h3>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                        Booking #{selectedBooking.booking_id}
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={handleCloseModal}
+                                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                >
+                                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {/* Payment Options */}
+                            <div className="p-6">
+                                <PaymentOptions
+                                    amount={selectedBooking.total_amount}
+                                    bookingId={selectedBooking.booking_id}
+                                    accountReference={`Booking #${selectedBooking.booking_id}`}
+                                    transactionDesc={`Hotel Booking Payment - Booking #${selectedBooking.booking_id}`}
+                                    metadata={{
+                                        booking_id: selectedBooking.booking_id,
+                                        hotel_id: selectedBooking.hotel_id,
+                                        room_id: selectedBooking.room_id,
+                                    }}
+                                    onSuccess={handlePaymentSuccess}
+                                    onError={handlePaymentError}
+                                    onCancel={handleCloseModal}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
