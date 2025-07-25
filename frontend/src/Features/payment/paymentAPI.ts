@@ -132,7 +132,7 @@ export const paymentApi = createApi({
             transactionDesc?: string;
         }>({
             query: (paymentData) => ({
-                url: "/mpesa/stk-push",
+                url: "/api/v1/mpesa/stk-push",
                 method: "POST",
                 body: paymentData,
             }),
@@ -145,7 +145,7 @@ export const paymentApi = createApi({
             data: any;
         }, string>({
             query: (checkoutRequestId) => ({
-                url: `/mpesa/status/${checkoutRequestId}`,
+                url: `/api/v1/mpesa/status/${checkoutRequestId}`,
                 method: "GET",
             }),
         }),
@@ -158,7 +158,7 @@ export const paymentApi = createApi({
             shortcode: string;
         }, void>({
             query: () => ({
-                url: "/mpesa/test",
+                url: "/api/v1/mpesa/test",
                 method: "GET",
             }),
         }),

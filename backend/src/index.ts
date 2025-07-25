@@ -19,21 +19,47 @@ export const app = express();
 const  allowedOrigins = [
   'http://localhost:5173',
   'https://kokya-hrbs.vercel.app',
-  
-  
 ]
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true, // Allow credentials to be sent
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+// Custom CORS configuration
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
   
+  // Allow M-Pesa callback URLs (Safaricom servers don't send origin header)
+  if (req.path.includes('/api/v1/mpesa/callback') || req.path.includes('/api/v1/paystack/webhook')) {
+    res.header('Access-Control-Allow-Origin', '*');
+  } else if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
   
-}))
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
 
 // middleware
 app.use(express.json());
+
+// Add request logging middleware for M-Pesa and Paystack endpoints
+app.use('/api/v1/mpesa', (req, res, next) => {
+  console.log(`=== M-PESA REQUEST LOG ===`);
+  console.log(`Time: ${new Date().toISOString()}`);
+  console.log(`Method: ${req.method}`);
+  console.log(`URL: ${req.originalUrl}`);
+  console.log(`Headers:`, req.headers);
+  console.log(`Body:`, req.body);
+  console.log(`IP: ${req.ip || req.connection.remoteAddress}`);
+  console.log(`========================`);
+  next();
+});
+
 // cors for all origins
 
 cloudinary.config({
@@ -63,7 +89,5 @@ paystackRoute(app);
 
 
 app.listen(port, () => {
-    client
-    
   console.log(`Server is running on http://localhost:${port}`);
 });

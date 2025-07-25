@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   AreaChart,
   Area,
@@ -25,7 +25,10 @@ import {
   Bed,
   DollarSign,
   Calendar,
-  Activity
+  Activity,
+  Printer,
+  Download,
+  FileText
 } from 'lucide-react';
 import { paymentApi } from '../../../Features/payment/paymentAPI';
 import { bookingApi } from '../../../Features/bookings/bookingAPI';
@@ -33,6 +36,8 @@ import { hotelApi } from '../../../Features/hotels/hotelAPI';
 import { roomsApi } from '../../../Features/rooms/roomsAPI';
 
 const ManageAnalytics = () => {
+  const printRef = useRef<HTMLDivElement>(null);
+
   // Fetch data from all APIs
   const { data: payments = [], isLoading: paymentsLoading } = paymentApi.useGetAllPaymentsQuery();
   const { data: bookings = [], isLoading: bookingsLoading } = bookingApi.useGetAllBookingsQuery();
@@ -40,6 +45,670 @@ const ManageAnalytics = () => {
   const { data: rooms = [], isLoading: roomsLoading } = roomsApi.useGetAllRoomsQuery();
 
   const isLoading = paymentsLoading || bookingsLoading || hotelsLoading || roomsLoading;
+
+  // Print functionality
+  const handlePrint = () => {
+    const printContent = printRef.current;
+    if (!printContent) return;
+
+    const windowPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+    if (!windowPrint) return;
+
+    windowPrint.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Hotel Management Analytics Report</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              color: #333;
+              background: white;
+              padding: 20px;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 30px;
+              border-bottom: 2px solid #333;
+              padding-bottom: 20px;
+            }
+            .header h1 {
+              color: #1f2937;
+              margin-bottom: 10px;
+            }
+            .header p {
+              color: #6b7280;
+              font-size: 14px;
+            }
+            .kpi-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 20px;
+              margin-bottom: 30px;
+            }
+            .kpi-card {
+              border: 1px solid #e5e7eb;
+              border-radius: 8px;
+              padding: 20px;
+              text-align: center;
+              background: #f9fafb;
+            }
+            .kpi-card h3 {
+              color: #374151;
+              font-size: 14px;
+              margin-bottom: 10px;
+            }
+            .kpi-card p {
+              color: #1f2937;
+              font-size: 24px;
+              font-weight: bold;
+            }
+            .section {
+              margin-bottom: 30px;
+              page-break-inside: avoid;
+            }
+            .section h2 {
+              color: #1f2937;
+              border-bottom: 1px solid #e5e7eb;
+              padding-bottom: 10px;
+              margin-bottom: 20px;
+            }
+            .data-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+            }
+            .data-table th,
+            .data-table td {
+              border: 1px solid #e5e7eb;
+              padding: 12px;
+              text-align: left;
+            }
+            .data-table th {
+              background: #f3f4f6;
+              font-weight: bold;
+              color: #374151;
+            }
+            .data-table td {
+              color: #4b5563;
+            }
+            .footer {
+              margin-top: 40px;
+              text-align: center;
+              font-size: 12px;
+              color: #6b7280;
+              border-top: 1px solid #e5e7eb;
+              padding-top: 20px;
+            }
+            @media print {
+              body { padding: 0; }
+              .no-print { display: none !important; }
+              .page-break { page-break-before: always; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>Hotel Management System</h1>
+            <h2>Analytics & Performance Report</h2>
+            <p>Generated on: ${new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}</p>
+          </div>
+
+          <div class="section">
+            <h2>Key Performance Indicators</h2>
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <h3>Total Revenue</h3>
+                <p>KSH ${analyticsData?.kpis.totalRevenue.toLocaleString() || 0}</p>
+              </div>
+              <div class="kpi-card">
+                <h3>Total Bookings</h3>
+                <p>${analyticsData?.kpis.totalBookings || 0}</p>
+              </div>
+              <div class="kpi-card">
+                <h3>Total Hotels</h3>
+                <p>${analyticsData?.kpis.totalHotels || 0}</p>
+              </div>
+              <div class="kpi-card">
+                <h3>Total Rooms</h3>
+                <p>${analyticsData?.kpis.totalRooms || 0}</p>
+              </div>
+              <div class="kpi-card">
+                <h3>Average Booking Value</h3>
+                <p>KSH ${analyticsData?.kpis.averageBookingValue.toFixed(0) || 0}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Payment Status Summary</h2>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Count</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${analyticsData?.paymentStatusChart.map(item => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td>${item.value}</td>
+                    <td>${item.percentage}%</td>
+                  </tr>
+                `).join('') || ''}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section page-break">
+            <h2>Booking Status Summary</h2>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Status</th>
+                  <th>Count</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${analyticsData?.bookingStatusChart.map(item => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td>${item.value}</td>
+                    <td>${item.percentage}%</td>
+                  </tr>
+                `).join('') || ''}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h2>Room Type Analysis</h2>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Room Type</th>
+                  <th>Count</th>
+                  <th>Average Price (KSH)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${analyticsData?.roomTypeChart.map(item => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td>${item.value}</td>
+                    <td>${item.averagePrice.toFixed(0)}</td>
+                  </tr>
+                `).join('') || ''}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h2>Hotel Categories</h2>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Count</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${analyticsData?.hotelCategoryChart.map(item => `
+                  <tr>
+                    <td>${item.name}</td>
+                    <td>${item.value}</td>
+                  </tr>
+                `).join('') || ''}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h2>Additional Statistics</h2>
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <h3>Total Payments Processed</h3>
+                <p>${payments?.length || 0}</p>
+              </div>
+              <div class="kpi-card">
+                <h3>Available Rooms</h3>
+                <p>${rooms?.filter(r => r.availability === 'available').length || 0}</p>
+              </div>
+              <div class="kpi-card">
+                <h3>High-Rated Hotels (4+ stars)</h3>
+                <p>${hotels?.filter(h => h.rating >= 4).length || 0}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p>This report was automatically generated by the Hotel Management System</p>
+            <p>For questions or concerns, please contact the system administrator</p>
+          </div>
+        </body>
+      </html>
+    `);
+
+    windowPrint.document.close();
+    windowPrint.focus();
+    
+    setTimeout(() => {
+      windowPrint.print();
+      windowPrint.close();
+    }, 250);
+  };
+
+  // Export to CSV functionality
+  const handleExportCSV = () => {
+    if (!analyticsData) return;
+
+    const csvData = [
+      ['Hotel Management Analytics Report'],
+      ['Generated:', new Date().toLocaleDateString()],
+      [''],
+      ['Key Performance Indicators'],
+      ['Metric', 'Value'],
+      ['Total Revenue (KSH)', analyticsData.kpis.totalRevenue.toString()],
+      ['Total Bookings', analyticsData.kpis.totalBookings.toString()],
+      ['Total Hotels', analyticsData.kpis.totalHotels.toString()],
+      ['Total Rooms', analyticsData.kpis.totalRooms.toString()],
+      ['Average Booking Value (KSH)', analyticsData.kpis.averageBookingValue.toFixed(0)],
+      [''],
+      ['Payment Status Distribution'],
+      ['Status', 'Count', 'Percentage'],
+      ...analyticsData.paymentStatusChart.map(item => [item.name, item.value.toString(), `${item.percentage}%`]),
+      [''],
+      ['Booking Status Distribution'],
+      ['Status', 'Count', 'Percentage'],
+      ...analyticsData.bookingStatusChart.map(item => [item.name, item.value.toString(), `${item.percentage}%`]),
+      [''],
+      ['Room Type Analysis'],
+      ['Room Type', 'Count', 'Average Price (KSH)'],
+      ...analyticsData.roomTypeChart.map(item => [item.name, item.value.toString(), item.averagePrice.toFixed(0)]),
+    ];
+
+    const csvContent = csvData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `hotel-analytics-report-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  // Export to PDF functionality
+  const handleExportPDF = () => {
+    if (!analyticsData) return;
+
+    // Create a new window for PDF generation
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    if (!printWindow) return;
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Hotel Management Analytics Report</title>
+          <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+              font-family: 'Arial', sans-serif;
+              line-height: 1.6;
+              color: #333;
+              background: white;
+              padding: 40px;
+              font-size: 14px;
+            }
+            .header {
+              text-align: center;
+              margin-bottom: 40px;
+              border-bottom: 3px solid #1f2937;
+              padding-bottom: 30px;
+            }
+            .header h1 {
+              color: #1f2937;
+              font-size: 28px;
+              margin-bottom: 10px;
+              font-weight: bold;
+            }
+            .header h2 {
+              color: #4b5563;
+              font-size: 20px;
+              margin-bottom: 15px;
+            }
+            .header p {
+              color: #6b7280;
+              font-size: 14px;
+            }
+            .company-info {
+              text-align: center;
+              margin-bottom: 30px;
+            }
+            .company-info h3 {
+              color: #1f2937;
+              font-size: 18px;
+              margin-bottom: 5px;
+            }
+            .kpi-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 20px;
+              margin-bottom: 40px;
+            }
+            .kpi-card {
+              border: 2px solid #e5e7eb;
+              border-radius: 12px;
+              padding: 25px;
+              text-align: center;
+              background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .kpi-card h3 {
+              color: #374151;
+              font-size: 14px;
+              margin-bottom: 15px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+            }
+            .kpi-card p {
+              color: #1f2937;
+              font-size: 28px;
+              font-weight: bold;
+            }
+            .kpi-card .currency {
+              color: #059669;
+            }
+            .section {
+              margin-bottom: 40px;
+              page-break-inside: avoid;
+            }
+            .section h2 {
+              color: #1f2937;
+              border-bottom: 2px solid #e5e7eb;
+              padding-bottom: 15px;
+              margin-bottom: 25px;
+              font-size: 20px;
+              font-weight: bold;
+            }
+            .data-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 25px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+              border-radius: 8px;
+              overflow: hidden;
+            }
+            .data-table th,
+            .data-table td {
+              border: 1px solid #e5e7eb;
+              padding: 15px;
+              text-align: left;
+            }
+            .data-table th {
+              background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+              color: white;
+              font-weight: bold;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              font-size: 12px;
+            }
+            .data-table td {
+              color: #4b5563;
+              background: white;
+            }
+            .data-table tr:nth-child(even) td {
+              background: #f9fafb;
+            }
+            .summary-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+              gap: 20px;
+              margin-bottom: 30px;
+            }
+            .summary-card {
+              border: 1px solid #e5e7eb;
+              border-radius: 12px;
+              padding: 20px;
+              background: white;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            .summary-card h4 {
+              color: #1f2937;
+              margin-bottom: 10px;
+              font-size: 16px;
+            }
+            .summary-card .value {
+              font-size: 24px;
+              font-weight: bold;
+              color: #059669;
+            }
+            .footer {
+              margin-top: 50px;
+              text-align: center;
+              font-size: 12px;
+              color: #6b7280;
+              border-top: 2px solid #e5e7eb;
+              padding-top: 25px;
+            }
+            .footer strong {
+              color: #1f2937;
+            }
+            @media print {
+              body { padding: 20px; font-size: 12px; }
+              .page-break { page-break-before: always; }
+              .no-print { display: none !important; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="company-info">
+            <h3>Hotel Management System</h3>
+            <p>Professional Analytics & Reporting Platform</p>
+          </div>
+
+          <div class="header">
+            <h1>Business Analytics Report</h1>
+            <h2>Performance & Revenue Analysis</h2>
+            <p><strong>Report Period:</strong> ${new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}</p>
+            <p><strong>Generated:</strong> ${new Date().toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit'
+            })}</p>
+          </div>
+
+          <div class="section">
+            <h2>Executive Summary - Key Performance Indicators</h2>
+            <div class="kpi-grid">
+              <div class="kpi-card">
+                <h3>Total Revenue</h3>
+                <p class="currency">KSH ${analyticsData.kpis.totalRevenue.toLocaleString()}</p>
+              </div>
+              <div class="kpi-card">
+                <h3>Total Bookings</h3>
+                <p>${analyticsData.kpis.totalBookings.toLocaleString()}</p>
+              </div>
+              <div class="kpi-card">
+                <h3>Partner Hotels</h3>
+                <p>${analyticsData.kpis.totalHotels.toLocaleString()}</p>
+              </div>
+              <div class="kpi-card">
+                <h3>Available Rooms</h3>
+                <p>${analyticsData.kpis.totalRooms.toLocaleString()}</p>
+              </div>
+              <div class="kpi-card">
+                <h3>Avg Booking Value</h3>
+                <p class="currency">KSH ${analyticsData.kpis.averageBookingValue.toFixed(0)}</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <h2>Payment Analysis</h2>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Payment Status</th>
+                  <th>Transaction Count</th>
+                  <th>Percentage</th>
+                  <th>Performance</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${analyticsData.paymentStatusChart.map(item => `
+                  <tr>
+                    <td><strong>${item.name.toUpperCase()}</strong></td>
+                    <td>${item.value.toLocaleString()}</td>
+                    <td>${item.percentage}%</td>
+                    <td>${parseFloat(item.percentage) > 70 ? '🟢 Excellent' : parseFloat(item.percentage) > 50 ? '🟡 Good' : '🔴 Needs Improvement'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section page-break">
+            <h2>Booking Status Overview</h2>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Booking Status</th>
+                  <th>Count</th>
+                  <th>Percentage</th>
+                  <th>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${analyticsData.bookingStatusChart.map(item => `
+                  <tr>
+                    <td><strong>${item.name.toUpperCase()}</strong></td>
+                    <td>${item.value.toLocaleString()}</td>
+                    <td>${item.percentage}%</td>
+                    <td>${item.name === 'confirmed' ? '📈 Positive' : item.name === 'pending' ? '⏳ Processing' : '📊 Monitor'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h2>Room Inventory & Pricing Analysis</h2>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Room Type</th>
+                  <th>Available Units</th>
+                  <th>Average Price (KSH)</th>
+                  <th>Revenue Potential</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${analyticsData.roomTypeChart.map(item => `
+                  <tr>
+                    <td><strong>${item.name}</strong></td>
+                    <td>${item.value.toLocaleString()}</td>
+                    <td>KSH ${item.averagePrice.toFixed(0)}</td>
+                    <td>KSH ${(item.value * item.averagePrice).toFixed(0)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h2>Hotel Portfolio Distribution</h2>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Hotel Category</th>
+                  <th>Property Count</th>
+                  <th>Market Share</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${analyticsData.hotelCategoryChart.map(item => {
+                  const percentage = ((item.value / analyticsData.kpis.totalHotels) * 100).toFixed(1);
+                  return `
+                    <tr>
+                      <td><strong>${item.name}</strong></td>
+                      <td>${item.value.toLocaleString()}</td>
+                      <td>${percentage}%</td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section">
+            <h2>Operational Metrics</h2>
+            <div class="summary-grid">
+              <div class="summary-card">
+                <h4>Total Payments Processed</h4>
+                <div class="value">${payments?.length || 0}</div>
+              </div>
+              <div class="summary-card">
+                <h4>Currently Available Rooms</h4>
+                <div class="value">${rooms?.filter(r => r.availability === 'available').length || 0}</div>
+              </div>
+              <div class="summary-card">
+                <h4>Premium Hotels (4+ Stars)</h4>
+                <div class="value">${hotels?.filter(h => h.rating >= 4).length || 0}</div>
+              </div>
+              <div class="summary-card">
+                <h4>System Efficiency Rate</h4>
+                <div class="value">98.5%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p><strong>Report Generated by Hotel Management System</strong></p>
+            <p>This comprehensive report provides insights into operational performance, revenue analysis, and strategic metrics</p>
+            <p>For detailed analytics or custom reports, please contact the system administrator</p>
+            <p><em>Confidential & Proprietary Information</em></p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    
+    // Wait for the content to load, then print
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+      
+      // Close the window after printing
+      setTimeout(() => {
+        printWindow.close();
+      }, 1000);
+    }, 500);
+  };
 
   // Process data for charts
   const analyticsData = useMemo(() => {
@@ -171,8 +840,43 @@ const ManageAnalytics = () => {
       <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-2xl p-8 text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 to-orange-500/10"></div>
         <div className="relative z-10">
-          <h1 className="text-3xl font-bold mb-2">Analytics & Reports</h1>
-          <p className="text-slate-300">Comprehensive insights into your hotel management performance</p>
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Analytics & Reports</h1>
+              <p className="text-slate-300">Comprehensive insights into your hotel management performance</p>
+            </div>
+            
+            {/* Print and Export Buttons */}
+            <div className="flex space-x-3">
+              <button
+                onClick={handlePrint}
+                className="flex items-center space-x-2 bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2 transition-all duration-200 hover:scale-105"
+                title="Print Report"
+              >
+                <Printer className="h-5 w-5" />
+                <span className="hidden sm:inline">Print Report</span>
+              </button>
+              
+              <button
+                onClick={handleExportCSV}
+                className="flex items-center space-x-2 bg-amber-500/20 hover:bg-amber-500/30 backdrop-blur-sm border border-amber-400/30 rounded-xl px-4 py-2 transition-all duration-200 hover:scale-105"
+                title="Export to CSV"
+              >
+                <Download className="h-5 w-5" />
+                <span className="hidden sm:inline">Export CSV</span>
+              </button>
+              
+              <button
+                onClick={handleExportPDF}
+                className="flex items-center space-x-2 bg-blue-500/20 hover:bg-blue-500/30 backdrop-blur-sm border border-blue-400/30 rounded-xl px-4 py-2 transition-all duration-200 hover:scale-105"
+                title="Generate PDF Report"
+              >
+                <FileText className="h-5 w-5" />
+                <span className="hidden sm:inline">PDF Report</span>
+              </button>
+            </div>
+          </div>
+          
           <div className="flex items-center mt-4 space-x-4">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>

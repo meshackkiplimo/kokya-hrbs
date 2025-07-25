@@ -262,3 +262,17 @@ export const getPaymentByTransactionIdService = async (transactionId: string) =>
     return payment;
 }
 
+// M-Pesa specific payment update service (follows same pattern as Paystack)
+export const updateMpesaPaymentService = async (paymentId: number, payment: TIPayment) => {
+    const updatedPayment = await db.update(PaymentTable)
+        .set(payment)
+        .where(sql`${PaymentTable.payment_id} = ${paymentId}`)
+        .returning();
+    
+    // Handle both real database (returns array) and mocked database (might return single object or null)
+    if (!updatedPayment) return null;
+    if (Array.isArray(updatedPayment)) {
+        return updatedPayment.length > 0 ? updatedPayment[0] : null;
+    }
+    return updatedPayment; // For unit tests that return single object
+}
