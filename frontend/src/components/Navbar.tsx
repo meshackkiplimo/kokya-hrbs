@@ -74,6 +74,7 @@ const Navbar = () => {
           
           <NavLink
             to="/hotels"
+            data-test="hotels-link"
             className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
           >
             Hotels
@@ -176,11 +177,14 @@ const Navbar = () => {
         {/* Mobile Menu Button */}
         <div className="absolute right-0 md:hidden pr-4 sm:pr-6 lg:pr-8">
           <button
+            data-test="mobile-menu-toggle"
+        
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-white hover:text-amber-200 focus:outline-none focus:text-amber-200 transition-colors duration-300"
             aria-label="Toggle menu"
           >
             <svg
+            
               className="h-7 w-7"
               fill="none"
               viewBox="0 0 24 24"
@@ -207,7 +211,7 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Navigation Menu */}
-      <div className={`md:hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
+      <div     className={`md:hidden transition-all duration-300 ease-in-out ${isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
         <div className="px-2 pt-2 pb-6 space-y-2 bg-amber-900/90 rounded-lg mt-2 backdrop-blur-sm">
           <NavLink
             to="/"

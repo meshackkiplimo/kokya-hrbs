@@ -10,4 +10,10 @@ describe('Hotel website', () => {
         cy.getDataTest('hero-title').should('contain', 'Find Your')
 
     })
+    it("menu works well",()=>{
+        cy.visit('/')
+        cy.getDataTest('hotels-link').click()
+        cy.getDataTest('mobile-menu-toggle').click()
+
+    })
 })
