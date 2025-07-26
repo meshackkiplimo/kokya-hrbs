@@ -11,6 +11,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "preview:prod": "vite preview --mode production",
+     "cy": "cypress open",
+    "cy:run": "cypress run",
     "serve": "vite preview --port 4173 --host"
   },
   "dependencies": {
@@ -40,6 +42,7 @@
     "@types/react-dom": "^19.1.6",
     "@types/redux-persist": "^4.3.1",
     "@vitejs/plugin-react": "^4.5.2",
+    "cypress": "^14.5.3",
     "daisyui": "^5.0.43",
     "eslint": "^9.29.0",
     "eslint-plugin-react-hooks": "^5.2.0",
