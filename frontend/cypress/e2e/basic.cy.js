@@ -13,6 +13,9 @@ describe('Hotel website', () => {
     it("menu works well",()=>{
         cy.visit('/')
         cy.getDataTest('hotels-link').click()
+        
+        // Set viewport to mobile size to make mobile menu toggle visible
+        cy.viewport(375, 667) // iPhone 6/7/8 size
         cy.getDataTest('mobile-menu-toggle').click()
 
     })
