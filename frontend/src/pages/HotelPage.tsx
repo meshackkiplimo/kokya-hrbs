@@ -20,8 +20,12 @@ import { roomsApi, parseImageUrls } from '../Features/rooms/roomsAPI';
 import { bookingApi } from '../Features/bookings/bookingAPI';
 import { useSelector } from 'react-redux';
 import { type RootState } from '../app/store';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '../components/toaster/ToasterContext';
 
 const HotelPage = () => {
+  const {showToast}=useToast()
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
@@ -177,8 +181,10 @@ const HotelPage = () => {
     try {
       const bookingResult = await createBooking(newBookingData).unwrap();
       
-      // Show success message and reset form
-      alert(`Booking confirmed! Your booking ID is ${bookingResult.booking_id}. You can complete payment from your dashboard.`);
+       showToast('Booking successful! Redirecting to your bookings...', 'success');
+      setTimeout(()=>{
+        navigate('/user-dashboard/bookings', { replace: true})
+      }, 2000);
       setShowBookingModal(false);
       setCheckInDate('');
       setCheckOutDate('');

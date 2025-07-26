@@ -217,19 +217,14 @@ const Navbar = () => {
           >
             Home
           </NavLink>
+         
+         
           <NavLink
-            to="/rooms"
+            to="/hotels"
             className={({ isActive }) => `${isActive ? 'bg-amber-600 text-white' : 'text-amber-100 hover:bg-amber-700'} block px-4 py-3 rounded-lg font-medium transition-colors duration-200`}
             onClick={() => setIsMenuOpen(false)}
           >
-            Rooms
-          </NavLink>
-          <NavLink
-            to="/bookings"
-            className={({ isActive }) => `${isActive ? 'bg-amber-600 text-white' : 'text-amber-100 hover:bg-amber-700'} block px-4 py-3 rounded-lg font-medium transition-colors duration-200`}
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Bookings
+            Hotels
           </NavLink>
           <NavLink
             to="/about"
