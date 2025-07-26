@@ -77,7 +77,7 @@ const Hero = () => {
 
               {/* Main Headline */}
               <div className="space-y-4">
-                <h1 className="text-5xl lg:text-7xl font-bold leading-tight">
+                <h1 className="text-5xl lg:text-7xl font-bold leading-tight" data-test="hero-title">
                   Find Your
                   <span className="block bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
                     Perfect Stay
