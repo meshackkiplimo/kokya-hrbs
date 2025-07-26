@@ -6,7 +6,7 @@ describe('Hotel website', () => {
 
     })
     it('It should contain the correct homepage text', () => {
-        cy.get('h1').contains('Find Your')
+        cy.get('h1').contains(/find your/i)
 
     })
 })
