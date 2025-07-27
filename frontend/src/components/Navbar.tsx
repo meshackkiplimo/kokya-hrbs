@@ -80,6 +80,7 @@ const Navbar = () => {
             Hotels
           </NavLink>
           <NavLink
+          data-test="about-link"
             to="/about"
             className={({ isActive }) => `${isActive ? activeStyle : inactiveStyle} font-medium`}
           >
