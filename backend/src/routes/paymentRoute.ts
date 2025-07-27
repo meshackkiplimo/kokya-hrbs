@@ -1,4 +1,4 @@
-import { verifyToken } from "@/middleware/authMiddleware";
+import { verifyToken } from "../middleware/authMiddleware";
 import { createPaymentController, deletePaymentController, getAllPaymentsController, getAllPaymentsWithoutPaginationController, getPaymentByIdController, updatePaymentController } from "../controllers/paymentController";
 import { Express } from "express";
 
