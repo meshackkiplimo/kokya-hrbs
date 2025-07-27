@@ -15,6 +15,7 @@ import { paystackRoute } from './routes/paystackRoute';
 
 dotenv.config();
 
+
 export const app = express();
 const  allowedOrigins = [
   'http://localhost:5173',
@@ -28,7 +29,7 @@ app.use((req, res, next) => {
   // Allow M-Pesa callback URLs (Safaricom servers don't send origin header)
   if (req.path.includes('/api/v1/mpesa/callback') || req.path.includes('/api/v1/paystack/webhook')) {
     res.header('Access-Control-Allow-Origin', '*');
-  } else if (allowedOrigins.includes(origin)) {
+  } else if (origin && allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Origin', origin);
   }
   
