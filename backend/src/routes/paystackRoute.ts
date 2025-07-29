@@ -94,7 +94,7 @@ export const paystackRoute = (app: Express) => {
         }
 
         // Redirect to frontend with payment reference for verification
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const frontendUrl = process.env.FRONTEND_URL || 'https://kokya-hrbs.vercel.app/';
         res.redirect(`${frontendUrl}/payment/callback?reference=${paymentReference}`);
       } catch (error) {
         next(error);
