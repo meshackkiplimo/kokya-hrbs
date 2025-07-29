@@ -103,7 +103,9 @@ if (missingEnvVars.length > 0) {
   process.exit(1);
 }
 
-const port = parseInt(process.env.PORT || '3000', 10);
+const port = process.env.PORT 
+
+console.log(`🔧 Using port: ${port}`);
 
 hotelRoute(app);
 roomRoute(app);
@@ -115,7 +117,7 @@ mpesaRoute(app);
 paystackRoute(app);
 
 // Start the server (database connection is handled in db.ts)
-const server = app.listen(port, '0.0.0.0', () => {
+const server = app.listen(port, () => {
   console.log(`🚀 Server is running on port ${port}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 Server URL: ${process.env.NODE_ENV === 'production' ? 'https://tripnest-hsux.onrender.com' : `http://localhost:${port}`}`);
