@@ -132,7 +132,7 @@ export const paymentApi = createApi({
             transactionDesc?: string;
         }>({
             query: (paymentData) => ({
-                url: "/mpesa/stk-push",
+                url: "/api/v1/mpesa/stk-push",
                 method: "POST",
                 body: paymentData,
             }),
