@@ -74,10 +74,36 @@ console.log("cloudinary config", cloudinary.config());
  
 
 
+// Health check endpoint
 app.get('/', (req, res) => {
-  res.send('Hello World!');
+  res.json({
+    message: 'Kokya HRBS API Server is running!',
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
-const  port = process.env.PORT
+
+// API health check
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
+// Environment variable validation
+const requiredEnvVars = ['DATABASE_URL'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.error('Missing required environment variables:', missingEnvVars);
+  process.exit(1);
+}
+
+const port = parseInt(process.env.PORT || '3000', 10);
 
 hotelRoute(app);
 roomRoute(app);
@@ -88,7 +114,44 @@ authRoute(app);
 mpesaRoute(app);
 paystackRoute(app);
 
+// Start the server (database connection is handled in db.ts)
+const server = app.listen(port, '0.0.0.0', () => {
+  console.log(`🚀 Server is running on port ${port}`);
+  console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌐 Server URL: ${process.env.NODE_ENV === 'production' ? 'https://tripnest-hsux.onrender.com' : `http://localhost:${port}`}`);
+  console.log(`⚡ Kokya HRBS API Server started successfully!`);
+});
 
-app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+// Graceful shutdown
+const gracefulShutdown = (signal: string) => {
+  console.log(`\n📤 Received ${signal}. Starting graceful shutdown...`);
+  
+  server.close(() => {
+    console.log('🔒 HTTP server closed.');
+    
+    // Close database connection
+    client.end().then(() => {
+      console.log('🗄️ Database connection closed.');
+      console.log('✅ Graceful shutdown completed.');
+      process.exit(0);
+    }).catch((err) => {
+      console.error('❌ Error closing database connection:', err);
+      process.exit(1);
+    });
+  });
+};
+
+// Handle process termination
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+  gracefulShutdown('uncaughtException');
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('❌ Unhandled Rejection at:', promise, 'reason:', reason);
+  gracefulShutdown('unhandledRejection');
 });
