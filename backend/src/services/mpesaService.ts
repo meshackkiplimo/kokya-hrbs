@@ -54,8 +54,8 @@ const getAccessToken = async (): Promise<string> => {
       {
         headers: {
           Authorization: `Basic ${credentials}`,
-          'Content-Type': 'application/json',
-          'User-Agent': 'Node.js M-PESA Client',
+          'Cache-Control': 'no-cache',
+          'Accept': 'application/json',
         },
         timeout: 30000, // 30 second timeout
         validateStatus: (status) => status < 500, // Don't throw on 4xx errors
@@ -204,7 +204,7 @@ export const stkPush = async (
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-          'User-Agent': 'Node.js M-PESA Client',
+          'Cache-Control': 'no-cache',
         },
         timeout: 60000, // 60 second timeout for STK push
         validateStatus: (status) => status < 500, // Don't throw on 4xx errors
@@ -287,7 +287,7 @@ export const stkPushQuery = async (checkoutRequestId: string): Promise<any> => {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
-          'User-Agent': 'Node.js M-PESA Client',
+          'Cache-Control': 'no-cache',
         },
         timeout: 30000, // 30 second timeout
         validateStatus: (status) => status < 500,
