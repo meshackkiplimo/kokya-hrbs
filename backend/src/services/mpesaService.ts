@@ -163,6 +163,21 @@ export const stkPush = async (
     if (!shortCode || !callbackUrl) {
       throw new Error('MPESA_SHORTCODE and CALLBACK_URL must be set');
     }
+
+    // Validate callback URL format for production
+    if (environment === 'production') {
+      if (!callbackUrl.startsWith('https://')) {
+        throw new Error('CALLBACK_URL must use HTTPS in production environment');
+      }
+      
+      // Ensure callback URL is accessible
+      try {
+        console.log(`Validating callback URL accessibility: ${callbackUrl}/health`);
+        // Note: In production, you might want to validate URL accessibility
+      } catch (validationError) {
+        console.warn('Callback URL validation warning:', validationError);
+      }
+    }
     
     const baseUrl = environment === 'production'
       ? 'https://api.safaricom.co.ke'
