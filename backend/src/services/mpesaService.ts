@@ -34,25 +34,69 @@ const getAccessToken = async (): Promise<string> => {
     const consumerSecret = process.env.MPESA_CONSUMER_SECRET!;
     const environment = process.env.MPESA_ENVIRONMENT || 'sandbox';
     
-    const baseUrl = environment === 'production' 
-      ? 'https://api.safaricom.co.ke' 
+    // Validate required environment variables
+    if (!consumerKey || !consumerSecret) {
+      throw new Error('MPESA_CONSUMER_KEY and MPESA_CONSUMER_SECRET must be set');
+    }
+    
+    const baseUrl = environment === 'production'
+      ? 'https://api.safaricom.co.ke'
       : 'https://sandbox.safaricom.co.ke';
     
     const credentials = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+    
+    console.log(`Attempting to get M-PESA access token from: ${baseUrl}`);
+    console.log(`Using environment: ${environment}`);
+    console.log(`Consumer key (first 10 chars): ${consumerKey.substring(0, 10)}...`);
     
     const response = await axios.get(
       `${baseUrl}/oauth/v1/generate?grant_type=client_credentials`,
       {
         headers: {
           Authorization: `Basic ${credentials}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'Node.js M-PESA Client',
         },
+        timeout: 30000, // 30 second timeout
+        validateStatus: (status) => status < 500, // Don't throw on 4xx errors
       }
     );
 
+    if (response.status !== 200) {
+      console.error('M-PESA API returned non-200 status:', response.status);
+      console.error('Response data:', response.data);
+      throw new Error(`M-PESA API returned status ${response.status}: ${JSON.stringify(response.data)}`);
+    }
+
+    if (!response.data.access_token) {
+      console.error('No access token in response:', response.data);
+      throw new Error('No access token received from M-PESA API');
+    }
+
+    console.log('Successfully obtained M-PESA access token');
     return response.data.access_token;
   } catch (error: any) {
-    console.error('Error getting access token:', error.response?.data || error.message);
-    throw new Error('Failed to get access token');
+    console.error('=== M-PESA ACCESS TOKEN ERROR ===');
+    console.error('Error type:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+      console.error('Response headers:', error.response.headers);
+    } else if (error.request) {
+      console.error('Request was made but no response received');
+      console.error('Request config:', {
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers,
+        timeout: error.config?.timeout
+      });
+    }
+    console.error('=================================');
+    
+    throw new Error(`Failed to get access token: ${error.message}`);
   }
 };
 
@@ -105,9 +149,9 @@ const formatPhoneNumber = (phone: string): string => {
  * Initiate STK Push payment
  */
 export const stkPush = async (
-  phone: string, 
-  amount: number, 
-  accountReference: string = 'Hotel Booking', 
+  phone: string,
+  amount: number,
+  accountReference: string = 'Hotel Booking',
   transactionDesc: string = 'Hotel Room Payment'
 ): Promise<STKPushResponse> => {
   try {
@@ -115,9 +159,22 @@ export const stkPush = async (
     const shortCode = process.env.MPESA_SHORTCODE!;
     const callbackUrl = process.env.CALLBACK_URL!;
     
-    const baseUrl = environment === 'production' 
-      ? 'https://api.safaricom.co.ke' 
+    // Validate required environment variables
+    if (!shortCode || !callbackUrl) {
+      throw new Error('MPESA_SHORTCODE and CALLBACK_URL must be set');
+    }
+    
+    const baseUrl = environment === 'production'
+      ? 'https://api.safaricom.co.ke'
       : 'https://sandbox.safaricom.co.ke';
+
+    console.log('=== STK PUSH REQUEST START ===');
+    console.log(`Environment: ${environment}`);
+    console.log(`Base URL: ${baseUrl}`);
+    console.log(`Short Code: ${shortCode}`);
+    console.log(`Phone: ${phone}`);
+    console.log(`Amount: ${amount}`);
+    console.log(`Callback URL: ${callbackUrl}`);
 
     const accessToken = await getAccessToken();
     const timestamp = getTimestamp();
@@ -138,6 +195,8 @@ export const stkPush = async (
       TransactionDesc: transactionDesc,
     };
 
+    console.log('STK Push request body:', JSON.stringify(requestBody, null, 2));
+
     const response = await axios.post(
       `${baseUrl}/mpesa/stkpush/v1/processrequest`,
       requestBody,
@@ -145,13 +204,44 @@ export const stkPush = async (
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
+          'User-Agent': 'Node.js M-PESA Client',
         },
+        timeout: 60000, // 60 second timeout for STK push
+        validateStatus: (status) => status < 500, // Don't throw on 4xx errors
       }
     );
 
+    console.log('STK Push response status:', response.status);
+    console.log('STK Push response data:', JSON.stringify(response.data, null, 2));
+    console.log('=== STK PUSH REQUEST END ===');
+
+    if (response.status !== 200) {
+      console.error('STK Push failed with status:', response.status);
+      console.error('Response data:', response.data);
+      throw new Error(`STK Push failed with status ${response.status}: ${JSON.stringify(response.data)}`);
+    }
+
     return response.data;
   } catch (error: any) {
-    console.error('STK Push error:', error.response?.data || error.message);
+    console.error('=== STK PUSH ERROR ===');
+    console.error('Error type:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error code:', error.code);
+    
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+      console.error('Response headers:', error.response.headers);
+    } else if (error.request) {
+      console.error('Request was made but no response received');
+      console.error('Request details:', {
+        url: error.config?.url,
+        method: error.config?.method,
+        timeout: error.config?.timeout
+      });
+    }
+    console.error('======================');
+    
     throw new Error(`STK Push failed: ${error.response?.data?.errorMessage || error.message}`);
   }
 };
@@ -164,9 +254,18 @@ export const stkPushQuery = async (checkoutRequestId: string): Promise<any> => {
     const environment = process.env.MPESA_ENVIRONMENT || 'sandbox';
     const shortCode = process.env.MPESA_SHORTCODE!;
     
-    const baseUrl = environment === 'production' 
-      ? 'https://api.safaricom.co.ke' 
+    if (!shortCode) {
+      throw new Error('MPESA_SHORTCODE must be set');
+    }
+    
+    const baseUrl = environment === 'production'
+      ? 'https://api.safaricom.co.ke'
       : 'https://sandbox.safaricom.co.ke';
+
+    console.log(`=== STK PUSH QUERY START ===`);
+    console.log(`Checking status for: ${checkoutRequestId}`);
+    console.log(`Environment: ${environment}`);
+    console.log(`Base URL: ${baseUrl}`);
 
     const accessToken = await getAccessToken();
     const timestamp = getTimestamp();
@@ -179,6 +278,8 @@ export const stkPushQuery = async (checkoutRequestId: string): Promise<any> => {
       CheckoutRequestID: checkoutRequestId,
     };
 
+    console.log('STK Push query request body:', JSON.stringify(requestBody, null, 2));
+
     const response = await axios.post(
       `${baseUrl}/mpesa/stkpushquery/v1/query`,
       requestBody,
@@ -186,13 +287,30 @@ export const stkPushQuery = async (checkoutRequestId: string): Promise<any> => {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           'Content-Type': 'application/json',
+          'User-Agent': 'Node.js M-PESA Client',
         },
+        timeout: 30000, // 30 second timeout
+        validateStatus: (status) => status < 500,
       }
     );
 
+    console.log('STK Push query response:', JSON.stringify(response.data, null, 2));
+    console.log(`=== STK PUSH QUERY END ===`);
+
     return response.data;
   } catch (error: any) {
-    console.error('STK Push query error:', error.response?.data || error.message);
+    console.error('=== STK PUSH QUERY ERROR ===');
+    console.error('Error type:', error.name);
+    console.error('Error message:', error.message);
+    
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    } else if (error.request) {
+      console.error('Request was made but no response received');
+    }
+    console.error('============================');
+    
     throw new Error(`STK Push query failed: ${error.response?.data?.errorMessage || error.message}`);
   }
 };

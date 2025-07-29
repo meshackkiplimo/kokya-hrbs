@@ -5,7 +5,7 @@ import { verifyToken } from '../middleware/authMiddleware';
 
 export const mpesaRoute = (app: Express) => {
     // STK Push initiation (requires authentication)
-    app.route("/api/v1/mpesa/stk-push").post(verifyToken,
+    app.route("/mpesa/stk-push").post(verifyToken,
         async (req, res, next) => {
             try {
                 await initiateSTKPush(req, res);
