@@ -339,7 +339,7 @@ const UserBooking = () => {
                                         </svg>
                                         <p className="text-sm font-semibold text-gray-700">Total Amount</p>
                                     </div>
-                                    <p className="text-2xl font-bold text-green-600">${booking.total_amount}</p>
+                                    <p className="text-2xl font-bold text-green-600">KESH{booking.total_amount}</p>
                                 </div>
                             </div>
 
